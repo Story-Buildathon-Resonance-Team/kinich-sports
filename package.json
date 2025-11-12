@@ -6,7 +6,8 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy:collection": "tsx scripts/deploy-collection.ts"
   },
   "dependencies": {
     "@dynamic-labs/ethereum": "^4.45.0",
