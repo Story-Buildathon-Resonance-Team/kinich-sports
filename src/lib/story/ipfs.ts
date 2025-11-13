@@ -69,10 +69,16 @@ export function generateMetadataHash(jsonMetadata: any): string {
  * Uses Pinata's dedicated gateway for better performance
  */
 export function getIPFSUrl(cid: string): string {
-  return (
-    process.env.NEXT_PUBLIC_GATEWAY_URL! + cid ||
-    `https://gateway.pinata.cloud/ipfs/${cid}`
-  );
+  const gateway = process.env.NEXT_PUBLIC_GATEWAY_URL;
+
+  if (gateway) {
+    // Remove trailing slash if present, then add it back
+    const cleanGateway = gateway.endsWith("/") ? gateway.slice(0, -1) : gateway;
+    return `${cleanGateway}/${cid}`;
+  }
+
+  // Fallback to Pinata public gateway
+  return `https://gateway.pinata.cloud/ipfs/${cid}`;
 }
 
 /**
