@@ -1,4 +1,4 @@
-import { aeneid } from "@story-protocol/core-sdk";
+import { aeneid, mainnet } from "@story-protocol/core-sdk";
 import { Address, Chain } from "viem";
 
 // Network type
@@ -32,7 +32,7 @@ export const STORY_CONFIG = {
     protocolExplorer: "https://aeneid.explorer.story.foundation",
   },
   mainnet: {
-    chain: aeneid, // Placeholder - update when mainnet is available
+    chain: mainnet,
     rpcProviderUrl: "https://mainnet.storyrpc.io",
     blockExplorer: "https://storyscan.io",
     protocolExplorer: "https://explorer.story.foundation",
