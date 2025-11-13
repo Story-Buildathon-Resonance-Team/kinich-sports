@@ -61,13 +61,3 @@ export const COMMERCIAL_USE_LICENSE = {
   athleteShare: 90,
   platformShare: 10,
 } as const;
-
-// Helper to convert $IP amount to wei (18 decimals)
-export function ipToWei(amount: number): bigint {
-  return BigInt(Math.floor(amount * 1e18));
-}
-
-// Helper to convert wei to $IP
-export function weiToIp(wei: bigint): number {
-  return Number(wei) / 1e18;
-}
