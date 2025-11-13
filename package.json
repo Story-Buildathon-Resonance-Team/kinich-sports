@@ -7,7 +7,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "deploy:collection": "tsx scripts/deploy-collection.ts"
+    "deploy:collection": "tsx src/scripts/deploy-spg-nft-collection.ts"
   },
   "dependencies": {
     "@dynamic-labs/ethereum": "^4.45.0",
@@ -26,13 +26,14 @@
     "wagmi": "^2.19.3"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
+    "@tailwindcss/postcss": "^4.1.17",
+    "@types/node": "^20.19.25",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.1",
     "eslint-config-next": "16.0.1",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "tailwindcss": "^4.1.17",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   }
 }
