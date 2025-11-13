@@ -17,7 +17,7 @@ CREATE TABLE assets (
   athlete_id UUID REFERENCES athletes(id) ON DELETE CASCADE,
   asset_type TEXT NOT NULL CHECK (asset_type IN ('video', 'audio')),
   drill_id TEXT NOT NULL,
-  story_ip_id TEXT UNIQUE, -- Each Story IP ID maps to exactly one asset
+  story_ip_id TEXT UNIQUE,
   story_tx_hash TEXT, -- Transaction hash from IP registration
   ipfs_cid TEXT, -- IPFS hash of metadata
   asset_url TEXT NOT NULL, -- Supabase public URL
@@ -25,7 +25,6 @@ CREATE TABLE assets (
   metadata JSONB NOT NULL, -- Full drill metadata from submission
   cv_verified BOOLEAN DEFAULT FALSE,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'failed')),
-  
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -35,7 +34,7 @@ CREATE TABLE license_purchases (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   buyer_wallet TEXT NOT NULL,
   asset_id UUID REFERENCES assets(id) ON DELETE CASCADE NOT NULL,
-  story_license_token_id TEXT NOT NULL, -- License NFT token ID from Story
+  license_token_ids JSONB NOT NULL, -- Array of license token IDs from Story (can mint multiple)
   purchase_tx_hash TEXT NOT NULL, -- Transaction hash from license mint
   amount_paid DECIMAL(10, 2) NOT NULL, -- Amount in $IP (e.g., 15.00 $IP)  
   purchased_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
