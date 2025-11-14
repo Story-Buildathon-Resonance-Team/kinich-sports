@@ -13,14 +13,12 @@
 import { getStoryClient } from "./client";
 import { SPG_NFT_CONTRACT, ACTIVE_NETWORK } from "./config";
 import { uploadJSONToIPFS, generateMetadataHash } from "./ipfs";
-import { IpMetadata } from "@story-protocol/core-sdk";
-import { Address, parseEther, zeroAddress } from "viem";
+import { IpMetadata, WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
+import { Address, parseEther, TransactionReceipt, zeroAddress } from "viem";
 
 // Story Protocol constants (Aeneid testnet)
 const ROYALTY_POLICY_LAP =
   "0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E" as Address;
-const WIP_TOKEN_ADDRESS =
-  "0xC92EC2f4c86F70bD1E27F9b15a0F24C8B0C9E48c" as Address;
 
 export interface RegisterIPAssetParams {
   athleteWallet: Address;
@@ -38,14 +36,30 @@ export interface RegisterIPAssetResult {
   success: boolean;
   ipId?: Address;
   txHash?: string;
+  licenseTermsIds?: bigint[];
   tokenId?: bigint;
   error?: string;
 }
 
+export interface MintLicenseTokensParams {
+  licensorIpId: Address;
+  licenseTermsId: bigint;
+  maxMintingFee: bigint;
+  maxRevenueShare: number;
+  buyerWallet: Address;
+}
+
+export interface MintedLicenseResult {
+  success: boolean;
+  licenseTokensIds?: bigint[];
+  txHash?: string;
+  receipt?: TransactionReceipt;
+  error?: string;
+}
+
 export interface ClaimableRevenueResult {
-  claimable: bigint;
-  claimableInIP: number;
-  currency: Address;
+  success: boolean;
+  claimable?: bigint;
   error?: string;
 }
 
@@ -118,7 +132,7 @@ export async function registerIPAsset(
             derivativesReciprocal: false,
             derivativeRevCeiling: BigInt(0),
             currency: WIP_TOKEN_ADDRESS,
-            uri: "",
+            uri: "https://github.com/piplabs/pil-document/blob/9a1f803fcf8101a8a78f1dcc929e6014e144ab56/off-chain-terms/CommercialUse.json",
           },
         },
       ],
@@ -134,7 +148,7 @@ export async function registerIPAsset(
       },
     });
 
-    console.log("[Story] ✅ IP registered");
+    console.log("[Story] IP registered");
     console.log("[Story] IP ID:", response.ipId);
     console.log("[Story] TX:", response.txHash);
     console.log(
@@ -146,9 +160,61 @@ export async function registerIPAsset(
       ipId: response.ipId as Address,
       txHash: response.txHash,
       tokenId: response.tokenId,
+      licenseTermsIds: response.licenseTermsIds,
     };
   } catch (error) {
-    console.error("[Story] ❌ Registration failed:", error);
+    console.error("[Story] Registration failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Mint license token to licensee wallet
+ *
+ * Sells a Commercial Use license for an IP Asset to a licensee.
+ */
+
+export async function mintLicenseTokenToLicensee(
+  params: MintLicenseTokensParams
+): Promise<MintedLicenseResult> {
+  try {
+    const client = getStoryClient();
+    const {
+      licensorIpId,
+      licenseTermsId,
+      maxMintingFee,
+      maxRevenueShare,
+      buyerWallet,
+    } = params;
+
+    console.log("[Story] Minting license token");
+    console.log("[Story] IP ID:", licensorIpId);
+    console.log("[Story] License Terms ID:", licenseTermsId.toString());
+    console.log("[Story] Buyer:", buyerWallet);
+
+    const response = await client.license.mintLicenseTokens({
+      licensorIpId: licensorIpId,
+      licenseTermsId: licenseTermsId,
+      maxMintingFee: maxMintingFee,
+      maxRevenueShare: maxRevenueShare,
+      receiver: buyerWallet,
+    });
+
+    console.log("[Story] License token minted");
+    console.log("[Sotyr] License Token IDs:", response.licenseTokenIds);
+    console.log("[Story] TX:", response.txHash);
+
+    return {
+      success: true,
+      licenseTokensIds: response.licenseTokenIds,
+      txHash: response.txHash,
+      receipt: response.receipt,
+    };
+  } catch (error) {
+    console.error("[Story] License minting failed:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -163,36 +229,31 @@ export async function registerIPAsset(
  */
 export async function getClaimableRevenue(
   ipId: Address,
-  athleteWallet: Address
+  claimerWallet: Address
 ): Promise<ClaimableRevenueResult> {
   try {
     const client = getStoryClient();
 
     console.log("[Story] Checking claimable revenue");
     console.log("[Story] IP ID:", ipId);
-    console.log("[Story] Claimer:", athleteWallet);
+    console.log("[Story] Claimer:", claimerWallet);
 
-    const claimableWei = await client.royalty.claimableRevenue({
+    const claimableRevenue = await client.royalty.claimableRevenue({
       ipId: ipId,
-      claimer: athleteWallet,
+      claimer: claimerWallet,
       token: WIP_TOKEN_ADDRESS,
     });
 
-    const claimableIP = Number(claimableWei) / 1e18;
-
-    console.log("[Story] Claimable:", claimableIP, "$IP");
+    console.log("[Story] Claimable:", claimableRevenue, "$IP");
 
     return {
-      claimable: claimableWei,
-      claimableInIP: claimableIP,
-      currency: WIP_TOKEN_ADDRESS,
+      success: true,
+      claimable: claimableRevenue,
     };
   } catch (error) {
-    console.error("[Story] ❌ Revenue check failed:", error);
+    console.error("[Story] Revenue check failed:", error);
     return {
-      claimable: BigInt(0),
-      claimableInIP: 0,
-      currency: WIP_TOKEN_ADDRESS,
+      success: false,
       error: error instanceof Error ? error.message : "Unknown error",
     };
   }
