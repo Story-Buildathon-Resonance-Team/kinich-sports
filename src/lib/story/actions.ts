@@ -13,7 +13,11 @@
 import { getStoryClient } from "./client";
 import { SPG_NFT_CONTRACT, ACTIVE_NETWORK } from "./config";
 import { uploadJSONToIPFS, generateMetadataHash } from "./ipfs";
-import { IpMetadata, WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
+import {
+  IpMetadata,
+  WIP_TOKEN_ADDRESS,
+  ClaimAllRevenueResponse,
+} from "@story-protocol/core-sdk";
 import { Address, parseEther, TransactionReceipt, zeroAddress } from "viem";
 
 // Story Protocol constants (Aeneid testnet)
@@ -60,6 +64,12 @@ export interface MintedLicenseResult {
 export interface ClaimableRevenueResult {
   success: boolean;
   claimable?: bigint;
+  error?: string;
+}
+
+export interface ClaimAllRevenueResult {
+  success: boolean;
+  storyResponse?: ClaimAllRevenueResponse;
   error?: string;
 }
 
@@ -259,4 +269,46 @@ export async function getClaimableRevenue(
   }
 }
 
-// Missing function claim all revenue to athlete wallet
+/**
+ * Claim all revenue for an IP Asset
+ *
+ * Claims all revenue from license sales in the IP Royalty Vault.
+ */
+
+export async function claimRevenueFromIpVault(
+  ipId: Address
+): Promise<ClaimAllRevenueResult> {
+  try {
+    const client = getStoryClient();
+
+    console.log("[Story] Claiming revenue");
+    console.log("[Story] IP Royalty Vault:", ipId);
+
+    const response = await client.royalty.claimAllRevenue({
+      ancestorIpId: ipId,
+      claimer: ipId,
+      childIpIds: [],
+      royaltyPolicies: [ROYALTY_POLICY_LAP],
+      currencyTokens: [WIP_TOKEN_ADDRESS],
+      claimOptions: {
+        autoTransferAllClaimedTokensFromIp: true,
+        autoUnwrapIpTokens: true,
+      },
+    });
+
+    console.log("[Story] Revenue claimed");
+    console.log("[Story] TXs:", response.txHashes);
+    console.log("[Story] Claimed tokens:", response.claimedTokens);
+
+    return {
+      success: true,
+      storyResponse: response,
+    };
+  } catch (error) {
+    console.error("[Story] Revenue claim failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
