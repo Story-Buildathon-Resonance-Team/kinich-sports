@@ -29,7 +29,7 @@ export interface RegisterIPAssetParams {
   athleteName: string;
   ipMetadata: IpMetadata;
   nftMetadata: {
-    name: string;
+    name: string | undefined;
     description: string;
     image?: string;
   };

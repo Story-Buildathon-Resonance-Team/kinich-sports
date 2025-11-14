@@ -135,11 +135,11 @@ export function buildAudioIPMetadata(params: {
  * Build NFT metadata (simpler, for the ownership token)
  */
 export function buildNFTMetadata(params: {
-  title: string;
+  title: string | undefined;
   description: string;
   imageUrl?: string;
 }): {
-  name: string;
+  name: string | undefined;
   description: string;
   image: string;
 } {
