@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
+import { ZeroDevSmartWalletConnectors } from "@dynamic-labs/ethereum-aa";
 import { PropsWithChildren } from "react";
 import { aeneid } from "@story-protocol/core-sdk";
 
@@ -24,7 +25,10 @@ export default function Web3Providers({ children }: PropsWithChildren) {
     <DynamicContextProvider
       settings={{
         environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID as string,
-        walletConnectors: [EthereumWalletConnectors],
+        walletConnectors: [
+          EthereumWalletConnectors,
+          ZeroDevSmartWalletConnectors,
+        ],
       }}
     >
       <WagmiProvider config={config}>
