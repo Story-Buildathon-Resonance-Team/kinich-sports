@@ -185,6 +185,8 @@ export async function registerIPAsset(
  * Mint license token to licensee wallet
  *
  * Sells a Commercial Use license for an IP Asset to a licensee.
+ *
+ * Note: Need to check who signs the transaction (buyer or platform). This affects where the function belongs.
  */
 
 export async function mintLicenseTokenToLicensee(
@@ -273,6 +275,8 @@ export async function getClaimableRevenue(
  * Claim all revenue for an IP Asset
  *
  * Claims all revenue from license sales in the IP Royalty Vault.
+ *
+ * Note: Need to check on the transaction execution flow. This function may need to go directly into an API route.
  */
 
 export async function claimRevenueFromIpVault(

@@ -2,7 +2,7 @@
  * POST /api/register-audio
  *
  * Registers an audio asset as an IP on Story Protocol
- * Called by frontend immediately after audio upload (no verification needed)
+ * Called by frontend immediately after audio upload to DB (no verification needed)
  *
  * Flow:
  * 1. Validate request data
