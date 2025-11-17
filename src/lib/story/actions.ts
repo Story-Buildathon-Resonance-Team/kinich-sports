@@ -42,6 +42,7 @@ export interface RegisterIPAssetResult {
   txHash?: string;
   licenseTermsIds?: bigint[];
   tokenId?: bigint;
+  ipfsCid?: string;
   error?: string;
 }
 
@@ -171,6 +172,7 @@ export async function registerIPAsset(
       txHash: response.txHash,
       tokenId: response.tokenId,
       licenseTermsIds: response.licenseTermsIds,
+      ipfsCid: ipMetadataCID,
     };
   } catch (error) {
     console.error("[Story] Registration failed:", error);

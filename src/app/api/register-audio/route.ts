@@ -102,6 +102,7 @@ export async function POST(request: NextRequest) {
       .update({
         story_ip_id: result.ipId,
         story_tx_hash: result.txHash,
+        ipfs_cid: result.ipfsCid,
         status: "active", // Mark as active immediately
       })
       .eq("id", assetId);
