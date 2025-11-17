@@ -220,48 +220,48 @@ export async function getClaimableRevenue(
   }
 }
 
-/**
- * Claim all revenue for an IP Asset
- *
- * Claims all revenue from license sales in the IP Royalty Vault.
- *
- * Note: Need to check on the transaction execution flow. This function may need to go directly into an API route.
- */
+// /**
+//  * Claim all revenue for an IP Asset
+//  *
+//  * Claims all revenue from license sales in the IP Royalty Vault.
+//  *
+//  * Note: Need to check on the transaction execution flow. This function may need to go directly into an API route.
+//  */
 
-export async function claimRevenueFromIpVault(
-  ipId: Address
-): Promise<ClaimAllRevenueResult> {
-  try {
-    const client = getStoryClient();
+// export async function claimRevenueFromIpVault(
+//   ipId: Address
+// ): Promise<ClaimAllRevenueResult> {
+//   try {
+//     const client = getStoryClient();
 
-    console.log("[Story] Claiming revenue");
-    console.log("[Story] IP Royalty Vault:", ipId);
+//     console.log("[Story] Claiming revenue");
+//     console.log("[Story] IP Royalty Vault:", ipId);
 
-    const response = await client.royalty.claimAllRevenue({
-      ancestorIpId: ipId,
-      claimer: ipId,
-      childIpIds: [],
-      royaltyPolicies: [ROYALTY_POLICY_LAP],
-      currencyTokens: [WIP_TOKEN_ADDRESS],
-      claimOptions: {
-        autoTransferAllClaimedTokensFromIp: true,
-        autoUnwrapIpTokens: true,
-      },
-    });
+//     const response = await client.royalty.claimAllRevenue({
+//       ancestorIpId: ipId,
+//       claimer: ipId,
+//       childIpIds: [],
+//       royaltyPolicies: [ROYALTY_POLICY_LAP],
+//       currencyTokens: [WIP_TOKEN_ADDRESS],
+//       claimOptions: {
+//         autoTransferAllClaimedTokensFromIp: true,
+//         autoUnwrapIpTokens: true,
+//       },
+//     });
 
-    console.log("[Story] Revenue claimed");
-    console.log("[Story] TXs:", response.txHashes);
-    console.log("[Story] Claimed tokens:", response.claimedTokens);
+//     console.log("[Story] Revenue claimed");
+//     console.log("[Story] TXs:", response.txHashes);
+//     console.log("[Story] Claimed tokens:", response.claimedTokens);
 
-    return {
-      success: true,
-      storyResponse: response,
-    };
-  } catch (error) {
-    console.error("[Story] Revenue claim failed:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
-  }
-}
+//     return {
+//       success: true,
+//       storyResponse: response,
+//     };
+//   } catch (error) {
+//     console.error("[Story] Revenue claim failed:", error);
+//     return {
+//       success: false,
+//       error: error instanceof Error ? error.message : "Unknown error",
+//     };
+//   }
+// }
