@@ -19,9 +19,8 @@ export interface Creator {
  * Kinich-specific drill information (minimal on-chain data)
  */
 export interface DrillInfo {
-  drill_id: string; // e.g., "EXPL_BURPEE_001"
+  drill_type_id: string; // e.g., "EXPL_BURPEE_001"
   discipline: string; // e.g., "soccer"
-  skill_category: string; // e.g., "explosive_power"
   experience_level: string; // e.g., "elite"
 }
 
@@ -71,7 +70,7 @@ export function buildDrillIPMetadata(params: {
 
     // Additional searchable/filterable properties
     additionalProperties: {
-      drill_id: drillInfo.drill_id,
+      drill_type_id: drillInfo.drill_type_id,
       discipline: drillInfo.discipline,
       skill_category: drillInfo.skill_category,
       experience_level: drillInfo.experience_level,
@@ -85,7 +84,7 @@ export function buildDrillIPMetadata(params: {
 export function buildAudioIPMetadata(params: {
   athleteName: string;
   athleteAddress: Address;
-  drillId: string; // e.g., "MENT_PATTERN_001"
+  drillTypeId: string;
   discipline: string;
   experienceLevel: string;
   media: MediaInfo;
@@ -95,7 +94,7 @@ export function buildAudioIPMetadata(params: {
   const {
     athleteName,
     athleteAddress,
-    drillId,
+    drillTypeId,
     discipline,
     experienceLevel,
     media,
@@ -121,7 +120,7 @@ export function buildAudioIPMetadata(params: {
     ipType: "training-data",
 
     additionalProperties: {
-      drill_id: drillId,
+      drill_type_id: drillTypeId,
       discipline,
       experience_level: experienceLevel,
       asset_type: "audio",

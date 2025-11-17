@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     const ipMetadata = buildAudioIPMetadata({
       athleteName,
       athleteAddress: athleteWallet as Address,
-      drillId,
+      drillTypeId: drillId,
       discipline,
       experienceLevel,
       media: {
