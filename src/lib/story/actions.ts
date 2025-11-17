@@ -184,59 +184,6 @@ export async function registerIPAsset(
 }
 
 /**
- * Mint license token to licensee wallet
- *
- * Sells a Commercial Use license for an IP Asset to a licensee.
- *
- * Note: Need to check who signs the transaction (buyer or platform). This affects where the function belongs.
- */
-
-export async function mintLicenseTokenToLicensee(
-  params: MintLicenseTokensParams
-): Promise<MintedLicenseResult> {
-  try {
-    const client = getStoryClient();
-    const {
-      licensorIpId,
-      licenseTermsId,
-      maxMintingFee,
-      maxRevenueShare,
-      buyerWallet,
-    } = params;
-
-    console.log("[Story] Minting license token");
-    console.log("[Story] IP ID:", licensorIpId);
-    console.log("[Story] License Terms ID:", licenseTermsId.toString());
-    console.log("[Story] Buyer:", buyerWallet);
-
-    const response = await client.license.mintLicenseTokens({
-      licensorIpId: licensorIpId,
-      licenseTermsId: licenseTermsId,
-      maxMintingFee: maxMintingFee,
-      maxRevenueShare: maxRevenueShare,
-      receiver: buyerWallet,
-    });
-
-    console.log("[Story] License token minted");
-    console.log("[Sotyr] License Token IDs:", response.licenseTokenIds);
-    console.log("[Story] TX:", response.txHash);
-
-    return {
-      success: true,
-      licenseTokensIds: response.licenseTokenIds,
-      txHash: response.txHash,
-      receipt: response.receipt,
-    };
-  } catch (error) {
-    console.error("[Story] License minting failed:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
-  }
-}
-
-/**
  * Get claimable revenue for an IP Asset
  *
  * Queries $IP earned from license sales in the IP Royalty Vault.
