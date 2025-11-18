@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { registerIPAsset } from "@/lib/story/actions";
 import { buildAudioIPMetadata, buildNFTMetadata } from "@/lib/story/metadata";
 import { createClient } from "@/utils/supabase/server";
+import { getDrillById } from "@/lib/drills/constants";
 import { Address } from "viem";
 
 export async function POST(request: NextRequest) {
@@ -26,20 +27,20 @@ export async function POST(request: NextRequest) {
       assetId, // UUID from database
       athleteWallet,
       athleteName,
-      drillId,
-      discipline,
+      drillTypeId,
       experienceLevel,
       mediaUrl,
       mimeType,
       licenseFee,
       verificationPhrase,
-      questions,
+      questionsCount,
     } = body;
 
     if (
       !assetId ||
       !athleteWallet ||
       !athleteName ||
+      !drillTypeId ||
       !mediaUrl ||
       !licenseFee
     ) {
@@ -53,12 +54,21 @@ export async function POST(request: NextRequest) {
     console.log("[Register Audio] Asset ID:", assetId);
     console.log("[Register Audio] Athlete:", athleteWallet);
 
+    // Get drill definition from constants
+    const drill = getDrillById(drillTypeId);
+    if (!drill || drill.asset_type !== "audio") {
+      return NextResponse.json(
+        { error: "Invalid drill type ID or not an audio drill" },
+        { status: 400 }
+      );
+    }
+
     // Build IP metadata using metadata builder
     const ipMetadata = buildAudioIPMetadata({
       athleteName,
       athleteAddress: athleteWallet as Address,
-      drillTypeId: drillId,
-      discipline,
+      drillTypeId,
+      drillName: drill.name, // From constants
       experienceLevel,
       media: {
         url: mediaUrl,
@@ -66,7 +76,7 @@ export async function POST(request: NextRequest) {
         mimeType,
       },
       verificationPhrase,
-      questions,
+      questionsCount,
     });
 
     // Build NFT metadata
