@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
           merkle_root: proof.merkle_root,
           proof: proof.proof,
           verification_level: proof.verification_level,
-          action: "verify_athlete_profile", // Must match the action ID in Developer Portal
+          action: process.env.WORLD_ID_ACTION,
         }),
       }
     );
