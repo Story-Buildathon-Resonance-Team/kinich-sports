@@ -128,6 +128,7 @@ export async function POST(request: NextRequest) {
       ipId: result.ipId,
       txHash: result.txHash,
       tokenId: result.tokenId?.toString(),
+      licenseTermsId: result.licenseTermsIds?.toLocaleString(),
     });
   } catch (error) {
     console.error("[Register Audio] Unexpected error:", error);
