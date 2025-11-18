@@ -20,7 +20,7 @@ export interface Creator {
  */
 export interface DrillInfo {
   drill_type_id: string; // e.g., "EXPL_BURPEE_001"
-  drill_name: string; // e.g., "Burpee Max Effort" - from constants
+  discipline: string; // e.g., "soccer"
   experience_level: string; // e.g., "elite"
 }
 
@@ -38,7 +38,7 @@ export interface MediaInfo {
  * Build IP metadata for video drill submission
  */
 export function buildDrillIPMetadata(params: {
-  athleteName: string; // Athlete's display name
+  athleteName: string; //  Athlete's display name
   athleteAddress: Address; // Wallet address
   drillInfo: DrillInfo;
   media: MediaInfo;
@@ -46,12 +46,16 @@ export function buildDrillIPMetadata(params: {
 }): IpMetadata {
   const { athleteName, athleteAddress, drillInfo, media, description } = params;
 
-  // Use drill name from constants as title
-  const title = `${drillInfo.drill_name} - ${drillInfo.experience_level} Athlete`;
+  // Generate descriptive title
+  const title = `${drillInfo.skill_category.replace("_", " ")} Drill - ${
+    drillInfo.experience_level
+  } Athlete`;
 
   return {
     title,
-    description: description || `Training drill with verified performance data`,
+    description:
+      description ||
+      `${drillInfo.discipline} training drill with performance data`,
     createdAt: Date.now().toString(),
     creators: [
       {
@@ -67,7 +71,8 @@ export function buildDrillIPMetadata(params: {
     // Additional searchable/filterable properties
     additionalProperties: {
       drill_type_id: drillInfo.drill_type_id,
-      drill_name: drillInfo.drill_name,
+      discipline: drillInfo.discipline,
+      skill_category: drillInfo.skill_category,
       experience_level: drillInfo.experience_level,
     },
   };
@@ -79,26 +84,25 @@ export function buildDrillIPMetadata(params: {
 export function buildAudioIPMetadata(params: {
   athleteName: string;
   athleteAddress: Address;
-  drillTypeId: string; // e.g., "MENT_CAPSULE_001"
-  drillName: string; // e.g., "Identity Capsule 1: The Origin Story" - from constants
+  drillTypeId: string;
+  discipline: string;
   experienceLevel: string;
   media: MediaInfo;
   verificationPhrase?: string;
-  questionsCount?: number;
+  questions?: string[];
 }): IpMetadata {
   const {
     athleteName,
     athleteAddress,
     drillTypeId,
-    drillName,
+    discipline,
     experienceLevel,
     media,
     verificationPhrase,
-    questionsCount,
+    questions,
   } = params;
 
-  // Use drill name from constants as title
-  const title = `${drillName} - ${experienceLevel} Athlete`;
+  const title = `Mental Patterns - ${experienceLevel} ${discipline} Athlete`;
 
   return {
     title,
@@ -117,11 +121,11 @@ export function buildAudioIPMetadata(params: {
 
     additionalProperties: {
       drill_type_id: drillTypeId,
-      drill_name: drillName,
+      discipline,
       experience_level: experienceLevel,
       asset_type: "audio",
       verification_phrase: verificationPhrase,
-      questions_count: questionsCount || 0,
+      questions_count: questions?.length || 0,
     },
   };
 }
