@@ -8,6 +8,9 @@ CREATE TABLE athletes (
   discipline TEXT,
   competitive_level TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  world_id_verified BOOLEAN DEFAULT FALSE,
+  world_id_nullifier_hash TEXT UNIQUE,
+  world_id_verified_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Assets table
