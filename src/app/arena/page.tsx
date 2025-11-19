@@ -85,9 +85,9 @@ export default function ArenaPage() {
         </div>
 
         {/* Intro Card */}
-        <div className='bg-gradient-to-br from-cobalt/15 to-graphite-dark/60 border border-cobalt/20 rounded-2xl p-8 mb-12 relative'>
+        <div className='bg-linear-to-br from-cobalt/15 to-graphite-dark/60 border border-cobalt/20 rounded-2xl p-8 mb-12 relative'>
           {/* Top accent line */}
-          <div className='absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cobalt/30 to-transparent' />
+          <div className='absolute top-0 left-0 right-0 h-px bg-linear-to-br from-transparent via-cobalt/30 to-transparent' />
 
           <h2 className='text-[22px] font-medium text-ice mb-3'>
             {activeMode === "video"

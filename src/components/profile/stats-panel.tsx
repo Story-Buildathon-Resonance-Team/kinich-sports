@@ -23,7 +23,7 @@ function StatItem({ label, value, unit, barPercentage }: StatItemProps) {
       {barPercentage !== undefined && (
         <div className='w-full h-1 bg-ice/10 rounded-sm mt-2 overflow-hidden'>
           <div
-            className='h-full bg-gradient-to-r from-cobalt/80 to-icy-cobalt/60 rounded-sm transition-all duration-600'
+            className='h-full bg-linear-to-br from-cobalt/80 to-icy-cobalt/60 rounded-sm transition-all duration-600'
             style={{ width: `${barPercentage}%` }}
           />
         </div>

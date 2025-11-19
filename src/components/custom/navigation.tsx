@@ -14,7 +14,7 @@ export function Navigation({
   walletAddress,
 }: NavigationProps) {
   return (
-    <nav className='fixed top-0 w-full z-[1000] px-16 py-5 bg-graphite-dark/92 backdrop-blur-[20px] border-b border-ice/5'>
+    <nav className='fixed top-0 w-full z-1000 px-16 py-5 bg-graphite-dark/92 backdrop-blur-[20px] border-b border-ice/5'>
       <div className='flex justify-between items-center'>
         {/* Logo */}
         <Link

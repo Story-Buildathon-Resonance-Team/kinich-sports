@@ -22,7 +22,7 @@ export function ButtonCobalt({
     <button
       className={`
         relative overflow-hidden
-        bg-gradient-to-br from-cobalt/80 to-[#0056D6]/80
+        bg-linear-to-br from-cobalt/80 to-[#0056D6]/80
         border border-icy-cobalt/20
         text-ice font-medium
         rounded-xl
@@ -38,7 +38,7 @@ export function ButtonCobalt({
       {...props}
     >
       {/* Orange sweep effect */}
-      <span className='absolute inset-0 -left-full bg-gradient-to-r from-transparent via-kinetic-orange/20 to-transparent transition-all duration-600 group-hover:left-full' />
+      <span className='absolute inset-0 -left-full bg-linear-to-br from-transparent via-kinetic-orange/20 to-transparent transition-all duration-600 group-hover:left-full' />
 
       {/* Content */}
       <span className='relative z-10'>{children}</span>

@@ -39,7 +39,7 @@ export default function HomePage() {
       </section>
 
       {/* Mission Section */}
-      <section className='py-[120px] px-16 bg-gradient-to-b from-graphite to-cobalt/5'>
+      <section className='py-[120px] px-16 bg-linear-to-br from-graphite to-cobalt/5'>
         <div className='max-w-[800px] mx-auto text-center'>
           <h2 className='text-[48px] font-light mb-8 tracking-tight'>
             The future is{" "}
@@ -102,7 +102,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer CTA */}
-      <section className='py-[120px] px-16 text-center bg-gradient-to-b from-graphite to-graphite-dark'>
+      <section className='py-[120px] px-16 text-center bg-linear-to-br from-graphite to-graphite-dark'>
         <h2 className='text-[56px] font-light mb-8 tracking-tight'>
           Your arena awaits
         </h2>

@@ -35,8 +35,8 @@ export function AssetCard({
         relative w-full h-[180px]
         ${
           type === "video"
-            ? "bg-gradient-to-br from-cobalt/10 to-graphite-dark/90"
-            : "bg-gradient-to-br from-cobalt/8 to-graphite-dark/90"
+            ? "bg-linear-to-br from-cobalt/10 to-graphite-dark/90"
+            : "bg-linear-to-br from-cobalt/8 to-graphite-dark/90"
         }
         flex items-center justify-center
       `}
