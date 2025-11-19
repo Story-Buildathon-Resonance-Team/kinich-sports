@@ -1,5 +1,5 @@
 // Export all custom components from a single entry point
-export { Navigation } from "./Navigation";
+export { Navigation } from "./navigation";
 export { Card } from "./card";
 export { ButtonCobalt } from "./button-cobalt";
 export { StatCard } from "./stat-card";

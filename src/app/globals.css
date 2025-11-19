@@ -55,10 +55,6 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
   body {
     /* Simple gradient */
     background: linear-gradient(180deg, #1a1a1c 0%, #2c2c2e 50%, #1e2838 100%);
