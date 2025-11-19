@@ -48,7 +48,7 @@ export function Card({
     <div className={`${baseStyles} ${variants[variant]} ${className}`}>
       {/* Top accent line for elevated and stat cards on hover */}
       {(variant === "elevated" || variant === "stat") && hover && (
-        <div className='absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cobalt/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400' />
+        <div className='absolute top-0 left-0 right-0 h-px bg-linear-to-br from-transparent via-cobalt/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400' />
       )}
       {children}
     </div>
