@@ -1,98 +1,129 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    /* COLOR SYSTEM */
-    --graphite: #2c2c2e;
-    --graphite-dark: #1a1a1c;
-    --ice: #f5f7fa;
-    --icy-cobalt: #b8d4f0;
-    --cobalt: #0047ab;
-    --kinetic-orange: #ff6b35;
-    --input-dark: #3a3a3c;
-    --input-focus: #424244;
+@theme {
+  /* COLOR SYSTEM */
+  --color-graphite: #2c2c2e;
+  --color-graphite-dark: #1a1a1c;
+  --color-graphite-mid: #1a1a2e;
+  --color-ice: #f5f7fa;
+  --color-icy-cobalt: #b8d4f0;
+  --color-cobalt: #0047ab;
+  --color-cobalt-deep: #0056d6;
+  --color-kinetic-orange: #ff6b35;
+  --color-input-dark: #3a3a3c;
+  --color-input-focus: #424244;
 
-    /* SEMANTIC COLORS */
-    --background: var(--graphite);
-    --foreground: var(--ice);
-    --primary: var(--cobalt);
-    --accent: var(--kinetic-orange);
-    --muted: rgba(245, 247, 250, 0.5);
-    --muted-foreground: rgba(245, 247, 250, 0.7);
+  /* FONT FAMILIES */
+  --font-family-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --font-family-mono: "JetBrains Mono", "SF Mono", Consolas, Monaco, monospace;
 
-    /* BORDERS */
-    --border: rgba(245, 247, 250, 0.1);
-    --border-subtle: rgba(245, 247, 250, 0.06);
-    --border-cobalt: rgba(0, 71, 171, 0.2);
+  /* SPACING */
+  --spacing-space-xs: 4px;
+  --spacing-space-sm: 8px;
+  --spacing-space-md: 16px;
+  --spacing-space-lg: 24px;
+  --spacing-space-xl: 32px;
+  --spacing-space-2xl: 48px;
+  --spacing-space-3xl: 64px;
+  --spacing-space-4xl: 80px;
+  --spacing-space-5xl: 120px;
 
-    /* SPACING */
-    --space-xs: 4px;
-    --space-sm: 8px;
-    --space-md: 16px;
-    --space-lg: 24px;
-    --space-xl: 32px;
-    --space-2xl: 48px;
-    --space-3xl: 64px;
-    --space-4xl: 80px;
-    --space-5xl: 120px;
+  /* BORDER RADIUS */
+  --radius-radius-sm: 8px;
+  --radius-radius-md: 10px;
+  --radius-radius-lg: 12px;
+  --radius-radius-xl: 16px;
 
-    /* TYPOGRAPHY */
-    --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-      sans-serif;
-    --font-mono: "JetBrains Mono", "SF Mono", Consolas, Monaco, monospace;
-
-    /* BORDER RADIUS */
-    --radius-sm: 8px;
-    --radius-md: 10px;
-    --radius-lg: 12px;
-    --radius-xl: 16px;
-
-    /* SHADOWS */
-    --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.2);
-    --shadow-button-cobalt: 0 4px 20px rgba(0, 71, 171, 0.2);
-    --shadow-focus: 0 0 0 4px rgba(255, 107, 53, 0.15);
-  }
+  /* TRANSITION DURATION */
+  --transition-duration-400: 400ms;
+  --transition-duration-600: 600ms;
 }
 
 @layer base {
+  /* Base body styles with gradient background */
   body {
-    /* Simple gradient */
-    background: linear-gradient(180deg, #1a1a1c 0%, #2c2c2e 50%, #1e2838 100%);
-    color: var(--ice);
-    font-family: var(--font-body);
+    background: linear-gradient(
+      180deg,
+      #1a1a1c 0%,
+      #2c2c2e 50%,
+      rgba(0, 71, 171, 0.08) 100%
+    );
+    color: var(--color-ice);
+    font-family: var(--font-family-body);
     min-height: 100vh;
+    position: relative;
   }
 
-  /* TYPOGRAPHY SCALE */
+  /* Star field layer - always applied, fixed position */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(
+        circle at 15% 20%,
+        rgba(245, 247, 250, 0.02) 1px,
+        transparent 1px
+      ),
+      radial-gradient(
+        circle at 85% 30%,
+        rgba(245, 247, 250, 0.015) 1px,
+        transparent 1px
+      ),
+      radial-gradient(
+        circle at 45% 60%,
+        rgba(245, 247, 250, 0.02) 1px,
+        transparent 1px
+      ),
+      radial-gradient(
+        circle at 75% 80%,
+        rgba(245, 247, 250, 0.015) 1px,
+        transparent 1px
+      );
+    background-size: 100% 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Typography scale */
   h1 {
-    @apply text-5xl md:text-6xl lg:text-7xl font-light tracking-tight;
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    font-weight: 300;
     letter-spacing: -2px;
+    line-height: 1.1;
   }
 
   h2 {
-    @apply text-3xl md:text-4xl lg:text-5xl font-light tracking-tight;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 300;
     letter-spacing: -1px;
+    line-height: 1.2;
   }
 
   h3 {
-    @apply text-2xl md:text-3xl font-normal;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 400;
+    line-height: 1.3;
   }
 
   p {
-    @apply text-base leading-relaxed font-light;
+    font-size: 1rem;
+    line-height: 1.7;
+    font-weight: 300;
   }
 
-  button {
-    @apply focus-visible:outline-none;
-  }
-
-  a {
-    @apply transition-colors duration-200;
+  /* Focus states */
+  *:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15);
   }
 }
 
 @layer utilities {
-  /* Text gradients - lightweight, static */
+  /* Text gradients */
   .text-gradient-logo {
     background: linear-gradient(135deg, #b8d4f0 0%, #f5f7fa 50%, #b8d4f0 100%);
     -webkit-background-clip: text;
@@ -100,14 +131,14 @@
     background-clip: text;
   }
 
-  .text-gradient-cobalt {
-    background: linear-gradient(135deg, var(--cobalt) 0%, #0066ff 100%);
+  .text-gradient-highlight {
+    background: linear-gradient(135deg, #b8d4f0 0%, #f5f7fa 50%, #b8d4f0 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Simple badge classes - no animation */
+  /* Badge utilities */
   .badge-verified {
     background: rgba(0, 71, 171, 0.15);
     color: rgba(184, 212, 240, 0.9);
@@ -122,8 +153,8 @@
 
   .badge-default {
     background: rgba(245, 247, 250, 0.08);
-    color: var(--muted-foreground);
-    border: 1px solid var(--border);
+    color: rgba(245, 247, 250, 0.7);
+    border: 1px solid rgba(245, 247, 250, 0.1);
     border-radius: 6px;
     padding: 4px 10px;
     font-size: 11px;
@@ -131,41 +162,15 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-
-  /* Scrollbar - simple styling */
-  .scrollbar-kinich::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  .scrollbar-kinich::-webkit-scrollbar-track {
-    background: var(--graphite);
-  }
-
-  .scrollbar-kinich::-webkit-scrollbar-thumb {
-    background: var(--muted);
-    border-radius: 4px;
-  }
-
-  .scrollbar-kinich::-webkit-scrollbar-thumb:hover {
-    background: var(--cobalt);
-  }
 }
 
-/* ACCESSIBILITY */
-@layer base {
-  *:focus-visible {
-    outline: none;
-    box-shadow: var(--shadow-focus);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
