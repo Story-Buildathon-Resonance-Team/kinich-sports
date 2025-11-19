@@ -1,5 +1,3 @@
-// src/components/custom/protocol-card.tsx
-
 "use client";
 
 import { useState } from "react";
