@@ -15,40 +15,37 @@ export function Card({
   className = "",
   hover = true,
 }: CardProps) {
-  // Base styles applied to all cards
   const baseStyles = "rounded-xl border transition-all duration-300";
 
-  // Variant-specific styles
   const variants = {
     default: `
-      bg-graphite-dark/60 
-      border-ice/[0.06]
-      ${hover ? "hover:border-cobalt/20 hover:-translate-y-1" : ""}
+      bg-[rgba(26,26,28,0.6)] 
+      border-[rgba(245,247,250,0.06)]
+      ${hover ? "hover:border-[rgba(0,71,171,0.2)] hover:-translate-y-1" : ""}
     `,
     elevated: `
-      bg-gradient-to-br from-cobalt/15 to-graphite-dark/60
-      border-cobalt/20
+      bg-gradient-to-br from-[rgba(0,71,171,0.15)] to-[rgba(26,26,28,0.6)]
+      border-[rgba(0,71,171,0.2)]
       relative overflow-hidden
-      ${hover ? "hover:border-cobalt/30 hover:-translate-y-1" : ""}
+      ${hover ? "hover:border-[rgba(0,71,171,0.3)] hover:-translate-y-1" : ""}
     `,
     featured: `
-      bg-graphite-dark/40
-      border-ice/[0.04]
-      ${hover ? "hover:border-cobalt/15 hover:-translate-y-1" : ""}
+      bg-[rgba(26,26,28,0.4)]
+      border-[rgba(245,247,250,0.04)]
+      ${hover ? "hover:border-[rgba(0,71,171,0.15)] hover:-translate-y-1" : ""}
     `,
     stat: `
-      bg-graphite-dark/60
-      border-ice/[0.06]
+      bg-[rgba(26,26,28,0.6)]
+      border-[rgba(245,247,250,0.06)]
       relative overflow-hidden
-      ${hover ? "hover:border-cobalt/20 hover:-translate-y-1" : ""}
+      ${hover ? "hover:border-[rgba(0,71,171,0.2)] hover:-translate-y-1" : ""}
     `,
   };
 
   return (
-    <div className={`${baseStyles} ${variants[variant]} ${className}`}>
-      {/* Top accent line for elevated and stat cards on hover */}
+    <div className={`${baseStyles} ${variants[variant]} ${className} group`}>
       {(variant === "elevated" || variant === "stat") && hover && (
-        <div className='absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cobalt/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400' />
+        <div className='absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,71,171,0.3)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[400ms]' />
       )}
       {children}
     </div>

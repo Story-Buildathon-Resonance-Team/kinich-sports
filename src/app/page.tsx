@@ -9,14 +9,10 @@ import {
 export default function HomePage() {
   return (
     <div className='min-h-screen'>
-      {/* Navigation */}
       <Navigation variant='public' />
-
-      {/* Hero Section */}
       <HeroSection />
 
-      {/* Stats Section */}
-      <section className='py-[120px] px-16 bg-graphite'>
+      <section className='py-[120px] px-6 md:px-16 bg-[#2C2C2E]'>
         <div className='max-w-[1200px] mx-auto'>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-12'>
             <StatCard
@@ -38,23 +34,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Mission Section */}
-      <section className='py-[120px] px-16 bg-linear-to-br from-graphite to-cobalt/5'>
+      <section className='py-[120px] px-6 md:px-16 bg-gradient-to-br from-[#2C2C2E] to-[rgba(0,71,171,0.05)]'>
         <div className='max-w-[800px] mx-auto text-center'>
-          <h2 className='text-[48px] font-light mb-8 tracking-tight'>
+          <h2 className='text-[40px] md:text-[48px] font-light mb-8 tracking-tight'>
             The future is{" "}
-            <span className='text-kinetic-orange/85 font-normal'>
+            <span className='text-[rgba(255,107,53,0.85)] font-normal'>
               already here
             </span>
           </h2>
 
-          <p className='text-[18px] leading-relaxed text-ice/70 mb-6 font-light'>
+          <p className='text-[18px] leading-relaxed text-[rgba(245,247,250,0.7)] mb-6 font-light'>
             Elite technology shouldn't belong only to elite athletes. Your
             dedication, your technique, your mental preparation—these matter.
             They have value. They deserve permanence.
           </p>
 
-          <p className='text-[18px] leading-relaxed text-ice/70 font-light'>
+          <p className='text-[18px] leading-relaxed text-[rgba(245,247,250,0.7)] font-light'>
             Kinich turns training sessions into verified performance assets.
             Your videos become proof. Your audio captures become insight.
             Everything registered on blockchain, owned by you, valued by the
@@ -63,8 +58,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className='py-[120px] px-16 bg-graphite'>
+      <section className='py-[120px] px-6 md:px-16 bg-[#2C2C2E]'>
         <div className='max-w-[1200px] mx-auto'>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12'>
             <FeatureCard
@@ -101,12 +95,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer CTA */}
-      <section className='py-[120px] px-16 text-center bg-linear-to-br from-graphite to-graphite-dark'>
-        <h2 className='text-[56px] font-light mb-8 tracking-tight'>
+      <section className='py-[120px] px-6 md:px-16 text-center bg-gradient-to-br from-[#2C2C2E] to-[#1A1A1C]'>
+        <h2 className='text-[48px] md:text-[56px] font-light mb-8 tracking-tight'>
           Your arena awaits
         </h2>
-        <p className='text-[18px] text-ice/60 mb-12'>
+        <p className='text-[18px] text-[rgba(245,247,250,0.6)] mb-12'>
           Join the athletes who refuse to let their work disappear
         </p>
         <ButtonCobalt size='large'>Enter The Arena</ButtonCobalt>

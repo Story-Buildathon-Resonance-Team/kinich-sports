@@ -10,7 +10,7 @@ interface ProfileSidebarProps {
     level: "Competitive" | "Professional" | "Amateur" | "Elite";
   };
   stats: {
-    profileScore: number; // 0-100
+    profileScore: number;
     totalRoyalties: number;
     totalAssets: number;
   };
@@ -22,7 +22,6 @@ export function ProfileSidebar({
   stats,
   onUploadClick,
 }: ProfileSidebarProps) {
-  // Format stats for StatsPanel
   const formattedStats = [
     {
       label: "Profile Score",
@@ -42,8 +41,7 @@ export function ProfileSidebar({
   ];
 
   return (
-    <aside className='sticky top-[100px] h-fit space-y-6'>
-      {/* Profile Header */}
+    <aside className='lg:sticky lg:top-[100px] h-fit space-y-6'>
       <ProfileHeader
         initials={athlete.initials}
         name={athlete.name}
@@ -51,10 +49,8 @@ export function ProfileSidebar({
         level={athlete.level}
       />
 
-      {/* Stats Panel */}
       <StatsPanel stats={formattedStats} />
 
-      {/* Upload CTA */}
       <ButtonCobalt className='w-full' onClick={onUploadClick}>
         + Upload New Asset
       </ButtonCobalt>

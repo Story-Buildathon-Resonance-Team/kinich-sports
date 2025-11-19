@@ -40,8 +40,8 @@ export function FilterTabs({
             transition-all duration-300
             ${
               activeFilter === filter.value
-                ? "bg-cobalt/10 border-cobalt/30 text-ice"
-                : "bg-transparent border-ice/10 text-ice/50 hover:bg-cobalt/5 hover:border-cobalt/20 hover:text-ice/70"
+                ? "bg-[rgba(0,71,171,0.1)] border-[rgba(0,71,171,0.3)] text-[#F5F7FA]"
+                : "bg-transparent border-[rgba(245,247,250,0.1)] text-[rgba(245,247,250,0.5)] hover:bg-[rgba(0,71,171,0.05)] hover:border-[rgba(0,71,171,0.2)] hover:text-[rgba(245,247,250,0.7)]"
             }
           `}
         >
