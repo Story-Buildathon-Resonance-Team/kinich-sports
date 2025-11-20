@@ -217,7 +217,7 @@ export function Navigation() {
                 <Menu className='w-6 h-6' />
               )}
             </button>
-            <DynamicWidget innerButtonComponent={<>Login</>} />
+            <DynamicWidget innerButtonComponent={<span>Log In</span>} />
           </div>
         </div>
 
