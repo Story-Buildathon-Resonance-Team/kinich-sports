@@ -31,6 +31,7 @@ export function ButtonCobalt({
         hover:-translate-y-0.5
         hover:shadow-[0_8px_28px_rgba(0,71,171,0.3)]
         hover:border-[rgba(255,107,53,0.3)]
+        hover:cursor-pointer
         focus-visible:outline-none
         focus-visible:shadow-[0_0_0_4px_rgba(255,107,53,0.15)]
         disabled:opacity-50

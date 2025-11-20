@@ -52,7 +52,7 @@ export function ProfileSidebar({
       <StatsPanel stats={formattedStats} />
 
       <ButtonCobalt className='w-full' onClick={onUploadClick}>
-        + Upload New Asset
+        Accept New Challenge
       </ButtonCobalt>
     </aside>
   );

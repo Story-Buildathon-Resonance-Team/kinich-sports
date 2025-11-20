@@ -16,7 +16,7 @@ export function HeroSection() {
           learn from, and value.
         </p>
 
-        <ButtonCobalt size='large'>Start Your Legacy</ButtonCobalt>
+        <ButtonCobalt size='large'>Enter The Arena</ButtonCobalt>
       </div>
     </section>
   );
