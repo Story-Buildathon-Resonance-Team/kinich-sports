@@ -1,0 +1,69 @@
+.dynamic-shadow-dom {
+  --dynamic-base-1: rgba(26, 26, 28, 0.6);
+  --dynamic-text-primary: #f5f7fa;
+  --dynamic-text-secondary: rgba(245, 247, 250, 0.6);
+  --dynamic-brand-primary-color: #0047ab;
+  --dynamic-input-background: #3a3a3c;
+  --dynamic-input-border: rgba(245, 247, 250, 0.1);
+  --dynamic-border-radius: 8px;
+  --dynamic-font-family-primary: "Inter", -apple-system, BlinkMacSystemFont,
+    sans-serif;
+}
+
+.dynamic-shadow-dom [class*="Modal"],
+.dynamic-shadow-dom [class*="modal-card"] {
+  background: rgba(26, 26, 28, 0.6) !important;
+  border: 1px solid rgba(245, 247, 250, 0.06) !important;
+  border-radius: 12px !important;
+  padding: 48px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dynamic-shadow-dom h1,
+.dynamic-shadow-dom h2 {
+  background: linear-gradient(
+    135deg,
+    #b8d4f0 0%,
+    #f5f7fa 50%,
+    #b8d4f0 100%
+  ) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  font-weight: 300 !important;
+}
+
+.dynamic-shadow-dom input,
+.dynamic-shadow-dom select {
+  background: #3a3a3c !important;
+  border: 2px solid rgba(245, 247, 250, 0.1) !important;
+  border-radius: 8px !important;
+  height: 56px !important;
+  color: #f5f7fa !important;
+}
+
+.dynamic-shadow-dom input:focus,
+.dynamic-shadow-dom select:focus {
+  border-color: rgba(0, 71, 171, 0.4) !important;
+  background: #424244 !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15) !important;
+}
+
+.dynamic-shadow-dom button[type="submit"],
+.dynamic-shadow-dom [class*="primary-button"],
+.dynamic-shadow-dom [class*="connect-button"] {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 71, 171, 0.8) 0%,
+    rgba(0, 86, 214, 0.8) 100%
+  ) !important;
+  border: 1px solid rgba(184, 212, 240, 0.2) !important;
+  border-radius: 10px !important;
+  padding: 16px !important;
+  box-shadow: 0 4px 20px rgba(0, 71, 171, 0.2) !important;
+}
+
+.dynamic-shadow-dom button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 28px rgba(0, 71, 171, 0.3) !important;
+  border-color: rgba(255, 107, 53, 0.3) !important;
+}

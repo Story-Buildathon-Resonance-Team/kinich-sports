@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "../styles/dynamic.css";
 import { PropsWithChildren } from "react";
 import Web3Providers from "./Web3Providers";
 import { Navigation } from "@/components/custom/navigation";
