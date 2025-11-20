@@ -1,5 +1,4 @@
 import {
-  Navigation,
   HeroSection,
   StatCard,
   FeatureCard,
@@ -9,7 +8,6 @@ import {
 export default function HomePage() {
   return (
     <div className='min-h-screen'>
-      <Navigation variant='public' />
       <HeroSection />
 
       <section className='py-[120px] px-6 md:px-16 bg-[#2C2C2E]'>

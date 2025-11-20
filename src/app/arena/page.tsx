@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Navigation } from "@/components/custom/navigation";
 import { ProtocolCard } from "@/components/custom/protocol-card";
 import { getVideoDrills, getAudioCapsules } from "@/lib/drills/constants";
 
@@ -22,12 +21,6 @@ export default function ArenaPage() {
 
   return (
     <div className='min-h-screen'>
-      <Navigation
-        variant='authenticated'
-        userName='Athlete'
-        walletAddress='0x742d...3a8f'
-      />
-
       <div className='max-w-[1200px] mx-auto px-6 md:px-16 pt-[140px] pb-20'>
         <div className='text-center mb-16'>
           <h1 className='text-[48px] md:text-[56px] font-light tracking-tight mb-4'>

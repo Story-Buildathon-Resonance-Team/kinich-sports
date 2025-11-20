@@ -1,9 +1,8 @@
 "use client";
 
-import { Navigation } from "@/components/custom/navigation";
-import { ProfileSidebar, AssetCard, FilterTabs } from "@/components/profile";
+import { ProfileSidebar, AssetCard, FilterTabs } from "@/components/dashboard";
 
-export default function ProfilePage() {
+export default function AthleteDashboard() {
   const athlete = {
     initials: "MC",
     name: "Marcus Chen",
@@ -64,12 +63,6 @@ export default function ProfilePage() {
 
   return (
     <div className='min-h-screen'>
-      <Navigation
-        variant='authenticated'
-        userName='Marcus Chen'
-        walletAddress='0x742d...3a8f'
-      />
-
       <div className='grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 pt-[100px] px-6 lg:px-16 pb-16 max-w-[1600px] mx-auto'>
         <ProfileSidebar
           athlete={athlete}

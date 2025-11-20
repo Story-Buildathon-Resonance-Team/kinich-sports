@@ -30,6 +30,13 @@ export interface DynamicUserData {
   };
 }
 
+// Type guard for Dynamic metadata
+export interface DynamicMetadata {
+  sport?: string;
+  competitiveLevel?: string;
+  [key: string]: unknown;
+}
+
 export interface SyncAthleteRequest {
   dynamicUserId: string;
   walletAddress: string;
