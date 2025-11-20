@@ -154,7 +154,7 @@ export function Navigation() {
                 >
                   Feed
                 </Link>
-                <DynamicWidget />
+                <DynamicWidget innerButtonComponent={<>Login</>} />
               </>
             ) : (
               /* AUTHENTICATED NAVIGATION - DESKTOP */
@@ -198,7 +198,7 @@ export function Navigation() {
                       )}
                     </div>
                   )}
-                  <DynamicWidget />
+                  <DynamicWidget variant='modal' />
                 </div>
               </>
             )}
@@ -206,7 +206,7 @@ export function Navigation() {
 
           {/* Mobile Menu Button & Widget */}
           <div className='flex md:hidden items-center gap-4'>
-            <DynamicWidget />
+            <DynamicWidget innerButtonComponent={<>Login</>} />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className='text-[#F5F7FA] hover:text-[rgba(245,247,250,0.7)] transition-colors duration-200'
