@@ -3,8 +3,8 @@
 -- Athletes table
 CREATE TABLE athletes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  wallet_address TEXT UNIQUE NOT NULL,
   dynamic_user_id TEXT UNIQUE NOT NULL,
+  wallet_address TEXT NOT NULL,
   name TEXT,
   discipline TEXT CHECK (discipline IN ('soccer', 'basketball', 'boxing', 'mma', 'swimming', 'tennis', 'crossfit', 'surfing', 'other')),
   competitive_level TEXT CHECK (competitive_level IN ('amateur', 'competitive', 'professional', 'elite')),
@@ -32,8 +32,8 @@ CREATE TABLE assets (
 );
 
 -- Indexes
+CREATE INDEX idx_athletes_dynamic_user ON athletes(dynamic_user_id);
 CREATE INDEX idx_athletes_wallet ON athletes(wallet_address);
-CREATE INDEX idx_athletes_dynamic_id ON athletes(dynamic_user_id);
 CREATE INDEX idx_assets_athlete ON assets(athlete_id);
 CREATE INDEX idx_assets_story_ip ON assets(story_ip_id);
 CREATE INDEX idx_assets_status ON assets(status);
