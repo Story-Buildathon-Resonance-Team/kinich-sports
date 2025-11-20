@@ -198,7 +198,7 @@ export function Navigation() {
                       )}
                     </div>
                   )}
-                  <DynamicWidget variant='modal' />
+                  <DynamicWidget />
                 </div>
               </>
             )}
@@ -206,7 +206,6 @@ export function Navigation() {
 
           {/* Mobile Menu Button & Widget */}
           <div className='flex md:hidden items-center gap-4'>
-            <DynamicWidget innerButtonComponent={<>Login</>} />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className='text-[#F5F7FA] hover:text-[rgba(245,247,250,0.7)] transition-colors duration-200'
@@ -218,6 +217,7 @@ export function Navigation() {
                 <Menu className='w-6 h-6' />
               )}
             </button>
+            <DynamicWidget innerButtonComponent={<>Login</>} />
           </div>
         </div>
 
