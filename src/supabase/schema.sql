@@ -4,9 +4,10 @@
 CREATE TABLE athletes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   wallet_address TEXT UNIQUE NOT NULL,
+  dynamic_user_id TEXT UNIQUE NOT NULL,
   name TEXT,
-  discipline TEXT,
-  competitive_level TEXT,
+  discipline TEXT CHECK (discipline IN ('soccer', 'basketball', 'boxing', 'mma', 'swimming', 'tennis', 'crossfit', 'surfing', 'other')),
+  competitive_level TEXT CHECK (competitive_level IN ('amateur', 'competitive', 'professional', 'elite')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
   world_id_verified BOOLEAN DEFAULT FALSE,
   world_id_nullifier_hash TEXT UNIQUE,
@@ -32,6 +33,7 @@ CREATE TABLE assets (
 
 -- Indexes
 CREATE INDEX idx_athletes_wallet ON athletes(wallet_address);
+CREATE INDEX idx_athletes_dynamic_id ON athletes(dynamic_user_id);
 CREATE INDEX idx_assets_athlete ON assets(athlete_id);
 CREATE INDEX idx_assets_story_ip ON assets(story_ip_id);
 CREATE INDEX idx_assets_status ON assets(status);
