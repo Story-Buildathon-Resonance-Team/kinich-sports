@@ -146,7 +146,7 @@ export default function AthleteDashboard() {
 
   if (loading) {
     return (
-      <div className='min-h-screen flex items-center justify-center'>
+      <div className='min-h-screen bg-[#2C2C2E] flex items-center justify-center'>
         <div className='text-center'>
           <div className='w-16 h-16 border-4 border-[rgba(245,247,250,0.1)] border-t-[#FF6B35] rounded-full animate-spin mx-auto mb-4'></div>
           <p className='text-[#F5F7FA] text-lg'>Loading your arena...</p>
@@ -157,7 +157,7 @@ export default function AthleteDashboard() {
 
   if (error || !dashboardData) {
     return (
-      <div className='min-h-screen flex items-center justify-center'>
+      <div className='min-h-screen bg-[#2C2C2E] flex items-center justify-center'>
         <div className='text-center max-w-md'>
           <p className='text-[#F5F7FA] text-lg mb-4'>
             {error || "Failed to load dashboard"}
@@ -222,12 +222,11 @@ export default function AthleteDashboard() {
   };
 
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen bg-[#2C2C2E]'>
       <div className='grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 pt-[100px] px-6 lg:px-16 pb-16 max-w-[1600px] mx-auto'>
         <ProfileSidebar
           athlete={athleteProfile}
           stats={stats}
-          onUploadClick={() => console.log("Upload clicked")}
           onVerificationSuccess={handleVerificationSuccess}
         />
 

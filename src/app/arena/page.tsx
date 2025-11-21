@@ -20,7 +20,7 @@ export default function ArenaPage() {
   };
 
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen bg-[#2C2C2E]'>
       <div className='max-w-[1200px] mx-auto px-6 md:px-16 pt-[140px] pb-20'>
         <div className='text-center mb-16'>
           <h1 className='text-[48px] md:text-[56px] font-light tracking-tight mb-4'>
@@ -39,6 +39,7 @@ export default function ArenaPage() {
               px-8 py-3 rounded-lg
               text-[15px] font-medium
               border transition-all duration-300
+              cursor-pointer
               ${
                 activeMode === "video"
                   ? "bg-[rgba(0,71,171,0.15)] border-[rgba(0,71,171,0.3)] text-[#F5F7FA]"
@@ -57,6 +58,7 @@ export default function ArenaPage() {
               px-8 py-3 rounded-lg
               text-[15px] font-medium
               border transition-all duration-300
+              cursor-pointer
               ${
                 activeMode === "audio"
                   ? "bg-[rgba(0,71,171,0.15)] border-[rgba(0,71,171,0.3)] text-[#F5F7FA]"

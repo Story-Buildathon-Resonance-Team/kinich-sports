@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { ProfileHeader } from "./profile-header";
 import { VerificationCard } from "./verification-card";
 import { StatsPanel } from "./stats-panel";
@@ -9,7 +10,7 @@ interface ProfileSidebarProps {
     initials: string;
     name: string;
     discipline: string;
-    level: "Competitive" | "Professional" | "Amateur" | "Elite";
+    level: string;
     world_id_verified: boolean;
     world_id_verified_at?: string | null;
   };
@@ -18,16 +19,16 @@ interface ProfileSidebarProps {
     totalRoyalties: number;
     totalAssets: number;
   };
-  onUploadClick?: () => void;
   onVerificationSuccess?: () => void;
 }
 
 export function ProfileSidebar({
   athlete,
   stats,
-  onUploadClick,
   onVerificationSuccess,
 }: ProfileSidebarProps) {
+  const router = useRouter();
+
   const formattedStats = [
     {
       label: "Profile Score",
@@ -45,6 +46,10 @@ export function ProfileSidebar({
       value: stats.totalAssets,
     },
   ];
+
+  const handleAcceptChallenge = () => {
+    router.push("/arena");
+  };
 
   return (
     <aside className='lg:sticky lg:top-[100px] h-fit space-y-6'>
@@ -64,7 +69,7 @@ export function ProfileSidebar({
 
       <StatsPanel stats={formattedStats} />
 
-      <ButtonCobalt className='w-full' onClick={onUploadClick}>
+      <ButtonCobalt className='w-full' onClick={handleAcceptChallenge}>
         Accept New Challenge
       </ButtonCobalt>
     </aside>

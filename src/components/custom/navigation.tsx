@@ -148,14 +148,8 @@ export function Navigation() {
                 >
                   Arena
                 </Link>
-                <Link
-                  href='/feed'
-                  className='text-[15px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
-                >
-                  Feed
-                </Link>
                 <DynamicWidget
-                  variant='modal'
+                  variant='dropdown'
                   innerButtonComponent={<span>Log In</span>}
                 />
               </>
@@ -167,12 +161,6 @@ export function Navigation() {
                   className='text-[15px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
                 >
                   Arena
-                </Link>
-                <Link
-                  href='/feed'
-                  className='text-[15px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
-                >
-                  Feed
                 </Link>
 
                 {syncStatus === "synced" ? (
@@ -202,7 +190,7 @@ export function Navigation() {
                     </div>
                   )}
                   <DynamicWidget
-                    variant='modal'
+                    variant='dropdown'
                     innerButtonComponent={<span>Log In</span>}
                   />
                 </div>
@@ -224,7 +212,7 @@ export function Navigation() {
               )}
             </button>
             <DynamicWidget
-              variant='modal'
+              variant='dropdown'
               innerButtonComponent={<span>Log In</span>}
             />
           </div>
@@ -243,13 +231,6 @@ export function Navigation() {
                     className='text-[16px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
                   >
                     Arena
-                  </Link>
-                  <Link
-                    href='/feed'
-                    onClick={() => setMobileMenuOpen(false)}
-                    className='text-[16px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
-                  >
-                    Feed
                   </Link>
                 </>
               ) : (
@@ -273,13 +254,6 @@ export function Navigation() {
                     className='text-[16px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
                   >
                     Arena
-                  </Link>
-                  <Link
-                    href='/feed'
-                    onClick={() => setMobileMenuOpen(false)}
-                    className='text-[16px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
-                  >
-                    Feed
                   </Link>
 
                   {syncStatus === "synced" ? (

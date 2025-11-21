@@ -2,7 +2,7 @@ interface ProfileHeaderProps {
   initials: string;
   name: string;
   discipline: string;
-  level: "Competitive" | "Professional" | "Amateur" | "Elite";
+  level: string;
 }
 
 export function ProfileHeader({
