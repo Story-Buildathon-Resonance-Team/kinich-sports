@@ -1,13 +1,17 @@
 import { ProfileHeader } from "./profile-header";
+import { VerificationCard } from "./verification-card";
 import { StatsPanel } from "./stats-panel";
 import { ButtonCobalt } from "../custom/button-cobalt";
 
 interface ProfileSidebarProps {
   athlete: {
+    id: string;
     initials: string;
     name: string;
     discipline: string;
     level: "Competitive" | "Professional" | "Amateur" | "Elite";
+    world_id_verified: boolean;
+    world_id_verified_at?: string | null;
   };
   stats: {
     profileScore: number;
@@ -15,12 +19,14 @@ interface ProfileSidebarProps {
     totalAssets: number;
   };
   onUploadClick?: () => void;
+  onVerificationSuccess?: () => void;
 }
 
 export function ProfileSidebar({
   athlete,
   stats,
   onUploadClick,
+  onVerificationSuccess,
 }: ProfileSidebarProps) {
   const formattedStats = [
     {
@@ -47,6 +53,13 @@ export function ProfileSidebar({
         name={athlete.name}
         discipline={athlete.discipline}
         level={athlete.level}
+      />
+
+      <VerificationCard
+        athleteId={athlete.id}
+        isWorldIdVerified={athlete.world_id_verified}
+        verifiedAt={athlete.world_id_verified_at || undefined}
+        onVerificationSuccess={onVerificationSuccess}
       />
 
       <StatsPanel stats={formattedStats} />

@@ -8,6 +8,7 @@ import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { ZeroDevSmartWalletConnectors } from "@dynamic-labs/ethereum-aa";
 import { PropsWithChildren } from "react";
 import { aeneid } from "@story-protocol/core-sdk";
+import { useRouter, usePathname } from "next/navigation";
 import type {
   SyncAthleteRequest,
   SyncAthleteResponse,
@@ -24,9 +25,11 @@ const config = createConfig({
 });
 const queryClient = new QueryClient();
 
-export default function Web3Providers({ children }: PropsWithChildren) {
+function DynamicProviderWrapper({ children }: PropsWithChildren) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   return (
-    // setup dynamic
     <DynamicContextProvider
       settings={{
         environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID as string,
@@ -85,6 +88,11 @@ export default function Web3Providers({ children }: PropsWithChildren) {
                   } successfully:`,
                   result.athlete?.id
                 );
+
+                // Redirect to dashboard ONLY if user is on landing page
+                if (pathname === "/") {
+                  router.push("/dashboard");
+                }
               }
             } catch (error) {
               console.error("Error syncing athlete to database:", error);
@@ -95,11 +103,19 @@ export default function Web3Providers({ children }: PropsWithChildren) {
         },
       }}
     >
+      {children}
+    </DynamicContextProvider>
+  );
+}
+
+export default function Web3Providers({ children }: PropsWithChildren) {
+  return (
+    <DynamicProviderWrapper>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
         </QueryClientProvider>
       </WagmiProvider>
-    </DynamicContextProvider>
+    </DynamicProviderWrapper>
   );
 }
