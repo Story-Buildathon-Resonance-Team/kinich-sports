@@ -201,13 +201,6 @@ export default function WorldIdVerify({
           </div>
         </div>
       )}
-
-      {/* Info text */}
-      <p className='text-[rgba(245,247,250,0.5)] text-sm leading-relaxed max-w-md'>
-        Verify your identity as a unique human using World ID. This adds a
-        "Verified Human" badge to your profile and assets, building trust with
-        data buyers.
-      </p>
     </div>
   );
 }
