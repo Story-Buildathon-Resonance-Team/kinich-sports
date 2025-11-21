@@ -154,7 +154,10 @@ export function Navigation() {
                 >
                   Feed
                 </Link>
-                <DynamicWidget innerButtonComponent={<>Login</>} />
+                <DynamicWidget
+                  variant='modal'
+                  innerButtonComponent={<span>Log In</span>}
+                />
               </>
             ) : (
               /* AUTHENTICATED NAVIGATION - DESKTOP */
@@ -198,7 +201,10 @@ export function Navigation() {
                       )}
                     </div>
                   )}
-                  <DynamicWidget />
+                  <DynamicWidget
+                    variant='modal'
+                    innerButtonComponent={<span>Log In</span>}
+                  />
                 </div>
               </>
             )}
@@ -217,7 +223,10 @@ export function Navigation() {
                 <Menu className='w-6 h-6' />
               )}
             </button>
-            <DynamicWidget innerButtonComponent={<span>Log In</span>} />
+            <DynamicWidget
+              variant='modal'
+              innerButtonComponent={<span>Log In</span>}
+            />
           </div>
         </div>
 
