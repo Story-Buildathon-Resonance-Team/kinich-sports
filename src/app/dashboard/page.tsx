@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ProfileSidebar, AssetCard, FilterTabs } from "@/components/dashboard";
-import { getDrillById } from "@/lib/drills/constants";
 import type { Athlete } from "@/lib/types/athlete";
 
 interface Asset {
@@ -116,15 +115,23 @@ export default function AthleteDashboard() {
   };
 
   const transformAssetForCard = (asset: Asset) => {
-    const drill = getDrillById(asset.drill_type_id);
-    const title = drill?.name || asset.drill_type_id;
+    // Extract data from metadata JSONB (populated during asset registration)
+    const metadata = asset.metadata || {};
 
-    // Get duration from drill constants or metadata
+    // Get title from metadata
+    const title = metadata.drill_name || metadata.title || asset.drill_type_id;
+
+    // Get duration from metadata
     let duration = "0:00";
-    if (drill && "duration_seconds" in drill) {
-      duration = formatDuration(drill.duration_seconds);
-    } else if (drill && "duration_minutes" in drill) {
-      duration = `${drill.duration_minutes}:00`;
+    if (metadata.video_metadata?.duration_seconds) {
+      // Video drill: duration from CV processing
+      duration = formatDuration(metadata.video_metadata.duration_seconds);
+    } else if (metadata.recording_duration_seconds) {
+      // Audio capsule: duration from recording
+      duration = formatDuration(metadata.recording_duration_seconds);
+    } else if (metadata.duration_seconds) {
+      // Fallback: generic duration field
+      duration = formatDuration(metadata.duration_seconds);
     }
 
     return {
