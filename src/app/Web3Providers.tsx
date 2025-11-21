@@ -34,7 +34,7 @@ export default function Web3Providers({ children }: PropsWithChildren) {
           EthereumWalletConnectors,
           ZeroDevSmartWalletConnectors,
         ],
-        cssOverrides: <link rel='stylesheet' href='../styles/dynamic.css' />,
+        cssOverrides: <link rel='stylesheet' href='/styles/dynamic.css' />,
         handlers: {
           handleAuthenticatedUser: async (args) => {
             // This fires every time a user successfully authenticates
