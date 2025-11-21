@@ -6,6 +6,7 @@ import {
   ISuccessResult,
 } from "@worldcoin/idkit";
 import { useState } from "react";
+import Image from "next/image";
 
 interface WorldIdVerifyProps {
   athleteId: string; // UUID of the athlete from the database
@@ -100,6 +101,7 @@ export default function WorldIdVerify({
               disabled:opacity-50
               disabled:cursor-not-allowed
               disabled:transform-none
+              cursor-pointer
               group
             '
           >
@@ -142,29 +144,14 @@ export default function WorldIdVerify({
                 </>
               ) : (
                 <>
-                  <svg
-                    width='20'
-                    height='20'
-                    viewBox='0 0 20 20'
-                    fill='none'
-                    xmlns='http://www.w3.org/2000/svg'
-                  >
-                    <circle
-                      cx='10'
-                      cy='10'
-                      r='9'
-                      stroke='currentColor'
-                      strokeWidth='1.5'
-                    />
-                    <path
-                      d='M10 6V10L13 13'
-                      stroke='currentColor'
-                      strokeWidth='1.5'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                    />
-                  </svg>
-                  <span>Verify with World ID</span>
+                  <Image
+                    src='/World-Logomark-Black-RGB.svg'
+                    alt='World ID'
+                    width={20}
+                    height={20}
+                    className=''
+                  />
+                  <span>Connect your World ID</span>
                 </>
               )}
             </span>
