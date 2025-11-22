@@ -37,7 +37,9 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
           EthereumWalletConnectors,
           ZeroDevSmartWalletConnectors,
         ],
-        cssOverrides: <link rel='stylesheet' href='/external-styles.css' />,
+        cssOverrides: (
+          <link rel='stylesheet' href='/src/styles/external-styles.css' />
+        ),
         handlers: {
           handleAuthenticatedUser: async (args) => {
             // This fires every time a user successfully authenticates
