@@ -23,7 +23,10 @@ export function Navigation() {
   // When user authenticates, verify sync status with database
   useEffect(() => {
     if (isAuthenticated && user?.userId) {
-      verifySyncStatus();
+      // Only verify sync if we don't already have athlete data
+      if (!athlete) {
+        verifySyncStatus();
+      }
     } else {
       // Reset state when user logs out
       setSyncStatus("idle");
@@ -99,8 +102,8 @@ export function Navigation() {
           walletAddress: primaryWallet.address,
           firstName: user.firstName,
           lastName: user.lastName,
-          sport: metadata?.sport,
-          competitiveLevel: metadata?.competitiveLevel,
+          sport: metadata?.["Sport"],
+          competitiveLevel: metadata?.["Competitive Level"],
         }),
       });
 
@@ -275,26 +278,6 @@ export function Navigation() {
           </div>
         )}
       </nav>
-
-      {/* Loading Overlay - Shows during sync */}
-      {syncStatus === "syncing" && (
-        <div className='fixed inset-0 z-[1001] flex items-center justify-center bg-[rgba(26,26,28,0.95)] backdrop-blur-[20px]'>
-          <div className='flex flex-col items-center gap-6'>
-            {/* Spinner */}
-            <div className='w-16 h-16 border-4 border-[rgba(245,247,250,0.1)] border-t-[#FF6B35] rounded-full animate-spin'></div>
-
-            {/* Loading Text */}
-            <div className='text-center'>
-              <div className='text-[20px] md:text-[24px] font-light text-[#F5F7FA] mb-2'>
-                Syncing your profile...
-              </div>
-              <div className='text-[14px] md:text-[15px] text-[rgba(245,247,250,0.6)]'>
-                Setting up your arena
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Error State with Retry */}
       {syncStatus === "error" && showRetry && (

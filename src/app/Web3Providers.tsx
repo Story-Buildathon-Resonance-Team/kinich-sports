@@ -61,8 +61,8 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
               walletAddress: primaryWallet.address,
               firstName: firstName,
               lastName: lastName,
-              sport: metadata?.sport,
-              competitiveLevel: metadata?.competitiveLevel,
+              sport: metadata?.["Sport"],
+              competitiveLevel: metadata?.["Competitive Level"],
             };
 
             try {
@@ -99,6 +99,12 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
               // Note: We don't throw here to avoid blocking the auth flow
               // Navigation component will handle retry logic
             }
+          },
+        },
+        events: {
+          onLogout: (args) => {
+            // Redirect to home page on logout
+            router.push("/");
           },
         },
       }}

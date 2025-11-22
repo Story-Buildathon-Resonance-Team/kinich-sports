@@ -31,9 +31,10 @@ export interface DynamicUserData {
 }
 
 // Type guard for Dynamic metadata
+// Note: Dynamic returns metadata with capital letters and spaces
 export interface DynamicMetadata {
-  sport?: string;
-  competitiveLevel?: string;
+  "Sport"?: string;
+  "Competitive Level"?: string;
   [key: string]: unknown;
 }
 
