@@ -25,60 +25,6 @@ const config = createConfig({
 });
 const queryClient = new QueryClient();
 
-// Dynamic styling
-const cssOverrides = {
-  /* Base */
-  "--dynamic-base-1": "#2C2C2E",
-  "--dynamic-base-2": "#1A1A1C",
-  "--dynamic-base-3": "#2C2C2E",
-  "--dynamic-base-4": "#1A1A1C",
-  "--dynamic-overlay": "rgba(26, 26, 28, 0.95)",
-
-  /* Text */
-  "--dynamic-text-primary": "#F5F7FA",
-  "--dynamic-text-secondary": "rgba(245, 247, 250, 0.7)",
-  "--dynamic-text-tertiary": "rgba(245, 247, 250, 0.5)",
-
-  /* Brand */
-  "--dynamic-brand-primary-color": "#0047AB",
-  "--dynamic-brand-secondary-color": "rgba(0, 71, 171, 0.15)",
-  "--dynamic-brand-hover-color": "#0056D6",
-
-  /* Borders / Radius */
-  "--dynamic-border-radius": "12px",
-  "--dynamic-modal-border": "1px solid rgba(245, 247, 250, 0.06)",
-
-  /* Typography */
-  "--dynamic-font-family-primary":
-    "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-
-  /* Buttons */
-  "--dynamic-connect-button-background":
-    "linear-gradient(135deg, rgba(0, 71, 171, 0.8) 0%, rgba(0, 86, 214, 0.8) 100%)",
-  "--dynamic-connect-button-color": "#F5F7FA",
-  "--dynamic-connect-button-border": "1px solid rgba(184, 212, 240, 0.2)",
-
-  /* Wallet list */
-  "--dynamic-wallet-list-tile-background": "rgba(26, 26, 28, 0.6)",
-  "--dynamic-wallet-list-tile-border": "1px solid rgba(245, 247, 250, 0.06)",
-  "--dynamic-wallet-list-tile-background-hover": "rgba(0, 71, 171, 0.1)",
-  "--dynamic-wallet-list-tile-border-hover": "1px solid rgba(0, 71, 171, 0.3)",
-
-  /* Search/Input */
-  "--dynamic-search-bar-background": "#3A3A3C",
-  "--dynamic-search-bar-border": "2px solid rgba(245, 247, 250, 0.1)",
-  "--dynamic-search-bar-background-focus": "#424244",
-  "--dynamic-search-bar-border-focus": "2px solid rgba(0, 71, 171, 0.4)",
-
-  /* Footer */
-  "--dynamic-footer-background-color": "rgba(26, 26, 28, 0.6)",
-  "--dynamic-footer-text-color": "rgba(245, 247, 250, 0.7)",
-  "--dynamic-footer-border": "1px solid rgba(245, 247, 250, 0.06)",
-
-  /* Modal layout */
-  "--dynamic-modal-padding": "3rem",
-};
-
 function DynamicProviderWrapper({ children }: PropsWithChildren) {
   const router = useRouter();
   const pathname = usePathname();
@@ -91,7 +37,7 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
           EthereumWalletConnectors,
           ZeroDevSmartWalletConnectors,
         ],
-        cssOverrides: cssOverrides,
+        cssOverrides: <link rel='stylesheet' href='/styles/dynamic.css' />,
         handlers: {
           handleAuthenticatedUser: async (args) => {
             // This fires every time a user successfully authenticates

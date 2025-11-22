@@ -1,26 +1,42 @@
-.dynamic-shadow-dom {
-  --dynamic-base-1: rgba(26, 26, 28, 0.6);
-  --dynamic-text-primary: #f5f7fa;
-  --dynamic-text-secondary: rgba(245, 247, 250, 0.6);
-  --dynamic-brand-primary-color: #0047ab;
-  --dynamic-input-background: #3a3a3c;
-  --dynamic-input-border: rgba(245, 247, 250, 0.1);
-  --dynamic-border-radius: 8px;
-  --dynamic-font-family-primary: "Inter", -apple-system, BlinkMacSystemFont,
-    sans-serif;
+/* Inputs / Textareas */
+.dynamic-shadow-dom input,
+.dynamic-shadow-dom textarea,
+.dynamic-shadow-dom select {
+  background: #3a3a3c !important;
+  border: 2px solid rgba(245, 247, 250, 0.1) !important;
+  color: #f5f7fa !important;
+  border-radius: 8px !important;
+  padding: 0 16px !important;
+  height: 56px !important;
 }
 
-.dynamic-shadow-dom [class*="Modal"],
-.dynamic-shadow-dom [class*="modal-card"] {
-  background: rgba(26, 26, 28, 0.6) !important;
+.dynamic-shadow-dom input:focus,
+.dynamic-shadow-dom textarea:focus,
+.dynamic-shadow-dom select:focus {
+  background: #424244 !important;
+  border-color: rgba(0, 71, 171, 0.4) !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15) !important;
+  outline: none !important;
+}
+
+.dynamic-shadow-dom input::placeholder,
+.dynamic-shadow-dom textarea::placeholder {
+  color: rgba(245, 247, 250, 0.3) !important;
+}
+
+/* Modal Panels */
+.dynamic-shadow-dom [class*="modal"],
+.dynamic-shadow-dom [class*="Modal"] {
+  background: rgba(26, 26, 28, 0.95) !important;
   border: 1px solid rgba(245, 247, 250, 0.06) !important;
   border-radius: 12px !important;
-  padding: 48px !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
 }
 
+/* Modal Titles */
 .dynamic-shadow-dom h1,
-.dynamic-shadow-dom h2 {
+.dynamic-shadow-dom h2,
+.dynamic-shadow-dom h3 {
   background: linear-gradient(
     135deg,
     #b8d4f0 0%,
@@ -32,25 +48,11 @@
   font-weight: 300 !important;
 }
 
-.dynamic-shadow-dom input,
-.dynamic-shadow-dom select {
-  background: #3a3a3c !important;
-  border: 2px solid rgba(245, 247, 250, 0.1) !important;
-  border-radius: 8px !important;
-  height: 56px !important;
-  color: #f5f7fa !important;
-}
-
-.dynamic-shadow-dom input:focus,
-.dynamic-shadow-dom select:focus {
-  border-color: rgba(0, 71, 171, 0.4) !important;
-  background: #424244 !important;
-  box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15) !important;
-}
-
+/* Primary Buttons */
 .dynamic-shadow-dom button[type="submit"],
 .dynamic-shadow-dom [class*="primary-button"],
-.dynamic-shadow-dom [class*="connect-button"] {
+.dynamic-shadow-dom [class*="connect-button"],
+.dynamic-shadow-dom [class*="PrimaryButton"] {
   background: linear-gradient(
     135deg,
     rgba(0, 71, 171, 0.8) 0%,
@@ -58,12 +60,30 @@
   ) !important;
   border: 1px solid rgba(184, 212, 240, 0.2) !important;
   border-radius: 10px !important;
-  padding: 16px !important;
+  padding: 16px 24px !important;
+  color: #f5f7fa !important;
   box-shadow: 0 4px 20px rgba(0, 71, 171, 0.2) !important;
+  transition: 0.4s ease !important;
 }
 
 .dynamic-shadow-dom button:hover {
   transform: translateY(-2px) !important;
   box-shadow: 0 8px 28px rgba(0, 71, 171, 0.3) !important;
   border-color: rgba(255, 107, 53, 0.3) !important;
+}
+
+/* Wallet Tiles */
+.dynamic-shadow-dom [class*="wallet-list"] button,
+.dynamic-shadow-dom [class*="WalletList"] button {
+  background: rgba(26, 26, 28, 0.6) !important;
+  border: 1px solid rgba(245, 247, 250, 0.06) !important;
+  border-radius: 12px !important;
+  transition: 0.3s ease !important;
+}
+
+.dynamic-shadow-dom [class*="wallet-list"] button:hover,
+.dynamic-shadow-dom [class*="WalletList"] button:hover {
+  background: rgba(0, 71, 171, 0.1) !important;
+  border-color: rgba(0, 71, 171, 0.3) !important;
+  transform: translateY(-2px) !important;
 }
