@@ -8,7 +8,6 @@ import type {
 export async function POST(request: NextRequest) {
   try {
     const body: SyncAthleteRequest = await request.json();
-
     const {
       dynamicUserId,
       walletAddress,
@@ -18,8 +17,19 @@ export async function POST(request: NextRequest) {
       competitiveLevel,
     } = body;
 
+    // Log incoming request for debugging
+    console.log("[sync-athlete] Request:", {
+      dynamicUserId,
+      walletAddress: walletAddress?.slice(0, 10) + "...",
+      firstName,
+      lastName,
+      sport,
+      competitiveLevel,
+    });
+
     // Validate required fields
     if (!dynamicUserId || !walletAddress) {
+      console.error("[sync-athlete] Missing required fields");
       return NextResponse.json(
         {
           success: false,
@@ -40,8 +50,13 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (selectError && selectError.code !== "PGRST116") {
-      // PGRST116 = no rows returned
-      console.error("Error checking existing athlete:", selectError);
+      // PGRST116 = no rows returned (expected for new users)
+      console.error("[sync-athlete] Error checking existing athlete:", {
+        code: selectError.code,
+        message: selectError.message,
+        details: selectError.details,
+        hint: selectError.hint,
+      });
       return NextResponse.json(
         {
           success: false,
@@ -57,24 +72,52 @@ export async function POST(request: NextRequest) {
         ? `${firstName} ${lastName}`
         : firstName || lastName || null;
 
+    // Normalize sport and competitiveLevel to lowercase for database constraints
+    const normalizedSport = sport ? sport.toLowerCase() : null;
+    const normalizedCompetitiveLevel = competitiveLevel
+      ? competitiveLevel.toLowerCase()
+      : null;
+
     if (existingAthlete) {
-      // User exists - update wallet_address (in case they switched wallets)
-      // Also update name/discipline/competitive_level in case they changed in Dynamic
-      const { data: updatedAthlete, error: updateError } = await supabase
+      // User exists - update ONLY the fields that are provided
+      console.log("[sync-athlete] Existing athlete found, updating...");
+
+      // Build update object dynamically to avoid setting undefined values
+      const updateData: any = {
+        wallet_address: walletAddress,
+      };
+
+      // Only include fields that are actually provided
+      if (fullName !== null) {
+        updateData.name = fullName;
+      }
+
+      // Only update discipline if sport is actually provided, and use lowercase
+      if (normalizedSport !== null) {
+        updateData.discipline = normalizedSport;
+      }
+
+      // Only update competitive_level if provided, and use lowercase
+      if (normalizedCompetitiveLevel !== null) {
+        updateData.competitive_level = normalizedCompetitiveLevel;
+      }
+
+      console.log("[sync-athlete] Update data (normalized):", updateData);
+
+      // Perform update
+      const { data: updatedAthletes, error: updateError } = await supabase
         .from("athletes")
-        .update({
-          wallet_address: walletAddress,
-          name: fullName,
-          discipline: sport || existingAthlete.discipline,
-          competitive_level:
-            competitiveLevel || existingAthlete.competitive_level,
-        })
+        .update(updateData)
         .eq("dynamic_user_id", dynamicUserId)
-        .select()
-        .single();
+        .select();
 
       if (updateError) {
-        console.error("Error updating athlete:", updateError);
+        console.error("[sync-athlete] Error updating athlete:", {
+          code: updateError.code,
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint,
+        });
         return NextResponse.json(
           {
             success: false,
@@ -84,27 +127,50 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Check if we got data back
+      if (!updatedAthletes || updatedAthletes.length === 0) {
+        console.error("[sync-athlete] Update returned no rows");
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Update succeeded but returned no data",
+          } as SyncAthleteResponse,
+          { status: 500 }
+        );
+      }
+
+      console.log("[sync-athlete] Athlete updated successfully");
       return NextResponse.json({
         success: true,
-        athlete: updatedAthlete,
+        athlete: updatedAthletes[0],
         isNewUser: false,
       } as SyncAthleteResponse);
     } else {
       // New user - insert athlete record
-      const { data: newAthlete, error: insertError } = await supabase
+      console.log("[sync-athlete] New athlete, inserting...");
+
+      const insertData = {
+        dynamic_user_id: dynamicUserId,
+        wallet_address: walletAddress,
+        name: fullName,
+        discipline: normalizedSport,
+        competitive_level: normalizedCompetitiveLevel,
+      };
+
+      console.log("[sync-athlete] Insert data (normalized):", insertData);
+
+      const { data: newAthletes, error: insertError } = await supabase
         .from("athletes")
-        .insert({
-          dynamic_user_id: dynamicUserId,
-          wallet_address: walletAddress,
-          name: fullName,
-          discipline: sport,
-          competitive_level: competitiveLevel,
-        })
-        .select()
-        .single();
+        .insert(insertData)
+        .select();
 
       if (insertError) {
-        console.error("Error inserting athlete:", insertError);
+        console.error("[sync-athlete] Error inserting athlete:", {
+          code: insertError.code,
+          message: insertError.message,
+          details: insertError.details,
+          hint: insertError.hint,
+        });
         return NextResponse.json(
           {
             success: false,
@@ -114,14 +180,30 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      if (!newAthletes || newAthletes.length === 0) {
+        console.error("[sync-athlete] Insert returned no rows");
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Insert succeeded but returned no data",
+          } as SyncAthleteResponse,
+          { status: 500 }
+        );
+      }
+
+      console.log("[sync-athlete] Athlete created successfully");
       return NextResponse.json({
         success: true,
-        athlete: newAthlete,
+        athlete: newAthletes[0],
         isNewUser: true,
       } as SyncAthleteResponse);
     }
   } catch (error) {
-    console.error("Unexpected error in sync-athlete:", error);
+    console.error("[sync-athlete] Unexpected error:", error);
+    console.error(
+      "[sync-athlete] Error stack:",
+      error instanceof Error ? error.stack : "No stack trace"
+    );
     return NextResponse.json(
       {
         success: false,

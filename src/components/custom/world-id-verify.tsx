@@ -147,9 +147,8 @@ export default function WorldIdVerify({
                   <Image
                     src='/World-Logomark-Black-RGB.svg'
                     alt='World ID'
-                    width={20}
-                    height={20}
-                    className=''
+                    width={48}
+                    height={48}
                   />
                   <span>Connect your World ID</span>
                 </>

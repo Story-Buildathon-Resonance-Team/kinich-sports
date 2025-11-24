@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ProfileSidebar, AssetCard, FilterTabs } from "@/components/dashboard";
 import type { Athlete } from "@/lib/types/athlete";
@@ -56,20 +56,19 @@ export default function AthleteDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<FilterOption>("all");
 
-  useEffect(() => {
-    if (user?.userId) {
-      fetchDashboardData();
+  const fetchDashboardData = useCallback(async () => {
+    if (!user?.userId) {
+      setLoading(false);
+      return;
     }
-  }, [user?.userId]);
 
-  const fetchDashboardData = async () => {
     try {
       setLoading(true);
       setError(null);
 
       // Fetch athlete data and stats
       const athleteResponse = await fetch(
-        `/api/athletes/me?dynamic_user_id=${user?.userId}`
+        `/api/athletes/me?dynamic_user_id=${user.userId}`
       );
 
       if (!athleteResponse.ok) {
@@ -100,12 +99,17 @@ export default function AthleteDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.userId]); // Only recreate if user.userId changes
 
-  const handleVerificationSuccess = () => {
+  // Fetch dashboard data when component mounts or user.userId changes
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]); // Safe to include because it's memoized with useCallback
+
+  const handleVerificationSuccess = useCallback(() => {
     // Refresh dashboard data to show updated verification status
     fetchDashboardData();
-  };
+  }, [fetchDashboardData]);
 
   const formatDuration = (seconds?: number): string => {
     if (!seconds) return "0:00";
@@ -199,6 +203,15 @@ export default function AthleteDashboard() {
     return name.substring(0, 2).toUpperCase();
   };
 
+  // Capitalize first letter of each word
+  const capitalizeWords = (str: string | null): string => {
+    if (!str) return "";
+    return str
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
   // Map competitive_level to level type
   const mapLevel = (
     level: string | null
@@ -215,7 +228,7 @@ export default function AthleteDashboard() {
     id: athlete.id,
     initials: getInitials(athlete.name),
     name: athlete.name || "Athlete",
-    discipline: athlete.discipline || "Athlete",
+    discipline: capitalizeWords(athlete.discipline) || "Athlete",
     level: mapLevel(athlete.competitive_level),
     world_id_verified: athlete.world_id_verified,
     world_id_verified_at: athlete.world_id_verified_at,

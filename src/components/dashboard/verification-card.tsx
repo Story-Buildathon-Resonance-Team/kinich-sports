@@ -36,7 +36,7 @@ export function VerificationCard({
         </div>
       ) : (
         <div className='space-y-4'>
-          <div className='flex justify-center'>
+          <div className='flex-col justify-center gap-5'>
             <p className='text-[13px] text-[rgba(245,247,250,0.6)] leading-relaxed'>
               Connect your World ID to add a "human" badge to your profile and
               assets.

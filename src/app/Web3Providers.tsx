@@ -37,70 +37,98 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
           EthereumWalletConnectors,
           ZeroDevSmartWalletConnectors,
         ],
-        cssOverrides: (
-          <link rel='stylesheet' href='/src/styles/external-styles.css' />
-        ),
-        handlers: {
-          handleAuthenticatedUser: async (args) => {
-            // This fires every time a user successfully authenticates
-            // Extract user data from Dynamic
+        cssOverrides: <link rel='stylesheet' href='/external-styles.css' />,
+        events: {
+          onAuthSuccess: async (args) => {
+            // Sync athlete data on successful authentication
             const userId = args.user.userId;
             const firstName = args.user.firstName;
             const lastName = args.user.lastName;
             const metadata = args.user.metadata as DynamicMetadata | undefined;
-
-            // Get the primary wallet address
             const primaryWallet = args.user.verifiedCredentials?.[0];
 
-            if (!userId || !primaryWallet?.address) {
-              console.error("Missing userId or wallet address from Dynamic");
-              return;
-            }
+            if (userId && primaryWallet?.address) {
+              const syncData: SyncAthleteRequest = {
+                dynamicUserId: userId,
+                walletAddress: primaryWallet.address,
+                firstName: firstName,
+                lastName: lastName,
+                sport: metadata?.["Sport"],
+                competitiveLevel: metadata?.["Competitive Level"],
+              };
 
-            // Prepare sync request
-            const syncData: SyncAthleteRequest = {
-              dynamicUserId: userId,
-              walletAddress: primaryWallet.address,
-              firstName: firstName,
-              lastName: lastName,
-              sport: metadata?.sport,
-              competitiveLevel: metadata?.competitiveLevel,
-            };
+              try {
+                const response = await fetch("/api/sync-athlete", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(syncData),
+                });
 
-            try {
-              // Call our API route to sync with Supabase
-              const response = await fetch("/api/sync-athlete", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(syncData),
-              });
+                const result: SyncAthleteResponse = await response.json();
 
-              const result: SyncAthleteResponse = await response.json();
-
-              if (!result.success) {
-                console.error("Failed to sync athlete:", result.error);
-                // Note: We don't throw here to avoid blocking the auth flow
-                // Navigation component will handle retry logic
-              } else {
-                console.log(
-                  `Athlete ${
-                    result.isNewUser ? "created" : "updated"
-                  } successfully:`,
-                  result.athlete?.id
-                );
-
-                // Redirect to dashboard ONLY if user is on landing page
-                if (pathname === "/") {
-                  router.push("/dashboard");
+                if (result.success) {
+                  console.log(
+                    `Athlete ${
+                      result.isNewUser ? "created" : "synced"
+                    } successfully`
+                  );
+                } else {
+                  console.error("Failed to sync athlete:", result.error);
                 }
+              } catch (error) {
+                console.error("Error syncing athlete:", error);
               }
-            } catch (error) {
-              console.error("Error syncing athlete to database:", error);
-              // Note: We don't throw here to avoid blocking the auth flow
-              // Navigation component will handle retry logic
             }
+
+            // Redirect to dashboard on successful auth from landing page
+            if (pathname === "/") {
+              router.push("/dashboard");
+            }
+          },
+          onUserProfileUpdate: async (user) => {
+            // Sync profile changes when user updates their information
+            const userId = user.userId;
+            const firstName = user.firstName;
+            const lastName = user.lastName;
+            const metadata = user.metadata as DynamicMetadata | undefined;
+            const primaryWallet = user.verifiedCredentials?.[0];
+
+            if (userId && primaryWallet?.address) {
+              const syncData: SyncAthleteRequest = {
+                dynamicUserId: userId,
+                walletAddress: primaryWallet.address,
+                firstName: firstName,
+                lastName: lastName,
+                sport: metadata?.["Sport"],
+                competitiveLevel: metadata?.["Competitive Level"],
+              };
+
+              try {
+                const response = await fetch("/api/sync-athlete", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(syncData),
+                });
+
+                const result: SyncAthleteResponse = await response.json();
+
+                if (result.success) {
+                  console.log("Profile updated successfully");
+                } else {
+                  console.error("Failed to update profile:", result.error);
+                }
+              } catch (error) {
+                console.error("Error updating profile:", error);
+              }
+            }
+          },
+          onLogout: (args) => {
+            // Redirect to home page on logout
+            router.push("/");
           },
         },
       }}
