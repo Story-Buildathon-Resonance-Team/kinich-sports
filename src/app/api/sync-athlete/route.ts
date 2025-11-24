@@ -72,6 +72,12 @@ export async function POST(request: NextRequest) {
         ? `${firstName} ${lastName}`
         : firstName || lastName || null;
 
+    // Normalize sport and competitiveLevel to lowercase for database constraints
+    const normalizedSport = sport ? sport.toLowerCase() : null;
+    const normalizedCompetitiveLevel = competitiveLevel
+      ? competitiveLevel.toLowerCase()
+      : null;
+
     if (existingAthlete) {
       // User exists - update ONLY the fields that are provided
       console.log("[sync-athlete] Existing athlete found, updating...");
@@ -81,22 +87,22 @@ export async function POST(request: NextRequest) {
         wallet_address: walletAddress,
       };
 
-      // Only include fields that are actually provided (not undefined or null from Dynamic)
+      // Only include fields that are actually provided
       if (fullName !== null) {
         updateData.name = fullName;
       }
 
-      // CRITICAL: Only update discipline if sport is actually provided
-      if (sport !== undefined && sport !== null) {
-        updateData.discipline = sport;
+      // Only update discipline if sport is actually provided, and use lowercase
+      if (normalizedSport !== null) {
+        updateData.discipline = normalizedSport;
       }
 
-      // CRITICAL: Only update competitive_level if provided
-      if (competitiveLevel !== undefined && competitiveLevel !== null) {
-        updateData.competitive_level = competitiveLevel;
+      // Only update competitive_level if provided, and use lowercase
+      if (normalizedCompetitiveLevel !== null) {
+        updateData.competitive_level = normalizedCompetitiveLevel;
       }
 
-      console.log("[sync-athlete] Update data:", updateData);
+      console.log("[sync-athlete] Update data (normalized):", updateData);
 
       // Perform update
       const { data: updatedAthletes, error: updateError } = await supabase
@@ -147,11 +153,11 @@ export async function POST(request: NextRequest) {
         dynamic_user_id: dynamicUserId,
         wallet_address: walletAddress,
         name: fullName,
-        discipline: sport || null,
-        competitive_level: competitiveLevel || null,
+        discipline: normalizedSport,
+        competitive_level: normalizedCompetitiveLevel,
       };
 
-      console.log("[sync-athlete] Insert data:", insertData);
+      console.log("[sync-athlete] Insert data (normalized):", insertData);
 
       const { data: newAthletes, error: insertError } = await supabase
         .from("athletes")
