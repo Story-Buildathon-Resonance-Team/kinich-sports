@@ -1,4 +1,6 @@
-import { useRouter } from "next/router";
+"use client";
+
+import { useRouter } from "next/navigation";
 import { ProfileHeader } from "./profile-header";
 import { VerificationCard } from "./verification-card";
 import { StatsPanel } from "./stats-panel";
