@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ProfileSidebar, AssetCard, FilterTabs } from "@/components/dashboard";
 import type { Athlete } from "@/lib/types/athlete";
@@ -56,20 +56,19 @@ export default function AthleteDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<FilterOption>("all");
 
-  useEffect(() => {
-    if (user?.userId) {
-      fetchDashboardData();
+  const fetchDashboardData = useCallback(async () => {
+    if (!user?.userId) {
+      setLoading(false);
+      return;
     }
-  }, [user?.userId]);
 
-  const fetchDashboardData = async () => {
     try {
       setLoading(true);
       setError(null);
 
       // Fetch athlete data and stats
       const athleteResponse = await fetch(
-        `/api/athletes/me?dynamic_user_id=${user?.userId}`
+        `/api/athletes/me?dynamic_user_id=${user.userId}`
       );
 
       if (!athleteResponse.ok) {
@@ -100,12 +99,17 @@ export default function AthleteDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.userId]); // Only recreate if user.userId changes
 
-  const handleVerificationSuccess = () => {
+  // Fetch dashboard data when component mounts or user.userId changes
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  const handleVerificationSuccess = useCallback(() => {
     // Refresh dashboard data to show updated verification status
     fetchDashboardData();
-  };
+  }, [fetchDashboardData]);
 
   const formatDuration = (seconds?: number): string => {
     if (!seconds) return "0:00";
