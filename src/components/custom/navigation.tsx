@@ -68,7 +68,7 @@ export function Navigation() {
                 Dashboard
               </Link>
 
-              <div className='flex items-center gap-4'>
+              <div className='flex items-center gap-5'>
                 <div className='text-right'>
                   <div className='text-[15px] font-medium text-[#F5F7FA]'>
                     {displayName}
@@ -79,14 +79,17 @@ export function Navigation() {
                     </div>
                   )}
                 </div>
-                <DynamicWidget variant='dropdown' />
+                <DynamicWidget
+                  variant='dropdown'
+                  innerButtonComponent={<span>Log In</span>}
+                />
               </div>
             </>
           )}
         </div>
 
         {/* Mobile Menu Button & Widget */}
-        <div className='flex md:hidden items-center gap-4'>
+        <div className='flex md:hidden items-center gap-5'>
           {isAuthenticated && (
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
