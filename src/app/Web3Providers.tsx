@@ -88,11 +88,6 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
                   } successfully:`,
                   result.athlete?.id
                 );
-
-                // Redirect to dashboard ONLY if user is on landing page
-                if (pathname === "/") {
-                  router.push("/dashboard");
-                }
               }
             } catch (error) {
               console.error("Error syncing athlete to database:", error);
@@ -102,6 +97,12 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
           },
         },
         events: {
+          onAuthSuccess: (args) => {
+            if (pathname === "/") {
+              // Redirect to dashboard on successful auth from landing page
+              router.push("/dashboard");
+            }
+          },
           onLogout: (args) => {
             // Redirect to home page on logout
             router.push("/");
