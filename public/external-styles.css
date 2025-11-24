@@ -1,6 +1,6 @@
 /* KINICH Styles applied to Dynamic */
 
-:root {
+.dynamic-shadow-dom {
   /* Graphite Base */
   --dynamic-base-1: #2c2c2e;
   --dynamic-base-2: #1a1a1c;
