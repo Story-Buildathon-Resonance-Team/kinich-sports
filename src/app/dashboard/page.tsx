@@ -104,7 +104,7 @@ export default function AthleteDashboard() {
   // Fetch dashboard data when component mounts or user.userId changes
   useEffect(() => {
     fetchDashboardData();
-  }, [fetchDashboardData]);
+  }, [fetchDashboardData]); // Safe to include because it's memoized with useCallback
 
   const handleVerificationSuccess = useCallback(() => {
     // Refresh dashboard data to show updated verification status
@@ -203,6 +203,15 @@ export default function AthleteDashboard() {
     return name.substring(0, 2).toUpperCase();
   };
 
+  // Capitalize first letter of each word
+  const capitalizeWords = (str: string | null): string => {
+    if (!str) return "";
+    return str
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
   // Map competitive_level to level type
   const mapLevel = (
     level: string | null
@@ -219,7 +228,7 @@ export default function AthleteDashboard() {
     id: athlete.id,
     initials: getInitials(athlete.name),
     name: athlete.name || "Athlete",
-    discipline: athlete.discipline || "Athlete",
+    discipline: capitalizeWords(athlete.discipline) || "Athlete",
     level: mapLevel(athlete.competitive_level),
     world_id_verified: athlete.world_id_verified,
     world_id_verified_at: athlete.world_id_verified_at,

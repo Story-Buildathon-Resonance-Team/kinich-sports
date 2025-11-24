@@ -79,10 +79,7 @@ export function Navigation() {
                     </div>
                   )}
                 </div>
-                <DynamicWidget
-                  variant='dropdown'
-                  innerButtonComponent={<span>Account</span>}
-                />
+                <DynamicWidget variant='dropdown' />
               </div>
             </>
           )}
@@ -90,69 +87,57 @@ export function Navigation() {
 
         {/* Mobile Menu Button & Widget */}
         <div className='flex md:hidden items-center gap-4'>
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className='text-[#F5F7FA] hover:text-[rgba(245,247,250,0.7)] transition-colors duration-200'
-            aria-label='Toggle menu'
-          >
-            {mobileMenuOpen ? (
-              <X className='w-6 h-6' />
-            ) : (
-              <Menu className='w-6 h-6' />
-            )}
-          </button>
+          {isAuthenticated && (
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className='text-[#F5F7FA] hover:text-[rgba(245,247,250,0.7)] transition-colors duration-200'
+              aria-label='Toggle menu'
+            >
+              {mobileMenuOpen ? (
+                <X className='w-6 h-6' />
+              ) : (
+                <Menu className='w-6 h-6' />
+              )}
+            </button>
+          )}
           <DynamicWidget
             variant='dropdown'
-            innerButtonComponent={<span>Account</span>}
+            innerButtonComponent={
+              isAuthenticated ? undefined : <span>Log In</span>
+            }
           />
         </div>
       </div>
 
       {/* Mobile Menu Dropdown */}
-      {mobileMenuOpen && (
+      {mobileMenuOpen && isAuthenticated && (
         <div className='md:hidden mt-6 pb-4 border-t border-[rgba(245,247,250,0.05)] pt-6'>
           <div className='flex flex-col gap-6'>
-            {!isAuthenticated ? (
-              /* PUBLIC NAVIGATION - MOBILE */
-              <>
-                <Link
-                  href='/arena'
-                  onClick={() => setMobileMenuOpen(false)}
-                  className='text-[16px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
-                >
-                  Arena
-                </Link>
-              </>
-            ) : (
-              /* AUTHENTICATED NAVIGATION - MOBILE */
-              <>
-                <div className='pb-4 border-b border-[rgba(245,247,250,0.05)]'>
-                  <div className='text-[16px] font-medium text-[#F5F7FA] mb-1'>
-                    {displayName}
-                  </div>
-                  {primaryWallet?.address && (
-                    <div className='text-[13px] font-medium text-[rgba(245,247,250,0.5)] font-mono'>
-                      {formatWalletAddress(primaryWallet.address)}
-                    </div>
-                  )}
+            <div className='pb-4 border-b border-[rgba(245,247,250,0.05)]'>
+              <div className='text-[16px] font-medium text-[#F5F7FA] mb-1'>
+                {displayName}
+              </div>
+              {primaryWallet?.address && (
+                <div className='text-[13px] font-medium text-[rgba(245,247,250,0.5)] font-mono'>
+                  {formatWalletAddress(primaryWallet.address)}
                 </div>
-                <Link
-                  href='/arena'
-                  onClick={() => setMobileMenuOpen(false)}
-                  className='text-[16px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
-                >
-                  Arena
-                </Link>
+              )}
+            </div>
+            <Link
+              href='/arena'
+              onClick={() => setMobileMenuOpen(false)}
+              className='text-[16px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
+            >
+              Arena
+            </Link>
 
-                <Link
-                  href='/dashboard'
-                  onClick={() => setMobileMenuOpen(false)}
-                  className='text-[16px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
-                >
-                  Dashboard
-                </Link>
-              </>
-            )}
+            <Link
+              href='/dashboard'
+              onClick={() => setMobileMenuOpen(false)}
+              className='text-[16px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
+            >
+              Dashboard
+            </Link>
           </div>
         </div>
       )}
