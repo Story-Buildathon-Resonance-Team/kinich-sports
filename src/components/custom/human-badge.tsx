@@ -13,22 +13,22 @@ export default function HumanBadge({
   size = "medium",
   className = "",
 }: HumanBadgeProps) {
-  // Size configurations matching World ID guidelines
+  // Size configurations matching World ID guidelines (32-48px recommended)
   const sizeConfig = {
     small: {
-      container: "h-5 px-2 gap-1",
-      icon: 12, // pixels
-      text: "text-[10px]",
+      container: "h-7 px-2.5 gap-1.5",
+      icon: 32, // pixels
+      text: "text-[12px]",
     },
     medium: {
-      container: "h-6 px-2.5 gap-1.5",
-      icon: 16, // pixels
-      text: "text-[11px]",
+      container: "h-8 px-3 gap-2",
+      icon: 36, // pixels
+      text: "text-[13px]",
     },
     large: {
-      container: "h-8 px-3 gap-2",
-      icon: 20, // pixels
-      text: "text-[12px]",
+      container: "h-9 px-3.5 gap-2",
+      icon: 40, // pixels
+      text: "text-[14px]",
     },
   };
 
@@ -39,8 +39,8 @@ export default function HumanBadge({
       <div
         className={`
           inline-flex items-center justify-center
-          bg-[rgba(0,71,171,0.15)]
-          border border-[rgba(0,71,171,0.3)]
+          bg-[rgba(245,247,250,0.12)]
+          border border-[rgba(245,247,250,0.2)]
           rounded-md
           ${config.container}
           ${className}
@@ -63,8 +63,8 @@ export default function HumanBadge({
     <div
       className={`
         inline-flex items-center
-        bg-[rgba(0,71,171,0.15)]
-        border border-[rgba(0,71,171,0.3)]
+        bg-[rgba(245,247,250,0.12)]
+        border border-[rgba(245,247,250,0.2)]
         rounded-md
         ${config.container}
         ${className}
@@ -80,9 +80,8 @@ export default function HumanBadge({
       />
       <span
         className={`
-          text-[rgba(184,212,240,0.9)]
+          text-[#2C2C2E]
           font-medium
-          uppercase
           tracking-wide
           ${config.text}
         `}

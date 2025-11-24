@@ -1,8 +1,11 @@
+import HumanBadge from "../custom/human-badge";
+
 interface ProfileHeaderProps {
   initials: string;
   name: string;
   discipline: string;
   level: string;
+  isWorldIdVerified?: boolean;
 }
 
 export function ProfileHeader({
@@ -10,6 +13,7 @@ export function ProfileHeader({
   name,
   discipline,
   level,
+  isWorldIdVerified = false,
 }: ProfileHeaderProps) {
   return (
     <div className='bg-[rgba(26,26,28,0.6)] border border-[rgba(245,247,250,0.06)] rounded-xl p-8 text-center'>
@@ -23,7 +27,10 @@ export function ProfileHeader({
         {discipline}
       </div>
 
-      <span className='badge-verified inline-block'>{level}</span>
+      <div className='flex flex-col items-center gap-2'>
+        <span className='badge-verified inline-block'>{level}</span>
+        {isWorldIdVerified && <HumanBadge variant='icon-label' size='small' />}
+      </div>
     </div>
   );
 }

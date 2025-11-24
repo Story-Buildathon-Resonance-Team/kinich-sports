@@ -60,14 +60,17 @@ export function ProfileSidebar({
         name={athlete.name}
         discipline={athlete.discipline}
         level={athlete.level}
+        isWorldIdVerified={athlete.world_id_verified}
       />
 
-      <VerificationCard
-        athleteId={athlete.id}
-        isWorldIdVerified={athlete.world_id_verified}
-        verifiedAt={athlete.world_id_verified_at || undefined}
-        onVerificationSuccess={onVerificationSuccess}
-      />
+      {!athlete.world_id_verified && (
+        <VerificationCard
+          athleteId={athlete.id}
+          isWorldIdVerified={athlete.world_id_verified}
+          verifiedAt={athlete.world_id_verified_at || undefined}
+          onVerificationSuccess={onVerificationSuccess}
+        />
+      )}
 
       <StatsPanel stats={formattedStats} />
 

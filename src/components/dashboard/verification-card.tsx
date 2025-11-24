@@ -2,7 +2,6 @@
 
 import { Card } from "../custom/card";
 import WorldIdVerify from "../custom/world-id-verify";
-import HumanBadge from "../custom/human-badge";
 
 interface VerificationCardProps {
   athleteId: string;
@@ -23,31 +22,18 @@ export function VerificationCard({
         Verification
       </h3>
 
-      {isWorldIdVerified ? (
-        <div className='space-y-3'>
-          <div className='flex items-center justify-center py-2'>
-            <HumanBadge variant='icon-label' size='large' />
-          </div>
-          {verifiedAt && (
-            <p className='text-[11px] text-[rgba(245,247,250,0.4)] text-center font-mono'>
-              {new Date(verifiedAt).toLocaleDateString()}
-            </p>
-          )}
+      <div className='space-y-4'>
+        <div className='flex-col justify-center gap-5'>
+          <p className='text-[13px] text-[rgba(245,247,250,0.6)] leading-relaxed'>
+            Connect your World ID to add a "human" badge to your profile and
+            assets.
+          </p>
+          <WorldIdVerify
+            athleteId={athleteId}
+            onVerificationSuccess={onVerificationSuccess}
+          />
         </div>
-      ) : (
-        <div className='space-y-4'>
-          <div className='flex-col justify-center gap-5'>
-            <p className='text-[13px] text-[rgba(245,247,250,0.6)] leading-relaxed'>
-              Connect your World ID to add a "human" badge to your profile and
-              assets.
-            </p>
-            <WorldIdVerify
-              athleteId={athleteId}
-              onVerificationSuccess={onVerificationSuccess}
-            />
-          </div>
-        </div>
-      )}
+      </div>
     </Card>
   );
 }
