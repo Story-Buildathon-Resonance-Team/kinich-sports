@@ -45,7 +45,7 @@ export default function HumanBadge({
           ${config.container}
           ${className}
         `}
-        title='Verified Human'
+        title='human'
         aria-label='Verified Human'
       >
         <Image
