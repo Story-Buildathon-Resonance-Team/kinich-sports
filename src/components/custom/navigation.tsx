@@ -25,7 +25,7 @@ export function Navigation() {
       : user?.firstName || user?.email || "Athlete";
 
   return (
-    <nav className='fixed top-0 w-full px-6 md:px-16 py-5 bg-[rgba(26,26,28,0.92)] backdrop-blur-[20px] border-b border-[rgba(245,247,250,0.05)]'>
+    <nav className='fixed top-0 w-full z-[1000] px-6 md:px-16 py-5 bg-[rgba(26,26,28,0.92)] backdrop-blur-[20px] border-b border-[rgba(245,247,250,0.05)]'>
       <div className='flex justify-between items-center'>
         {/* Logo */}
         <Link
