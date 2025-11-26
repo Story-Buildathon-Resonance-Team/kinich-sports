@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { useDynamicContext, DynamicWidget } from "@dynamic-labs/sdk-react-core";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FilterTabs, AssetCard } from "@/components/dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Athlete, SyncAthleteRequest } from "@/lib/types/athlete";
 import { AlertCircle, Plus, Shield } from "lucide-react";
 import Link from "next/link";
-import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
+import { usePathname } from "next/navigation";
+import { DashboardSidebar } from "@/components/dashboard/sidebar";
 
 interface Asset {
   id: string;
@@ -51,94 +53,83 @@ const DEMO_ASSETS = [
   },
 ];
 
+// Fetcher function for React Query
+async function fetchDashboardDataApi(userId: string, primaryWalletAddress: string | undefined, firstName?: string, lastName?: string): Promise<DashboardData> {
+    // Attempt to fetch athlete data
+    let athleteResponse = await fetch(
+      `/api/athletes/me?dynamic_user_id=${userId}`
+    );
+
+    // If user not found (404), attempt to sync athlete record
+    if (athleteResponse.status === 404 && primaryWalletAddress) {
+      console.log("Athlete not found in database, attempting sync...");
+      
+      const syncData: SyncAthleteRequest = {
+          dynamicUserId: userId,
+          walletAddress: primaryWalletAddress,
+          firstName: firstName,
+          lastName: lastName,
+      };
+
+      try {
+          const syncResponse = await fetch("/api/sync-athlete", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+              },
+              body: JSON.stringify(syncData),
+          });
+          
+          if (syncResponse.ok) {
+              // Retry fetch after successful sync
+              athleteResponse = await fetch(
+                  `/api/athletes/me?dynamic_user_id=${userId}`
+              );
+          }
+      } catch (syncErr) {
+          console.error("Auto-sync failed:", syncErr);
+      }
+    }
+
+    if (!athleteResponse.ok) {
+      throw new Error("Failed to fetch athlete data");
+    }
+
+    const athleteData = await athleteResponse.json();
+
+    // Fetch assets
+    const assetsResponse = await fetch(
+      `/api/assets?athlete_id=${athleteData.athlete.id}`
+    );
+
+    if (!assetsResponse.ok) {
+      throw new Error("Failed to fetch assets");
+    }
+
+    const assetsData = await assetsResponse.json();
+
+    return {
+      athlete: athleteData.athlete,
+      stats: athleteData.stats,
+      assets: assetsData.assets,
+    };
+}
+
 export default function AthleteDashboard() {
   const { user, primaryWallet } = useDynamicContext();
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<FilterOption>("all");
+  const pathname = usePathname();
 
-  const fetchDashboardData = useCallback(async () => {
-    if (!user?.userId) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Attempt to fetch athlete data
-      let athleteResponse = await fetch(
-        `/api/athletes/me?dynamic_user_id=${user.userId}`
-      );
-
-      // If user not found (404), attempt to sync athlete record
-      if (athleteResponse.status === 404 && primaryWallet?.address) {
-        console.log("Athlete not found in database, attempting sync...");
-        
-        const syncData: SyncAthleteRequest = {
-            dynamicUserId: user.userId,
-            walletAddress: primaryWallet.address,
-            firstName: user.firstName,
-            lastName: user.lastName,
-        };
-
-        try {
-            const syncResponse = await fetch("/api/sync-athlete", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(syncData),
-            });
-            
-            if (syncResponse.ok) {
-                // Retry fetch after successful sync
-                athleteResponse = await fetch(
-                    `/api/athletes/me?dynamic_user_id=${user.userId}`
-                );
-            }
-        } catch (syncErr) {
-            console.error("Auto-sync failed:", syncErr);
-        }
-      }
-
-      if (!athleteResponse.ok) {
-        throw new Error("Failed to fetch athlete data");
-      }
-
-      const athleteData = await athleteResponse.json();
-
-      // Fetch assets
-      const assetsResponse = await fetch(
-        `/api/assets?athlete_id=${athleteData.athlete.id}`
-      );
-
-      if (!assetsResponse.ok) {
-        throw new Error("Failed to fetch assets");
-      }
-
-      const assetsData = await assetsResponse.json();
-
-      setDashboardData({
-        athlete: athleteData.athlete,
-        stats: athleteData.stats,
-        assets: assetsData.assets,
-      });
-    } catch (err) {
-      console.error("Error fetching dashboard data:", err);
-      setError(err instanceof Error ? err.message : "Failed to load dashboard");
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.userId, user?.firstName, user?.lastName, primaryWallet?.address]);
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
+  // Use React Query for data fetching
+  const { data: dashboardData, isLoading, error, refetch } = useQuery({
+    queryKey: ['dashboard', user?.userId],
+    queryFn: () => {
+        if (!user?.userId) throw new Error("User not authenticated");
+        return fetchDashboardDataApi(user.userId, primaryWallet?.address, user.firstName, user.lastName);
+    },
+    enabled: !!user?.userId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
   const formatDuration = (seconds?: number): string => {
     if (!seconds) return "0:00";
@@ -169,9 +160,11 @@ export default function AthleteDashboard() {
     };
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
-        <div className='p-8 pt-12'>
+      <div className='min-h-screen bg-[#050505] flex'>
+        <DashboardSidebar currentPath={pathname} />
+        <div className='flex-1 lg:ml-64 p-8 pt-12'>
           <div className="max-w-6xl mx-auto space-y-8">
              <div className="flex justify-between">
                 <Skeleton className="h-12 w-1/3 rounded-lg" />
@@ -189,26 +182,30 @@ export default function AthleteDashboard() {
              </div>
           </div>
         </div>
+      </div>
     );
   }
 
   if (error || !dashboardData) {
     return (
-        <div className='flex items-center justify-center p-8 h-full'>
+      <div className='min-h-screen bg-[#050505] flex'>
+        <DashboardSidebar currentPath={pathname} />
+        <div className='flex-1 lg:ml-64 flex items-center justify-center p-8'>
             <div className='text-center max-w-md p-8 glass-panel rounded-2xl'>
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">Unable to load dashboard</h3>
             <p className='text-gray-400 mb-6 text-sm'>
-                {error || "We encountered an issue loading your athlete data."}
+                {error instanceof Error ? error.message : "We encountered an issue loading your athlete data."}
             </p>
             <button
-                onClick={fetchDashboardData}
+                onClick={() => refetch()}
                 className='px-6 py-2.5 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition-colors'
             >
                 Retry Connection
             </button>
             </div>
         </div>
+      </div>
     );
   }
 
@@ -265,7 +262,10 @@ export default function AthleteDashboard() {
   };
 
   return (
-      <div className='h-full'>
+    <div className='min-h-screen bg-[#050505] flex'>
+      <DashboardSidebar currentPath={pathname} />
+
+      <div className='flex-1 lg:ml-64 min-h-screen overflow-y-auto'>
         <header className="sticky top-0 z-40 flex items-center justify-between px-8 py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 lg:hidden">
              <Link href="/" className="text-xl font-bold text-white">KINICH</Link>
              <DynamicWidget variant="dropdown" />
@@ -409,5 +409,6 @@ export default function AthleteDashboard() {
             </section>
         </div>
       </div>
+    </div>
   );
 }

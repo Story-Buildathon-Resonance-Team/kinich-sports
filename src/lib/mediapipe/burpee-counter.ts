@@ -9,15 +9,10 @@ export class BurpeeCounter {
   private repTimestamps: number[] = [];
   private frameCount = 0;
 
-  // Scale-invariant thresholds using Vertical Ratio (Vertical Distance / Torso Length)
-  // Standing: Ratio should be close to 1.0 (Vertical torso)
-  // Down: Ratio should be close to 0.0 (Horizontal torso) or Negative (Hips above shoulders)
-
-  private readonly STANDING_RATIO_THRESHOLD = 0.7; // Torso must be >70% vertical
-  private readonly DOWN_RATIO_THRESHOLD = 0.3; // Torso must be <30% vertical
+  // Thresholds: 1.0 = Upright, 0.0 = Horizontal
+  private readonly STANDING_RATIO_THRESHOLD = 0.7;
+  private readonly DOWN_RATIO_THRESHOLD = 0.3;
   private readonly HYSTERESIS = 0.1;
-
-  constructor() { }
 
   process(landmarks: Landmark[], timestamp: number): { reps: number; state: string; feedback: string } {
     this.frameCount++;
@@ -31,28 +26,22 @@ export class BurpeeCounter {
       return { reps: this.repCount, state: this.state, feedback: "No pose" };
     }
 
-    // Midpoints
     const hipX = (leftHip.x + rightHip.x) / 2;
     const hipY = (leftHip.y + rightHip.y) / 2;
     const shoulderX = (leftShoulder.x + rightShoulder.x) / 2;
     const shoulderY = (leftShoulder.y + rightShoulder.y) / 2;
 
-    // Calculate Euclidean distance (Torso Length in pixels)
+    // Torso Length (pixels)
     const dx = hipX - shoulderX;
     const dy = hipY - shoulderY;
     const torsoLength = Math.sqrt(dx * dx + dy * dy);
 
-    // Avoid division by zero
     if (torsoLength < 0.01) {
       return { reps: this.repCount, state: this.state, feedback: "Too small" };
     }
 
-    // Vertical Ratio: How much of the torso length is vertical?
-    // 1.0 = Perfectly upright
-    // 0.0 = Perfectly horizontal
-    // -1.0 = Upside down
+    // Vertical Ratio
     const verticalRatio = dy / torsoLength;
-
     let feedback = "";
 
     switch (this.state) {
@@ -87,12 +76,10 @@ export class BurpeeCounter {
         break;
     }
 
-    const debugInfo = `R: ${verticalRatio.toFixed(2)}`;
-
     return {
       reps: this.repCount,
       state: this.state,
-      feedback: `${feedback} (${debugInfo})`
+      feedback: `${feedback} (R: ${verticalRatio.toFixed(2)})`
     };
   }
 
