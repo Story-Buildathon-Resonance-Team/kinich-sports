@@ -8,6 +8,12 @@ import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { ZeroDevSmartWalletConnectors } from "@dynamic-labs/ethereum-aa";
 import { PropsWithChildren } from "react";
 import { aeneid } from "@story-protocol/core-sdk";
+import { useRouter, usePathname } from "next/navigation";
+import type {
+  SyncAthleteRequest,
+  SyncAthleteResponse,
+  DynamicMetadata,
+} from "@/lib/types/athlete";
 
 // setup wagmi
 const config = createConfig({
@@ -19,9 +25,11 @@ const config = createConfig({
 });
 const queryClient = new QueryClient();
 
-export default function Web3Providers({ children }: PropsWithChildren) {
+function DynamicProviderWrapper({ children }: PropsWithChildren) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   return (
-    // setup dynamic
     <DynamicContextProvider
       settings={{
         environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID as string,
@@ -29,13 +37,115 @@ export default function Web3Providers({ children }: PropsWithChildren) {
           EthereumWalletConnectors,
           ZeroDevSmartWalletConnectors,
         ],
+        cssOverrides: <link rel='stylesheet' href='/external-styles.css' />,
+        events: {
+          onAuthSuccess: async (args) => {
+            // Sync athlete data on successful authentication
+            const userId = args.user.userId;
+            const firstName = args.user.firstName;
+            const lastName = args.user.lastName;
+            const metadata = args.user.metadata as DynamicMetadata | undefined;
+            const primaryWallet = args.user.verifiedCredentials?.[0];
+
+            if (userId && primaryWallet?.address) {
+              const syncData: SyncAthleteRequest = {
+                dynamicUserId: userId,
+                walletAddress: primaryWallet.address,
+                firstName: firstName,
+                lastName: lastName,
+                sport: metadata?.["Sport"],
+                competitiveLevel: metadata?.["Competitive Level"],
+              };
+
+              try {
+                const response = await fetch("/api/sync-athlete", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(syncData),
+                });
+
+                const result: SyncAthleteResponse = await response.json();
+
+                if (result.success) {
+                  console.log(
+                    `Athlete ${
+                      result.isNewUser ? "created" : "synced"
+                    } successfully`
+                  );
+                } else {
+                  console.error("Failed to sync athlete:", result.error);
+                }
+              } catch (error) {
+                console.error("Error syncing athlete:", error);
+              }
+            }
+
+            // Redirect to dashboard on successful auth from landing page
+            if (pathname === "/") {
+              router.push("/dashboard");
+            }
+          },
+          onUserProfileUpdate: async (user) => {
+            // Sync profile changes when user updates their information
+            const userId = user.userId;
+            const firstName = user.firstName;
+            const lastName = user.lastName;
+            const metadata = user.metadata as DynamicMetadata | undefined;
+            const primaryWallet = user.verifiedCredentials?.[0];
+
+            if (userId && primaryWallet?.address) {
+              const syncData: SyncAthleteRequest = {
+                dynamicUserId: userId,
+                walletAddress: primaryWallet.address,
+                firstName: firstName,
+                lastName: lastName,
+                sport: metadata?.["Sport"],
+                competitiveLevel: metadata?.["Competitive Level"],
+              };
+
+              try {
+                const response = await fetch("/api/sync-athlete", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(syncData),
+                });
+
+                const result: SyncAthleteResponse = await response.json();
+
+                if (result.success) {
+                  console.log("Profile updated successfully");
+                } else {
+                  console.error("Failed to update profile:", result.error);
+                }
+              } catch (error) {
+                console.error("Error updating profile:", error);
+              }
+            }
+          },
+          onLogout: (args) => {
+            // Redirect to home page on logout
+            router.push("/");
+          },
+        },
       }}
     >
+      {children}
+    </DynamicContextProvider>
+  );
+}
+
+export default function Web3Providers({ children }: PropsWithChildren) {
+  return (
+    <DynamicProviderWrapper>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
         </QueryClientProvider>
       </WagmiProvider>
-    </DynamicContextProvider>
+    </DynamicProviderWrapper>
   );
 }

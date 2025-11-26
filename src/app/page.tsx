@@ -1,65 +1,107 @@
-import Image from "next/image";
+import {
+  HeroSection,
+  StatCard,
+  FeatureCard,
+  ButtonCobalt,
+} from "@/components/custom";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className='min-h-screen'>
+      <HeroSection />
+
+      <section className='py-[120px] px-6 md:px-16 bg-[#2C2C2E]'>
+        <div className='max-w-[1200px] mx-auto'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-12'>
+            <StatCard
+              number='74%'
+              label='Untapped Potential'
+              description="Athletes worldwide can't access elite performance tracking technology"
+            />
+            <StatCard
+              number='0'
+              label='Ownership'
+              description="Most athletes never own their training data or see compensation when it's used"
+            />
+            <StatCard
+              number='∞'
+              label='Value Lost'
+              description='Countless hours of training disappear without documentation or recognition'
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className='py-[120px] px-6 md:px-16 bg-gradient-to-br from-[#2C2C2E] to-[rgba(0,71,171,0.05)]'>
+        <div className='max-w-[800px] mx-auto text-center'>
+          <h2 className='text-[40px] md:text-[48px] font-light mb-8 tracking-tight'>
+            The future is{" "}
+            <span className='text-[rgba(255,107,53,0.85)] font-normal'>
+              already here
+            </span>
+          </h2>
+
+          <p className='text-[18px] leading-relaxed text-[rgba(245,247,250,0.7)] mb-6 font-light'>
+            Elite technology shouldn't belong only to elite athletes. Your
+            dedication, your technique, your mental preparation—these matter.
+            They have value. They deserve permanence.
+          </p>
+
+          <p className='text-[18px] leading-relaxed text-[rgba(245,247,250,0.7)] font-light'>
+            Kinich turns training sessions into verified performance assets.
+            Your videos become proof. Your audio captures become insight.
+            Everything registered on blockchain, owned by you, valued by the
+            world.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+      </section>
+
+      <section className='py-[120px] px-6 md:px-16 bg-[#2C2C2E]'>
+        <div className='max-w-[1200px] mx-auto'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12'>
+            <FeatureCard
+              icon='🎯'
+              title='Computer Vision Verification'
+              description='Advanced analysis extracts technique metrics from your training videos—no wearables needed. Cadence, consistency, range of motion, automatically documented.'
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <FeatureCard
+              icon='🔐'
+              title='Blockchain Ownership'
+              description='Every asset you create is registered as intellectual property on Story Protocol. You own it. Forever. No one can take it from you.'
+            />
+            <FeatureCard
+              icon='💰'
+              title='Earn From Your Work'
+              description='Set your price. When AI companies, gaming studios, or brands license your data, you get paid. Your training becomes your income stream.'
+            />
+            <FeatureCard
+              icon='🎙️'
+              title='Mental Performance Capture'
+              description='Your mindset matters as much as your mechanics. Record audio capsules about your journey, strategy, and preparation—the invisible edge that makes champions.'
+            />
+            <FeatureCard
+              icon='🌍'
+              title='Global Marketplace'
+              description='Your training data reaches the world. Game developers building realistic animations. AI researchers training motion models. Coaches studying elite technique.'
+            />
+            <FeatureCard
+              icon='✨'
+              title='Build Your Legacy'
+              description='Long after you stop competing, your training data continues working. Teaching. Inspiring. Generating value. This is how athletes live forever.'
+            />
+          </div>
         </div>
-      </main>
+      </section>
+
+      <section className='py-[120px] px-6 md:px-16 text-center bg-gradient-to-br from-[#2C2C2E] to-[#1A1A1C]'>
+        <h2 className='text-[48px] md:text-[56px] font-light mb-8 tracking-tight'>
+          Your arena awaits
+        </h2>
+        <p className='text-[18px] text-[rgba(245,247,250,0.6)] mb-12'>
+          Join the athletes who refuse to let their work disappear
+        </p>
+        <ButtonCobalt size='large'>Enter The Arena</ButtonCobalt>
+      </section>
     </div>
   );
 }

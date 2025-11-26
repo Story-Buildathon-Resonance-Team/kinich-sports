@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { PropsWithChildren } from "react";
 import Web3Providers from "./Web3Providers";
-import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
+import { Navigation } from "@/components/custom/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,9 +15,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang='en'>
-      <body>
+      <body className={inter.className}>
         <Web3Providers>
-          <DynamicWidget />
+          <Navigation />
           {children}
         </Web3Providers>
       </body>
