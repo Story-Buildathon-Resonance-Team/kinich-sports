@@ -163,7 +163,7 @@ export default function AthleteDashboard() {
   if (isLoading) {
     return (
       <div className='min-h-screen bg-[#050505] flex'>
-        <DashboardSidebar currentPath={pathname} />
+        {/* Sidebar provided by layout */}
         <div className='flex-1 lg:ml-64 p-8 pt-12'>
           <div className="max-w-6xl mx-auto space-y-8">
              <div className="flex justify-between">
@@ -189,7 +189,7 @@ export default function AthleteDashboard() {
   if (error || !dashboardData) {
     return (
       <div className='min-h-screen bg-[#050505] flex'>
-        <DashboardSidebar currentPath={pathname} />
+        {/* Sidebar provided by layout */}
         <div className='flex-1 lg:ml-64 flex items-center justify-center p-8'>
             <div className='text-center max-w-md p-8 glass-panel rounded-2xl'>
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
@@ -263,7 +263,7 @@ export default function AthleteDashboard() {
 
   return (
     <div className='min-h-screen bg-[#050505] flex'>
-      <DashboardSidebar currentPath={pathname} />
+      {/* Sidebar provided by layout */}
 
       <div className='flex-1 lg:ml-64 min-h-screen overflow-y-auto'>
         <header className="sticky top-0 z-40 flex items-center justify-between px-8 py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 lg:hidden">

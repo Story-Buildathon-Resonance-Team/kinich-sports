@@ -6,7 +6,7 @@ import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { ZeroDevSmartWalletConnectors } from "@dynamic-labs/ethereum-aa";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect } from "react";
 import { aeneid } from "@story-protocol/core-sdk";
 import { useRouter, usePathname } from "next/navigation";
 import type {
@@ -30,8 +30,11 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
   const pathname = usePathname();
 
   // Use environment variable or fallback for development/testing if not set (to prevent hard crash, though env is preferred)
-  // Ideally, we should ensure the env var is loaded.
   const dynamicEnvId = process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID || "4f755b1f-1989-48ae-a596-864c24894094";
+
+  useEffect(() => {
+    console.log("Dynamic Environment ID:", dynamicEnvId);
+  }, [dynamicEnvId]);
 
   return (
     <DynamicContextProvider
@@ -41,6 +44,7 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
           EthereumWalletConnectors,
           ZeroDevSmartWalletConnectors,
         ],
+        // Optional: Add some basic UI overrides to ensure visibility
         cssOverrides: <link rel='stylesheet' href='/external-styles.css' />,
         events: {
           onAuthSuccess: async (args) => {

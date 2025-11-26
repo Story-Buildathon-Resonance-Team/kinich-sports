@@ -24,7 +24,8 @@ export function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (isAuthenticated && (pathname.startsWith("/dashboard") || pathname.startsWith("/analyze") || pathname.startsWith("/arena"))) {
+  // Hide navigation on home page (handled by HeroSection) and dashboard routes
+  if (pathname === "/" || (isAuthenticated && (pathname.startsWith("/dashboard") || pathname.startsWith("/analyze") || pathname.startsWith("/arena")))) {
       return null;
   }
 
