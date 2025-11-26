@@ -9,100 +9,104 @@ export class BurpeeCounter {
   private repTimestamps: number[] = [];
   private frameCount = 0;
 
-  // Thresholds
-  // Normalized coordinates: Y increases downwards (0 top, 1 bottom)
-  // Standing: Shoulder Y < Hip Y. Distance = Hip Y - Shoulder Y > 0 (e.g. 0.4)
-  // Horizontal/Down: Shoulder Y ~ Hip Y. Distance ~ 0 (e.g. < 0.15)
-  
-  private readonly STANDING_THRESHOLD = 0.35; // Must be at least this vertical to count as standing
-  private readonly DOWN_THRESHOLD = 0.2; // Must be below this to count as down (horizontal)
-  
-  constructor() {}
+  // Scale-invariant thresholds using Vertical Ratio (Vertical Distance / Torso Length)
+  // Standing: Ratio should be close to 1.0 (Vertical torso)
+  // Down: Ratio should be close to 0.0 (Horizontal torso) or Negative (Hips above shoulders)
+
+  private readonly STANDING_RATIO_THRESHOLD = 0.7; // Torso must be >70% vertical
+  private readonly DOWN_RATIO_THRESHOLD = 0.3; // Torso must be <30% vertical
+  private readonly HYSTERESIS = 0.1;
+
+  constructor() { }
 
   process(landmarks: Landmark[], timestamp: number): { reps: number; state: string; feedback: string } {
     this.frameCount++;
-    
-    // MediaPipe Pose Landmarks:
-    // 11: left_shoulder, 12: right_shoulder
-    // 23: left_hip, 24: right_hip
-    // 25: left_knee, 26: right_knee
-    // 27: left_ankle, 28: right_ankle
 
     const leftHip = landmarks[23];
     const rightHip = landmarks[24];
     const leftShoulder = landmarks[11];
     const rightShoulder = landmarks[12];
-    const leftAnkle = landmarks[27];
 
     if (!leftHip || !leftShoulder) {
-        return { reps: this.repCount, state: this.state, feedback: "No pose" };
+      return { reps: this.repCount, state: this.state, feedback: "No pose" };
     }
 
-    // Average hip height (normalized 0-1, 0 is top)
+    // Midpoints
+    const hipX = (leftHip.x + rightHip.x) / 2;
     const hipY = (leftHip.y + rightHip.y) / 2;
+    const shoulderX = (leftShoulder.x + rightShoulder.x) / 2;
     const shoulderY = (leftShoulder.y + rightShoulder.y) / 2;
-    
-    // Vertical distance between hips and shoulders
-    // Positive value = Torso is upright (Shoulders above hips)
-    // Near zero = Torso is horizontal
-    const torsoVerticality = hipY - shoulderY;
+
+    // Calculate Euclidean distance (Torso Length in pixels)
+    const dx = hipX - shoulderX;
+    const dy = hipY - shoulderY;
+    const torsoLength = Math.sqrt(dx * dx + dy * dy);
+
+    // Avoid division by zero
+    if (torsoLength < 0.01) {
+      return { reps: this.repCount, state: this.state, feedback: "Too small" };
+    }
+
+    // Vertical Ratio: How much of the torso length is vertical?
+    // 1.0 = Perfectly upright
+    // 0.0 = Perfectly horizontal
+    // -1.0 = Upside down
+    const verticalRatio = dy / torsoLength;
 
     let feedback = "";
 
-    // State Machine
     switch (this.state) {
       case "STANDING":
         feedback = "Go Down";
-        // Check if torso becomes horizontal-ish
-        if (torsoVerticality < this.DOWN_THRESHOLD) {
+        if (verticalRatio < this.DOWN_RATIO_THRESHOLD) {
           this.state = "DOWN";
         }
         break;
 
       case "DOWN":
         feedback = "Push Up";
-        // Check if starting to rise (torso becoming vertical)
-        if (torsoVerticality > this.DOWN_THRESHOLD + 0.1) { // Hysteresis: require moving well past the down threshold
+        if (verticalRatio > (this.DOWN_RATIO_THRESHOLD + this.HYSTERESIS)) {
           this.state = "UP_PHASE";
         }
         break;
 
       case "UP_PHASE":
-         feedback = "Stand Up Fully";
-         // Confirm standing full extension or jump
-         if (torsoVerticality > this.STANDING_THRESHOLD) {
-             this.repCount++;
-             this.repTimestamps.push(timestamp);
-             this.state = "STANDING";
-         }
-         
-         // If user drops back down without fully standing (failed rep / fast cycle)
-         if (torsoVerticality < this.DOWN_THRESHOLD) {
-             this.state = "DOWN"; // Reset to down
-         }
-         break;
+        feedback = "Stand Up Fully";
+        if (verticalRatio > this.STANDING_RATIO_THRESHOLD) {
+          if (timestamp - this.lastRepTime > 1.0) {
+            this.repCount++;
+            this.repTimestamps.push(timestamp);
+            this.lastRepTime = timestamp;
+          }
+          this.state = "STANDING";
+        }
+
+        if (verticalRatio < this.DOWN_RATIO_THRESHOLD) {
+          this.state = "DOWN";
+        }
+        break;
     }
 
-    // Debug / Tuning info
-    const debugInfo = `V: ${torsoVerticality.toFixed(2)}`;
+    const debugInfo = `R: ${verticalRatio.toFixed(2)}`;
 
     return {
-        reps: this.repCount,
-        state: this.state,
-        feedback: `${feedback} (${debugInfo})`
+      reps: this.repCount,
+      state: this.state,
+      feedback: `${feedback} (${debugInfo})`
     };
   }
 
   getResult() {
-      return {
-          reps: this.repCount,
-          timestamps: this.repTimestamps
-      };
+    return {
+      reps: this.repCount,
+      timestamps: this.repTimestamps
+    };
   }
 
   reset() {
-      this.repCount = 0;
-      this.state = "STANDING";
-      this.repTimestamps = [];
+    this.repCount = 0;
+    this.state = "STANDING";
+    this.repTimestamps = [];
+    this.lastRepTime = 0;
   }
 }
