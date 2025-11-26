@@ -1,147 +1,124 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Menu, X, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function Navigation() {
-  const { user, primaryWallet } = useDynamicContext();
+  const { user } = useDynamicContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
-  // Check if user is authenticated
   const isAuthenticated = user !== null;
 
-  // Format wallet address for display
-  const formatWalletAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  // Get name from Dynamic user object
-  const displayName =
-    user?.firstName && user?.lastName
-      ? `${user.firstName} ${user.lastName}`
-      : user?.firstName || user?.email || "Athlete";
+  if (isAuthenticated && (pathname.startsWith("/dashboard") || pathname.startsWith("/analyze") || pathname.startsWith("/arena"))) {
+      return null;
+  }
+
+  const navLinks = [
+    { name: "Arena", href: "/dashboard/arena" },
+    { name: "Analyze", href: "/dashboard/analyze" },
+  ];
 
   return (
-    <nav className='fixed top-0 w-full z-[1000] px-6 md:px-16 py-5 bg-[rgba(26,26,28,0.92)] backdrop-blur-[20px] border-b border-[rgba(245,247,250,0.05)]'>
-      <div className='flex justify-between items-center'>
-        {/* Logo */}
+    <nav
+      className={cn(
+        "fixed top-0 w-full z-[1000] transition-all duration-300 border-b border-transparent",
+        scrolled
+          ? "bg-[#050505]/80 backdrop-blur-xl border-white/5 py-4"
+          : "bg-transparent py-6"
+      )}
+    >
+      <div className='max-w-[1600px] mx-auto px-6 lg:px-12 flex justify-between items-center'>
         <Link
           href='/'
-          className='text-[18px] md:text-[22px] font-light tracking-[4px] md:tracking-[6px] text-[#F5F7FA] opacity-95 hover:opacity-100 transition-opacity duration-200'
+          className='text-2xl font-bold tracking-tight text-white flex items-center gap-2 group'
         >
-          K I N I C H
+          <span className="text-gradient-logo">KINICH</span>
+          <div className="h-1.5 w-1.5 rounded-full bg-blue-600 group-hover:bg-orange-500 transition-colors duration-300" />
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className='hidden md:flex items-center gap-12'>
-          {!isAuthenticated ? (
-            /* PUBLIC NAVIGATION - DESKTOP */
-            <>
-              <Link
-                href='/arena'
-                className='text-[15px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
-              >
-                Arena
-              </Link>
-              <DynamicWidget
-                variant='dropdown'
-                innerButtonComponent={<span>Log In</span>}
-              />
-            </>
-          ) : (
-            /* AUTHENTICATED NAVIGATION - DESKTOP */
-            <>
-              <Link
-                href='/arena'
-                className='text-[15px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
-              >
-                Arena
-              </Link>
-
-              <Link
-                href='/dashboard'
-                className='text-[15px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
-              >
-                Dashboard
-              </Link>
-
-              <div className='flex items-center gap-5'>
-                <div className='text-right'>
-                  <div className='text-[15px] font-medium text-[#F5F7FA]'>
-                    {displayName}
-                  </div>
-                  {primaryWallet?.address && (
-                    <div className='text-[12px] font-medium text-[rgba(245,247,250,0.5)] font-mono'>
-                      {formatWalletAddress(primaryWallet.address)}
-                    </div>
+        <div className='hidden md:flex items-center gap-8'>
+          <div className="flex items-center gap-1 bg-white/5 rounded-full px-1 py-1 border border-white/5 backdrop-blur-md">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden",
+                    isActive
+                      ? "text-white bg-white/10 shadow-sm"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
                   )}
-                </div>
-                <DynamicWidget
-                  variant='dropdown'
-                  innerButtonComponent={<span>Log In</span>}
-                />
-              </div>
-            </>
-          )}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className='flex items-center gap-4 pl-4 border-l border-white/10'>
+            <DynamicWidget
+              variant='dropdown'
+              innerButtonComponent={
+                <span className="font-medium">
+                  Connect
+                </span>
+              }
+            />
+          </div>
         </div>
 
-        {/* Mobile Menu Button & Widget */}
-        <div className='flex md:hidden items-center gap-5'>
-          {isAuthenticated && (
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className='text-[#F5F7FA] hover:text-[rgba(245,247,250,0.7)] transition-colors duration-200'
-              aria-label='Toggle menu'
-            >
-              {mobileMenuOpen ? (
-                <X className='w-6 h-6' />
-              ) : (
-                <Menu className='w-6 h-6' />
-              )}
-            </button>
-          )}
+        <div className='flex md:hidden items-center gap-4'>
           <DynamicWidget
-            variant='dropdown'
-            innerButtonComponent={<span>Log In</span>}
+             variant='dropdown'
+             innerButtonComponent={<span className="text-xs">Connect</span>}
           />
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className='text-white p-2 hover:bg-white/10 rounded-lg transition-colors'
+            aria-label='Toggle menu'
+          >
+            {mobileMenuOpen ? <X className='w-6 h-6' /> : <Menu className='w-6 h-6' />}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
-      {mobileMenuOpen && isAuthenticated && (
-        <div className='md:hidden mt-6 pb-4 border-t border-[rgba(245,247,250,0.05)] pt-6'>
-          <div className='flex flex-col gap-6'>
-            <div className='pb-4 border-b border-[rgba(245,247,250,0.05)]'>
-              <div className='text-[16px] font-medium text-[#F5F7FA] mb-1'>
-                {displayName}
-              </div>
-              {primaryWallet?.address && (
-                <div className='text-[13px] font-medium text-[rgba(245,247,250,0.5)] font-mono'>
-                  {formatWalletAddress(primaryWallet.address)}
-                </div>
-              )}
-            </div>
+      <div
+        className={cn(
+          "fixed inset-0 bg-[#050505] z-[999] pt-24 px-6 transition-transform duration-300 md:hidden",
+          mobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        )}
+      >
+        <div className='flex flex-col gap-2'>
+          {navLinks.map((link) => (
             <Link
-              href='/arena'
+              key={link.href}
+              href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className='text-[16px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
+              className='flex items-center justify-between py-4 text-lg font-medium text-gray-300 border-b border-white/5 hover:text-white hover:pl-2 transition-all'
             >
-              Arena
+              {link.name}
+              <ChevronRight className="w-5 h-5 opacity-50" />
             </Link>
-
-            <Link
-              href='/dashboard'
-              onClick={() => setMobileMenuOpen(false)}
-              className='text-[16px] font-normal text-[rgba(245,247,250,0.7)] hover:text-[#F5F7FA] transition-colors duration-200'
-            >
-              Dashboard
-            </Link>
-          </div>
+          ))}
         </div>
-      )}
+      </div>
     </nav>
   );
 }

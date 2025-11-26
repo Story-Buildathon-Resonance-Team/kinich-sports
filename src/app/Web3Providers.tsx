@@ -29,10 +29,14 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Use environment variable or fallback for development/testing if not set (to prevent hard crash, though env is preferred)
+  // Ideally, we should ensure the env var is loaded.
+  const dynamicEnvId = process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID || "4f755b1f-1989-48ae-a596-864c24894094";
+
   return (
     <DynamicContextProvider
       settings={{
-        environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID as string,
+        environmentId: dynamicEnvId,
         walletConnectors: [
           EthereumWalletConnectors,
           ZeroDevSmartWalletConnectors,
