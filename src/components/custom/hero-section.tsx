@@ -48,23 +48,23 @@ export function HeroSection() {
       <div className='relative z-10 flex-1 flex flex-col justify-center max-w-[1200px]'>
         
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 backdrop-blur-sm mb-6 md:mb-8 w-fit">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 backdrop-blur-sm w-fit mb-6 md:mb-8">
           <span className="text-[10px] md:text-xs font-medium text-white/60 uppercase tracking-wider">AI Powered Analysis</span>
         </div>
 
-        <h1 className='text-5xl md:text-7xl lg:text-[7rem] font-normal leading-[1.0] md:leading-[0.95] tracking-tight mb-6 md:mb-8 text-white'>
+        <h1 className='font-primary text-5xl md:text-7xl lg:text-[7rem] font-normal leading-[1.0] md:leading-[0.95] tracking-tight text-white mb-6 md:mb-8' style={{fontSize: 'clamp(3rem, 6vw, 5rem)'}}>
           Athletic assets <br />
           in fluid motion
         </h1>
 
-        <p className='text-base md:text-xl leading-relaxed text-white/60 mb-10 md:mb-12 font-light max-w-[90%] md:max-w-[500px]'>
+        <p className='font-primary text-base md:text-xl leading-relaxed text-white/60 font-light max-w-[90%] md:max-w-[500px] mb-10 md:mb-12'>
           Transforming physical effort into verified digital property with real-time computer vision and blockchain technology.
         </p>
 
         <div className="flex items-center gap-4">
            <button 
              onClick={handleGetStarted}
-             className="group px-8 py-4 bg-[#F5F5F5] text-black font-medium rounded-full hover:bg-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-105 active:scale-95 flex items-center gap-2"
+             className="group !px-8 !py-4 !bg-[#F5F5F5] !text-black !text-lg !font-medium !rounded-full hover:!bg-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-105 active:scale-95 flex items-center gap-2"
            >
              {isAuthenticated ? "Open Dashboard" : "Get Started"}
              {isAuthenticated && <ArrowRight className="w-4 h-4" />}

@@ -63,35 +63,6 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Typography scale */
-  h1 {
-    font-size: clamp(3rem, 6vw, 5rem);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-  }
-
-  h2 {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-  }
-
-  h3 {
-    font-size: clamp(1.5rem, 4vw, 2.25rem);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    line-height: 1.3;
-  }
-
-  p {
-    font-size: 1.125rem;
-    line-height: 1.7;
-    font-weight: 400;
-    color: var(--color-ice-muted);
-  }
-
   /* Focus states */
   *:focus-visible {
     outline: none;
@@ -225,31 +196,20 @@
 }
 
 /* --- DYNAMIC WIDGET FIXES --- */
-/* Force high z-index for Dynamic Widget Modal */
+
+/* Force high z-index for Dynamic Widget Modal and Portal (Shadow DOM enabled) */
 .dynamic-shadow-dom, 
-[class*="dynamic-widget"],
-[class*="dynamic-context-modal"] {
-  z-index: 2147483647 !important; /* Max safe integer for z-index */
-}
-
-/* Ensure inputs are visible and interactive */
-input[class*="dynamic"] {
-  opacity: 1 !important;
-  visibility: visible !important;
+.dynamic-context-modal,
+[data-testid="dynamic-modal"],
+body > div[id*="dynamic"] {
+  z-index: 2147483647 !important;
   pointer-events: auto !important;
-  cursor: text !important;
-  background-color: #262626 !important;
-  color: #f5f7fa !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-/* Ensure buttons are interactive */
-button[class*="dynamic"] {
+/* Ensure Shadow DOM content is interactive */
+.dynamic-shadow-dom,
+.dynamic-shadow-dom * {
   pointer-events: auto !important;
-  cursor: pointer !important;
 }
 
-/* Ensure all dynamic text is visible */
-[class*="dynamic"] {
-  text-rendering: optimizeLegibility;
-}
+
