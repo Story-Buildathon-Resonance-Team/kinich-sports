@@ -10,10 +10,10 @@
     "deploy:collection": "tsx src/scripts/deploy-spg-nft-collection.ts"
   },
   "dependencies": {
-    "@dynamic-labs/ethereum": "^4.45.1",
+    "@dynamic-labs/ethereum": "^3.9.13",
     "@dynamic-labs/ethereum-aa": "^4.45.1",
-    "@dynamic-labs/sdk-react-core": "^4.45.1",
-    "@dynamic-labs/wagmi-connector": "^4.45.1",
+    "@dynamic-labs/sdk-react-core": "^4.37.1",
+    "@dynamic-labs/wagmi-connector": "^4.37.1",
     "@radix-ui/react-slot": "^1.2.4",
     "@story-protocol/core-sdk": "^1.4.1",
     "@supabase/ssr": "^0.7.0",
@@ -30,7 +30,7 @@
     "react-dom": "19.2.0",
     "tailwind-merge": "^3.4.0",
     "viem": "^2.39.0",
-    "wagmi": "^2.19.3"
+    "wagmi": "^1.4.13"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",
