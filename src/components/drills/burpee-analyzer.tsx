@@ -19,14 +19,20 @@ export default function BurpeeAnalyzer() {
     feedback,
     metadata, 
     videoSrc, 
-    setVideoSrc, 
+    setVideoSrc,
     startProcessing,
-    resetAnalysis
+    resetAnalysis,
+    preloadModel
   } = useAnalysis();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const repCounterRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Preload AI Model when component mounts
+  useEffect(() => {
+    preloadModel();
+  }, [preloadModel]);
 
   useEffect(() => {
     setCanvasRef(canvasRef.current);

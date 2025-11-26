@@ -1,6 +1,6 @@
 import { Landmark } from "./types";
 
-type BurpeeState = "STANDING" | "DOWN" | "UP_PHASE";
+export type BurpeeState = "STANDING" | "DOWN" | "UP_PHASE";
 
 export class BurpeeCounter {
   private state: BurpeeState = "STANDING";
@@ -14,7 +14,7 @@ export class BurpeeCounter {
   private readonly DOWN_RATIO_THRESHOLD = 0.3;
   private readonly HYSTERESIS = 0.1;
 
-  process(landmarks: Landmark[], timestamp: number): { reps: number; state: string; feedback: string } {
+  process(landmarks: Landmark[], timestamp: number): { reps: number; state: BurpeeState; feedback: string } {
     this.frameCount++;
 
     const leftHip = landmarks[23];

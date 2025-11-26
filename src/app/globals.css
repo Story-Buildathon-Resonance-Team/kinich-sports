@@ -223,3 +223,33 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* --- DYNAMIC WIDGET FIXES --- */
+/* Force high z-index for Dynamic Widget Modal */
+.dynamic-shadow-dom, 
+[class*="dynamic-widget"],
+[class*="dynamic-context-modal"] {
+  z-index: 2147483647 !important; /* Max safe integer for z-index */
+}
+
+/* Ensure inputs are visible and interactive */
+input[class*="dynamic"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  cursor: text !important;
+  background-color: #262626 !important;
+  color: #f5f7fa !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Ensure buttons are interactive */
+button[class*="dynamic"] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Ensure all dynamic text is visible */
+[class*="dynamic"] {
+  text-rendering: optimizeLegibility;
+}

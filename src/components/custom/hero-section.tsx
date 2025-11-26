@@ -20,18 +20,18 @@ export function HeroSection() {
     <section className='relative min-h-[100svh] w-full flex flex-col justify-between px-6 md:px-16 py-6 md:py-8 overflow-hidden selection:bg-purple-500/30'>
       
       {/* Gradient Background - Mesh Effect */}
-      <div className="absolute inset-0 z-0 pointer-events-none bg-[#050505]">
+      <div className="absolute inset-0 z-0 pointer-events-none bg-[#080808]">
         {/* Top Left - Muted Orange/Brown */}
-        <div className="absolute top-[-20%] left-[-10%] w-[70vw] md:w-[50vw] h-[70vw] md:h-[50vw] rounded-full bg-[#8B5A2B] opacity-30 blur-[80px] md:blur-[120px]" />
+        <div className="absolute top-[-20%] left-[-10%] w-[70vw] md:w-[50vw] h-[70vw] md:h-[50vw] rounded-full bg-[#8B5A2B] opacity-40 blur-[80px] md:blur-[120px]" />
         
         {/* Top Right - Blue/Purple */}
-        <div className="absolute top-[-10%] right-[-20%] w-[60vw] md:w-[40vw] h-[60vw] md:h-[40vw] rounded-full bg-[#2E3B8B] opacity-30 blur-[80px] md:blur-[120px]" />
+        <div className="absolute top-[-10%] right-[-20%] w-[60vw] md:w-[40vw] h-[60vw] md:h-[40vw] rounded-full bg-[#2E3B8B] opacity-40 blur-[80px] md:blur-[120px]" />
         
         {/* Bottom Right - Pink/Purple */}
-        <div className="absolute bottom-[-20%] right-[-10%] w-[70vw] md:w-[50vw] h-[70vw] md:h-[50vw] rounded-full bg-[#5D3A6D] opacity-25 blur-[80px] md:blur-[100px]" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[70vw] md:w-[50vw] h-[70vw] md:h-[50vw] rounded-full bg-[#5D3A6D] opacity-35 blur-[80px] md:blur-[100px]" />
         
         {/* Center Overlay to blend */}
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
       </div>
 
       {/* Brand - Top Left */}
