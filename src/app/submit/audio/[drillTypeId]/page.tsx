@@ -5,8 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import { AudioRecorder } from "@/components/audio/audio-recorder";
 import { AudioPreviewPlayer } from "@/components/audio/audio-preview-player";
 import { AudioAccessGate } from "@/components/audio/audio-access-gate";
+import { Card } from "@/components/custom/card";
 import { getDrillById, AudioCapsule } from "@/lib/drills/constants";
-import { buildAudioCapsuleMetadata } from "@/lib/types/audio";
+import { useAudioUpload } from "@/hooks/useAudioUpload";
 import { createClient } from "@/utils/supabase/client";
 
 type SubmissionStep = "instructions" | "recording" | "preview" | "uploading";
@@ -21,24 +22,29 @@ export default function AudioSubmissionPage() {
     useState<SubmissionStep>("instructions");
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const [error, setError] = useState<string | null>(null);
   const [athleteId, setAthleteId] = useState<string | null>(null);
   const [athleteProfile, setAthleteProfile] = useState<any>(null);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
 
-  // Fetch challenge details
-  useEffect(() => {
-    const drill = getDrillById(drillTypeId);
-    if (!drill || drill.asset_type !== "audio") {
-      setError("Invalid challenge ID");
-      return;
-    }
-    setChallenge(drill as AudioCapsule);
-  }, [drillTypeId]);
+  // Initialize upload hook
+  const uploadHook =
+    challenge && athleteProfile && athleteId
+      ? useAudioUpload({ challenge, athleteId, athleteProfile })
+      : null;
 
-  // Fetch athlete profile
+  // Fetch challenge and athlete profile
   useEffect(() => {
-    const fetchAthleteProfile = async () => {
+    const initialize = async () => {
       try {
+        // Get challenge
+        const drill = getDrillById(drillTypeId);
+        if (!drill || drill.asset_type !== "audio") {
+          setLoadingError("Invalid challenge ID");
+          return;
+        }
+        setChallenge(drill as AudioCapsule);
+
+        // Get athlete profile
         const supabase = createClient();
         const {
           data: { user },
@@ -49,169 +55,89 @@ export default function AudioSubmissionPage() {
           return;
         }
 
-        const { data: profile, error: profileError } = await supabase
-          .from("athletes")
-          .select("*")
-          .eq("dynamic_user_id", user.id)
-          .single();
+        const response = await fetch(
+          `/api/athletes/me?dynamic_user_id=${user.id}`
+        );
 
-        if (profileError || !profile) {
-          console.error("[Audio Submission] Profile not found:", profileError);
-          setError("Athlete profile not found");
+        if (!response.ok) {
+          throw new Error("Failed to fetch athlete profile");
+        }
+
+        const data = await response.json();
+
+        if (!data.athlete) {
+          setLoadingError("Athlete profile not found");
           return;
         }
 
-        setAthleteId(profile.id);
-        setAthleteProfile(profile);
+        setAthleteId(data.athlete.id);
+        setAthleteProfile(data.athlete);
       } catch (err) {
-        console.error("[Audio Submission] Error fetching profile:", err);
-        setError("Failed to load athlete profile");
+        console.error("[Audio Submission] Initialization error:", err);
+        setLoadingError("Failed to load challenge");
       }
     };
 
-    fetchAthleteProfile();
-  }, [router]);
+    initialize();
+  }, [drillTypeId, router]);
 
-  // Handle recording complete
   const handleRecordingComplete = (blob: Blob, duration: number) => {
     setRecordedBlob(blob);
     setRecordingDuration(duration);
     setCurrentStep("preview");
-    console.log("[Audio Submission] Recording complete:", {
-      size: blob.size,
-      duration,
-    });
   };
 
-  // Handle re-record
   const handleReRecord = () => {
     setRecordedBlob(null);
     setRecordingDuration(0);
     setCurrentStep("recording");
+    uploadHook?.resetError();
   };
 
-  // Handle submit
   const handleSubmit = async () => {
-    if (!recordedBlob || !challenge || !athleteProfile || !athleteId) {
-      setError("Missing required data");
-      return;
-    }
+    if (!recordedBlob || !uploadHook) return;
 
     try {
       setCurrentStep("uploading");
-      setError(null);
-
-      const supabase = createClient();
-
-      // Upload audio to Supabase Storage
-      const timestamp = Date.now();
-      const filePath = `audio/${athleteId}/${timestamp}-${drillTypeId}.webm`;
-
-      console.log("[Audio Submission] Uploading to:", filePath);
-
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("kinich-assets")
-        .upload(filePath, recordedBlob, {
-          contentType: recordedBlob.type,
-          upsert: false,
-        });
-
-      if (uploadError) {
-        throw new Error(`Upload failed: ${uploadError.message}`);
-      }
-
-      console.log("[Audio Submission] Upload successful:", uploadData);
-
-      // Get public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("kinich-assets").getPublicUrl(filePath);
-
-      console.log("[Audio Submission] Public URL:", publicUrl);
-
-      // Build metadata
-      const metadata = buildAudioCapsuleMetadata({
-        drillTypeId: challenge.drill_type_id,
-        challengeName: challenge.name,
-        questions: challenge.questions,
-        athleteDiscipline: athleteProfile.discipline || "other",
-        athleteExperienceLevel: athleteProfile.competitive_level || "amateur",
-        worldIdVerified: athleteProfile.world_id_verified || false,
-        cvVideoVerified: false, // Will be determined by API
-        recordingDurationSeconds: Math.floor(recordingDuration),
-        fileSizeBytes: recordedBlob.size,
-        mimeType: recordedBlob.type,
-      });
-
-      console.log("[Audio Submission] Metadata:", metadata);
-
-      // Create asset record in database
-      const { data: asset, error: assetError } = await supabase
-        .from("assets")
-        .insert({
-          athlete_id: athleteId,
-          asset_type: "audio",
-          drill_type_id: drillTypeId,
-          asset_url: publicUrl,
-          license_fee: 15.0, // Default fee
-          metadata: metadata,
-          status: "pending",
-        })
-        .select()
-        .single();
-
-      if (assetError || !asset) {
-        throw new Error(`Database insert failed: ${assetError?.message}`);
-      }
-
-      console.log("[Audio Submission] Asset created:", asset.id);
-
-      // Register on Story Protocol
-      console.log("[Audio Submission] Registering on Story Protocol...");
-
-      const registerResponse = await fetch("/api/register-audio", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          assetId: asset.id,
-          athleteWallet: athleteProfile.wallet_address,
-          athleteName: athleteProfile.name || "Anonymous Athlete",
-          drillTypeId: drillTypeId,
-          experienceLevel: athleteProfile.competitive_level || "amateur",
-          mediaUrl: publicUrl,
-          mimeType: recordedBlob.type,
-          licenseFee: 15.0,
-          questionsCount: challenge.questions.length,
-          verificationMethod: metadata.verification.verification_method,
-          worldIdVerified: metadata.verification.world_id_verified,
-          cvVideoVerified: metadata.verification.cv_video_verified,
-        }),
-      });
-
-      if (!registerResponse.ok) {
-        const errorData = await registerResponse.json();
-        throw new Error(
-          `Story registration failed: ${errorData.error || "Unknown error"}`
-        );
-      }
-
-      const registerData = await registerResponse.json();
-      console.log(
-        "[Audio Submission] Story registration complete:",
-        registerData
-      );
-
-      // Redirect to asset page
-      router.push(`/asset/${asset.id}`);
+      await uploadHook.uploadAudio(recordedBlob, recordingDuration);
     } catch (err) {
-      console.error("[Audio Submission] Upload failed:", err);
-      setError(err instanceof Error ? err.message : "Upload failed");
-      setCurrentStep("preview"); // Go back to preview on error
+      setCurrentStep("preview");
     }
   };
 
   // Loading state
-  if (!challenge || !athleteId) {
+  if (!challenge || !athleteId || !athleteProfile) {
+    if (loadingError) {
+      return (
+        <div className='min-h-screen bg-[#2C2C2E]'>
+          <div className='max-w-[600px] mx-auto px-6 pt-[140px]'>
+            <Card variant='default' className='p-8 text-center'>
+              <div className='text-[48px] mb-4'>⚠️</div>
+              <h2 className='text-[24px] font-medium text-[#F5F7FA] mb-3'>
+                Error
+              </h2>
+              <p className='text-[15px] text-[rgba(245,247,250,0.7)] mb-6'>
+                {loadingError}
+              </p>
+              <button
+                onClick={() => router.push("/arena")}
+                className='
+                  bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
+                  border border-[rgba(184,212,240,0.2)]
+                  text-[#F5F7FA] font-medium
+                  rounded-xl px-8 py-3
+                  transition-all duration-300
+                  hover:-translate-y-0.5
+                '
+              >
+                Back to Arena
+              </button>
+            </Card>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className='min-h-screen bg-[#2C2C2E] flex items-center justify-center'>
         <div className='text-center'>
@@ -224,39 +150,6 @@ export default function AudioSubmissionPage() {
     );
   }
 
-  // Error state
-  if (error && currentStep !== "uploading") {
-    return (
-      <div className='min-h-screen bg-[#2C2C2E]'>
-        <div className='max-w-[600px] mx-auto px-6 pt-[140px]'>
-          <div className='bg-[rgba(26,26,28,0.6)] border border-[rgba(255,107,53,0.2)] rounded-xl p-8 text-center'>
-            <div className='text-[48px] mb-4'>⚠️</div>
-            <h2 className='text-[24px] font-medium text-[#F5F7FA] mb-3'>
-              Error
-            </h2>
-            <p className='text-[15px] text-[rgba(245,247,250,0.7)] mb-6'>
-              {error}
-            </p>
-            <button
-              onClick={() => router.push("/arena")}
-              className='
-                bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
-                border border-[rgba(184,212,240,0.2)]
-                text-[#F5F7FA] font-medium
-                rounded-xl px-8 py-3
-                transition-all duration-300
-                hover:-translate-y-0.5
-              '
-            >
-              Back to Arena
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Wrap in AudioAccessGate
   return (
     <AudioAccessGate athleteId={athleteId}>
       <div className='min-h-screen bg-[#2C2C2E]'>
@@ -274,8 +167,7 @@ export default function AudioSubmissionPage() {
           {/* Instructions Step */}
           {currentStep === "instructions" && (
             <div className='space-y-6'>
-              {/* Privacy Reminder */}
-              <div className='bg-[rgba(255,107,53,0.1)] border border-[rgba(255,107,53,0.2)] rounded-xl p-6'>
+              <Card variant='default' hover={false} className='p-6'>
                 <div className='flex items-start gap-4'>
                   <div className='text-[24px]'>🔒</div>
                   <div>
@@ -287,21 +179,20 @@ export default function AudioSubmissionPage() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </Card>
 
-              {/* Questions */}
-              <div className='bg-gradient-to-br from-[rgba(0,71,171,0.15)] to-[rgba(26,26,28,0.6)] border border-[rgba(0,71,171,0.2)] rounded-2xl p-8 relative'>
-                <div className='absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,71,171,0.3)] to-transparent' />
-
+              <Card variant='elevated' hover={false} className='p-8'>
                 <h2 className='text-[22px] font-medium text-[#F5F7FA] mb-6'>
                   Answer These Questions
                 </h2>
 
                 <div className='space-y-6'>
                   {challenge.questions.map((question, index) => (
-                    <div
+                    <Card
                       key={index}
-                      className='bg-[rgba(26,26,28,0.4)] border border-[rgba(245,247,250,0.06)] rounded-xl p-5'
+                      variant='default'
+                      hover={false}
+                      className='p-5'
                     >
                       <div className='flex gap-4'>
                         <div className='flex-shrink-0 w-8 h-8 bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)] rounded-full flex items-center justify-center text-[14px] font-medium text-[#F5F7FA]'>
@@ -311,7 +202,7 @@ export default function AudioSubmissionPage() {
                           {question}
                         </p>
                       </div>
-                    </div>
+                    </Card>
                   ))}
                 </div>
 
@@ -321,9 +212,8 @@ export default function AudioSubmissionPage() {
                     Suggested duration: {challenge.duration_minutes} minutes
                   </span>
                 </div>
-              </div>
+              </Card>
 
-              {/* Start Button */}
               <div className='flex justify-center pt-4'>
                 <button
                   onClick={() => setCurrentStep("recording")}
@@ -354,8 +244,7 @@ export default function AudioSubmissionPage() {
           {/* Recording Step */}
           {currentStep === "recording" && (
             <div className='space-y-8'>
-              {/* Questions Reference (Compact) */}
-              <div className='bg-[rgba(26,26,28,0.4)] border border-[rgba(245,247,250,0.06)] rounded-xl p-6'>
+              <Card variant='default' hover={false} className='p-6'>
                 <h3 className='text-[16px] font-medium text-[rgba(245,247,250,0.9)] mb-4'>
                   Questions to Answer:
                 </h3>
@@ -367,13 +256,12 @@ export default function AudioSubmissionPage() {
                     </li>
                   ))}
                 </ol>
-              </div>
+              </Card>
 
-              {/* Recorder */}
               <AudioRecorder
                 onRecordingComplete={handleRecordingComplete}
                 maxDurationSeconds={challenge.duration_minutes * 60}
-                onError={setError}
+                onError={setLoadingError}
               />
             </div>
           )}
@@ -389,21 +277,27 @@ export default function AudioSubmissionPage() {
           )}
 
           {/* Uploading Step */}
-          {currentStep === "uploading" && (
+          {currentStep === "uploading" && uploadHook && (
             <div className='flex flex-col items-center justify-center py-20'>
               <div className='inline-block w-16 h-16 border-4 border-[rgba(0,71,171,0.3)] border-t-[rgba(0,71,171,0.8)] rounded-full animate-spin mb-6' />
               <h3 className='text-[24px] font-medium text-[#F5F7FA] mb-2'>
-                Uploading Your Recording
+                {uploadHook.progress === "uploading" &&
+                  "Uploading Your Recording"}
+                {uploadHook.progress === "creating-record" &&
+                  "Creating Asset Record"}
+                {uploadHook.progress === "registering" &&
+                  "Registering on Story Protocol"}
+                {uploadHook.progress === "complete" && "Complete!"}
               </h3>
               <p className='text-[16px] text-[rgba(245,247,250,0.6)] mb-8'>
-                Registering on Story Protocol...
+                Please wait...
               </p>
-              {error && (
-                <div className='bg-[rgba(255,107,53,0.1)] border border-[rgba(255,107,53,0.2)] rounded-xl p-4 max-w-[500px]'>
+              {uploadHook.error && (
+                <Card variant='default' className='p-4 max-w-[500px]'>
                   <p className='text-[14px] text-[rgba(255,107,53,0.9)]'>
-                    {error}
+                    {uploadHook.error}
                   </p>
-                </div>
+                </Card>
               )}
             </div>
           )}
