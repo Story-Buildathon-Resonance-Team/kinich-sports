@@ -83,7 +83,9 @@ export function buildAudioIPMetadata(params: {
   drillName: string; // e.g., "Identity Capsule 1: The Origin Story" - from constants
   experienceLevel: string;
   media: MediaInfo;
-  verificationPhrase?: string;
+  verificationMethod: "world_id" | "cv_video" | "world_id_and_cv_video";
+  worldIdVerified: boolean;
+  cvVideoVerified: boolean;
   questionsCount?: number;
 }): IpMetadata {
   const {
@@ -93,7 +95,9 @@ export function buildAudioIPMetadata(params: {
     drillName,
     experienceLevel,
     media,
-    verificationPhrase,
+    verificationMethod,
+    worldIdVerified,
+    cvVideoVerified,
     questionsCount,
   } = params;
 
@@ -120,7 +124,9 @@ export function buildAudioIPMetadata(params: {
       drill_name: drillName,
       experience_level: experienceLevel,
       asset_type: "audio",
-      verification_phrase: verificationPhrase,
+      verification_method: verificationMethod,
+      world_id_verified: worldIdVerified,
+      cv_video_verified: cvVideoVerified,
       questions_count: questionsCount || 0,
     },
   };
