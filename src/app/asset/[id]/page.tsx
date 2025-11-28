@@ -169,8 +169,11 @@ export default function AssetPage() {
             {/* Metadata */}
             <AudioMetadataDisplay metadata={metadata} />
 
-            {/* License */}
-            <LicenseDisplay licenseFee={Number(asset.license_fee)} />
+            {/* License - Pass storyIpId prop */}
+            <LicenseDisplay
+              licenseFee={Number(asset.license_fee)}
+              storyIpId={asset.story_ip_id}
+            />
           </div>
         </div>
       </div>
