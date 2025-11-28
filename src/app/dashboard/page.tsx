@@ -6,10 +6,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FilterTabs, AssetCard } from "@/components/dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Athlete, SyncAthleteRequest } from "@/lib/types/athlete";
-import { AlertCircle, Plus, Shield } from "lucide-react";
+import { AlertCircle, Plus, Shield, Activity, DollarSign, Layers, Trophy, TrendingUp, BarChart3, LineChart } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 interface Asset {
   id: string;
@@ -51,6 +52,16 @@ const DEMO_ASSETS = [
     duration: "3:45",
     isDemo: true,
   },
+];
+
+const performanceData = [
+  { name: 'Mon', value: 4000 },
+  { name: 'Tue', value: 3000 },
+  { name: 'Wed', value: 5000 },
+  { name: 'Thu', value: 2780 },
+  { name: 'Fri', value: 1890 },
+  { name: 'Sat', value: 6390 },
+  { name: 'Sun', value: 8490 },
 ];
 
 // Fetcher function for React Query
@@ -116,8 +127,9 @@ async function fetchDashboardDataApi(userId: string, primaryWalletAddress: strin
 }
 
 export default function AthleteDashboard() {
-  const { user, primaryWallet } = useDynamicContext();
+  const { user, primaryWallet, sdkHasLoaded } = useDynamicContext();
   const [activeFilter, setActiveFilter] = useState<FilterOption>("all");
+  const [chartType, setChartType] = useState<"area" | "bar">("area");
   const pathname = usePathname();
 
   // Use React Query for data fetching
@@ -160,7 +172,8 @@ export default function AthleteDashboard() {
     };
   };
 
-  if (isLoading) {
+  // Show loading state while SDK is loading, user is not yet resolved, or query is loading
+  if (!sdkHasLoaded || !user || isLoading) {
     return (
       <div className='min-h-screen bg-[#050505] flex'>
         <DashboardSidebar currentPath={pathname} />
@@ -271,78 +284,84 @@ export default function AthleteDashboard() {
           <DynamicWidget variant="dropdown" />
         </header>
 
-        <div className='p-6 lg:p-8 w-full max-w-full animate-fade-in-up'>
-          {/* Top Row Cards */}
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-10">
+        <div className='p-2 lg:p-4 w-full max-w-[1600px] animate-fade-in-up'>
 
-            {/* Current / Athlete Card */}
-            <div className="xl:col-span-5 bg-[#0a0a0a] rounded-2xl border border-white/10 p-8 relative overflow-hidden group hover:border-white/20 transition-all duration-500">
-              {/* Subtle Background Pattern */}
-              <div className="absolute inset-0 bg-[radial-gradient(#ffffff05_1px,transparent_1px)] [background-size:16px_16px] opacity-50" />
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-blue-600/10 transition-colors duration-500" />
-
-              <div className="relative z-10 h-full flex flex-col justify-between">
-                <div className="flex justify-between items-start mb-8">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center text-2xl font-bold text-white shadow-lg backdrop-blur-sm group-hover:scale-105 transition-transform duration-300">
-                      {athleteProfile.initials}
-                    </div>
-                    <div>
-                      <h2 className="text-3xl font-bold text-white tracking-tight leading-none mb-1">{athleteProfile.name}</h2>
-                      <div className="flex items-center gap-2 text-sm text-gray-400">
-                        <span className="uppercase tracking-wider font-medium text-blue-400">{athleteProfile.discipline}</span>
-                        <span className="w-1 h-1 rounded-full bg-gray-600" />
-                        <span>{athleteProfile.level}</span>
-                      </div>
-                    </div>
-                  </div>
-                  {athleteProfile.world_id_verified && (
-                    <div className="bg-blue-500/10 border border-blue-500/20 p-2 rounded-lg text-blue-400" title="Verified Human">
-                      <Shield className="w-5 h-5" />
-                    </div>
-                  )}
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+            <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-blue-500/30 transition-colors group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                  <DollarSign className="w-6 h-6" />
                 </div>
-
-                <div className="space-y-6">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">Total IP Value</span>
-                      <span className="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">+12.5% this month</span>
-                    </div>
-                    <div className="text-6xl font-medium text-white tracking-tighter tabular-nums">
-                      {stats.totalRoyalties.toLocaleString()}<span className="text-3xl text-gray-600 font-light ml-2">IP</span>
-                    </div>
-                    <div className="text-sm text-gray-500 mt-2 font-mono">≈ $142.50 USD</div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 pt-6 border-t border-white/5">
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/5 hover:bg-white/10 transition-colors">
-                      <div className="text-xs text-gray-500 mb-1">Profile Score</div>
-                      <div className="text-2xl font-bold text-white">{stats.profileScore}<span className="text-sm text-gray-600 font-normal">/100</span></div>
-                      <div className="w-full h-1 bg-white/10 rounded-full mt-2 overflow-hidden">
-                        <div className="h-full bg-blue-500 rounded-full" style={{ width: `${stats.profileScore}%` }} />
-                      </div>
-                    </div>
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/5 hover:bg-white/10 transition-colors">
-                      <div className="text-xs text-gray-500 mb-1">Total Assets</div>
-                      <div className="text-2xl font-bold text-white">{stats.totalAssets}</div>
-                      <div className="text-[10px] text-gray-500 mt-2">Across 2 Categories</div>
-                    </div>
-                  </div>
-                </div>
+                <span className="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full flex items-center gap-1">
+                  <TrendingUp className="w-3 h-3" /> +12.5%
+                </span>
               </div>
+              <div className="text-3xl font-bold text-white mb-1 tracking-tight">{stats.totalRoyalties.toLocaleString()} <span className="text-lg text-gray-500 font-normal">IP</span></div>
+              <div className="text-sm text-gray-500">Total IP Value</div>
             </div>
 
-            {/* Performance Chart Card */}
-            <div className="xl:col-span-7 bg-[#0a0a0a] rounded-2xl border border-white/10 p-8 relative flex flex-col hover:border-white/20 transition-all duration-500">
-              <div className="flex justify-between items-center mb-8">
-                <div className="flex items-center gap-4">
-                  <h3 className="text-xl font-bold text-white">Performance</h3>
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-xs font-medium text-gray-300">Flow State Active</span>
-                  </div>
+            <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-purple-500/30 transition-colors group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                  <Activity className="w-6 h-6" />
                 </div>
+              </div>
+              <div className="text-3xl font-bold text-white mb-1 tracking-tight">{stats.profileScore}<span className="text-lg text-gray-500 font-normal">/100</span></div>
+              <div className="text-sm text-gray-500">Profile Score</div>
+            </div>
+
+            <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-orange-500/30 transition-colors group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 rounded-xl bg-orange-500/10 text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                  <Layers className="w-6 h-6" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-white mb-1 tracking-tight">{stats.totalAssets}</div>
+              <div className="text-sm text-gray-500">Total Assets</div>
+            </div>
+
+            <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-pink-500/30 transition-colors group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 rounded-xl bg-pink-500/10 text-pink-400 group-hover:bg-pink-500 group-hover:text-white transition-colors">
+                  <Trophy className="w-6 h-6" />
+                </div>
+                <span className="text-xs font-medium text-white bg-white/10 px-2 py-1 rounded-full">
+                  {athleteProfile.level}
+                </span>
+              </div>
+              <div className="text-3xl font-bold text-white mb-1 tracking-tight">#42</div>
+              <div className="text-sm text-gray-500">Global Rank</div>
+            </div>
+          </div>
+
+          {/* Main Chart Section */}
+          <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 mb-10">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h3 className="text-xl font-bold text-white mb-1">Performance Analytics</h3>
+                <p className="text-sm text-gray-500">Your asset growth and engagement over time</p>
+              </div>
+              <div className="flex items-center gap-4">
+                {/* Chart Type Toggle */}
+                <div className="flex bg-black rounded-lg p-1 border border-white/10">
+                  <button
+                    onClick={() => setChartType("area")}
+                    className={`p-1.5 rounded-md transition-all ${chartType === 'area' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}
+                    title="Line Chart"
+                  >
+                    <LineChart className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setChartType("bar")}
+                    className={`p-1.5 rounded-md transition-all ${chartType === 'bar' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}
+                    title="Bar Chart"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Time Period Toggle */}
                 <div className="flex bg-black rounded-lg p-1 border border-white/10">
                   {['1D', '1W', '1M', '1Y', 'ALL'].map((period) => (
                     <button key={period} className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${period === '1M' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-white'}`}>
@@ -351,82 +370,89 @@ export default function AthleteDashboard() {
                   ))}
                 </div>
               </div>
+            </div>
 
-              {/* CSS SVG Line Chart - Enhanced */}
-              <div className="flex-1 w-full relative min-h-[250px]">
-                {/* Grid Lines */}
-                <div className="absolute inset-0 flex flex-col justify-between text-xs text-gray-700 font-mono pointer-events-none">
-                  {[100, 75, 50, 25, 0].map((val) => (
-                    <div key={val} className="border-b border-white/5 w-full h-0 relative">
-                      <span className="absolute -top-3 left-0 opacity-50">{val}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* The Line */}
-                <svg className="absolute inset-0 w-full h-full overflow-visible pl-8" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-                      <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
-                    </linearGradient>
-                    <linearGradient id="strokeGradient" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#3b82f6" />
-                      <stop offset="100%" stopColor="#60a5fa" />
-                    </linearGradient>
-                  </defs>
-
-                  {/* Area Fill */}
-                  <path
-                    d="M0,250 C50,240 100,200 150,210 C200,220 250,180 300,150 C350,120 400,140 450,100 C500,60 550,80 600,40 L600,250 L0,250 Z"
-                    fill="url(#lineGradient)"
-                    className="transition-all duration-1000 ease-out"
-                  />
-
-                  {/* Line Stroke */}
-                  <path
-                    d="M0,250 C50,240 100,200 150,210 C200,220 250,180 300,150 C350,120 400,140 450,100 C500,60 550,80 600,40"
-                    fill="none"
-                    stroke="url(#strokeGradient)"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    className="drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]"
-                  />
-
-                  {/* Data Points */}
-                  {[
-                    { cx: 150, cy: 210 },
-                    { cx: 300, cy: 150 },
-                    { cx: 450, cy: 100 },
-                    { cx: 600, cy: 40, active: true }
-                  ].map((point, i) => (
-                    <circle
-                      key={i}
-                      cx={point.cx}
-                      cy={point.cy}
-                      r={point.active ? 6 : 4}
-                      fill={point.active ? "#ffffff" : "#1e3a8a"}
-                      stroke="#3b82f6"
-                      strokeWidth="2"
-                      className="transition-all duration-300 hover:r-6 hover:fill-white cursor-pointer"
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                {chartType === 'area' ? (
+                  <AreaChart data={performanceData}>
+                    <defs>
+                      <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                    <XAxis
+                      dataKey="name"
+                      stroke="#6b7280"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      dy={10}
                     />
-                  ))}
-                </svg>
-              </div>
-
-              <div className="flex justify-between text-xs text-gray-500 font-mono mt-4 pl-8">
-                <span>Mon</span>
-                <span>Tue</span>
-                <span>Wed</span>
-                <span>Thu</span>
-                <span>Fri</span>
-                <span>Sat</span>
-                <span>Sun</span>
-              </div>
+                    <YAxis
+                      stroke="#6b7280"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${value}`}
+                      dx={-10}
+                    />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+                      itemStyle={{ color: '#e5e7eb' }}
+                      labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
+                      cursor={{ stroke: '#ffffff20' }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#3b82f6"
+                      strokeWidth={3}
+                      fillOpacity={1}
+                      fill="url(#colorValue)"
+                    />
+                  </AreaChart>
+                ) : (
+                  <BarChart data={performanceData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                    <XAxis
+                      dataKey="name"
+                      stroke="#6b7280"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      dy={10}
+                    />
+                    <YAxis
+                      stroke="#6b7280"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${value}`}
+                      dx={-10}
+                    />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+                      itemStyle={{ color: '#e5e7eb' }}
+                      labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
+                      cursor={{ fill: '#ffffff05' }}
+                    />
+                    <Bar
+                      dataKey="value"
+                      fill="#3b82f6"
+                      radius={[4, 4, 0, 0]}
+                      maxBarSize={50}
+                    />
+                  </BarChart>
+                )}
+              </ResponsiveContainer>
             </div>
           </div>
 
           <section>
+            {/* ... (Portfolio Header and Assets Grid remain same) ... */}
             <div className='flex flex-col md:flex-row justify-between items-end gap-6 mb-8'>
               <div>
                 <h2 className='text-2xl font-bold text-white mb-1'>
@@ -504,4 +530,3 @@ export default function AthleteDashboard() {
     </div>
   );
 }
-

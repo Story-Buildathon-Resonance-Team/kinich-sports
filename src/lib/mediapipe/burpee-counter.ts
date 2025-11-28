@@ -9,6 +9,11 @@ export class BurpeeCounter {
   private repTimestamps: number[] = [];
   private frameCount = 0;
 
+  private totalFormScore = 0;
+  private totalPresenceScore = 0;
+  private samplesCount = 0;
+  private startTime = 0;
+
   // Thresholds
   private readonly STANDING_RATIO_THRESHOLD = 0.7;
   private readonly DOWN_RATIO_THRESHOLD = 0.3;
@@ -16,6 +21,12 @@ export class BurpeeCounter {
 
   process(landmarks: Landmark[], timestamp: number): { reps: number; state: string; feedback: string } {
     this.frameCount++;
+    if (this.startTime === 0) this.startTime = timestamp;
+
+    // Calculate average visibility (presence confidence)
+    const avgVisibility = landmarks.reduce((sum, lm) => sum + (lm.visibility || 0), 0) / landmarks.length;
+    this.totalPresenceScore += avgVisibility;
+    this.samplesCount++;
 
     const leftHip = landmarks[23];
     const rightHip = landmarks[24];
@@ -40,6 +51,10 @@ export class BurpeeCounter {
     }
 
     const verticalRatio = dy / torsoLength;
+    // Simple form score: how close is the user to ideal vertical (1.0) or horizontal (0.0) states when in those states?
+    // We accumulate raw vertical ratio for now, can be processed later.
+    this.totalFormScore += verticalRatio;
+
     let feedback = "";
 
     switch (this.state) {
@@ -82,9 +97,29 @@ export class BurpeeCounter {
   }
 
   getResult() {
+    // Calculate stats
+    const duration = this.lastRepTime - (this.repTimestamps[0] || 0); // Approximate active duration
+
+    // Calculate consistency (variance of rep times)
+    let consistencyScore = 1.0;
+    if (this.repTimestamps.length > 1) {
+      const intervals = [];
+      for (let i = 1; i < this.repTimestamps.length; i++) {
+        intervals.push(this.repTimestamps[i] - this.repTimestamps[i - 1]);
+      }
+      const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+      const variance = intervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0) / intervals.length;
+      // Score 0-1, where 0 variance is 1.0 score. Decay as variance increases.
+      consistencyScore = Math.max(0, 1 - Math.sqrt(variance) / avgInterval);
+    }
+
     return {
       reps: this.repCount,
-      timestamps: this.repTimestamps
+      timestamps: this.repTimestamps,
+      avgFormScore: this.samplesCount > 0 ? this.totalFormScore / this.samplesCount : 0,
+      humanConfidence: this.samplesCount > 0 ? this.totalPresenceScore / this.samplesCount : 0,
+      consistencyScore,
+      duration
     };
   }
 
@@ -93,5 +128,9 @@ export class BurpeeCounter {
     this.state = "STANDING";
     this.repTimestamps = [];
     this.lastRepTime = 0;
+    this.totalFormScore = 0;
+    this.totalPresenceScore = 0;
+    this.samplesCount = 0;
+    this.startTime = 0;
   }
 }
