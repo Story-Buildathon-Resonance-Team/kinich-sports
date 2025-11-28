@@ -2,7 +2,7 @@
  * POST /api/register-audio
  *
  * Registers an audio asset as an IP on Story Protocol
- * Called by frontend immediately after audio upload to DB (no verification needed)
+ * Called by frontend immediately after audio upload to DB
  *
  * Flow:
  * 1. Validate request data
@@ -32,8 +32,10 @@ export async function POST(request: NextRequest) {
       mediaUrl,
       mimeType,
       licenseFee,
-      verificationPhrase,
       questionsCount,
+      verificationMethod,
+      worldIdVerified,
+      cvVideoVerified,
     } = body;
 
     if (
@@ -42,7 +44,8 @@ export async function POST(request: NextRequest) {
       !athleteName ||
       !drillTypeId ||
       !mediaUrl ||
-      !licenseFee
+      !licenseFee ||
+      !verificationMethod
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -50,9 +53,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate verification method
+    if (
+      verificationMethod !== "world_id" &&
+      verificationMethod !== "cv_video" &&
+      verificationMethod !== "world_id_and_cv_video"
+    ) {
+      return NextResponse.json(
+        { error: "Invalid verification method" },
+        { status: 400 }
+      );
+    }
+
+    // Ensure at least one verification is true
+    if (!worldIdVerified && !cvVideoVerified) {
+      return NextResponse.json(
+        { error: "At least one verification method must be active" },
+        { status: 400 }
+      );
+    }
+
     console.log("[Register Audio] Starting registration");
     console.log("[Register Audio] Asset ID:", assetId);
     console.log("[Register Audio] Athlete:", athleteWallet);
+    console.log("[Register Audio] Verification:", verificationMethod);
 
     // Get drill definition from constants
     const drill = getDrillById(drillTypeId);
@@ -75,7 +99,9 @@ export async function POST(request: NextRequest) {
         type: "audio",
         mimeType,
       },
-      verificationPhrase,
+      verificationMethod,
+      worldIdVerified,
+      cvVideoVerified,
       questionsCount,
     });
 
