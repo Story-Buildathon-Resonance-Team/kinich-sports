@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { PropsWithChildren } from "react";
 import Web3Providers from "./Web3Providers";
-import { Navigation } from "@/components/custom/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,7 +16,6 @@ export default function RootLayout({ children }: PropsWithChildren) {
     <html lang='en'>
       <body className={inter.className}>
         <Web3Providers>
-          <Navigation />
           {children}
         </Web3Providers>
       </body>

@@ -102,16 +102,23 @@ async function fetchDashboardDataApi(userId: string, primaryWalletAddress: strin
       `/api/assets?athlete_id=${athleteData.athlete.id}`
     );
 
-    if (!assetsResponse.ok) {
-      throw new Error("Failed to fetch assets");
+    let assetsData = { assets: [] };
+    
+    // Assets might not exist yet for new users, don't throw, just return empty
+    if (assetsResponse.ok) {
+        assetsData = await assetsResponse.json();
+    } else {
+        console.log("No assets found or API error, returning empty list");
     }
-
-    const assetsData = await assetsResponse.json();
 
     return {
       athlete: athleteData.athlete,
-      stats: athleteData.stats,
-      assets: assetsData.assets,
+      stats: athleteData.stats || {
+        profileScore: 0,
+        totalRoyalties: 0,
+        totalAssets: 0
+      },
+      assets: assetsData.assets || [],
     };
 }
 

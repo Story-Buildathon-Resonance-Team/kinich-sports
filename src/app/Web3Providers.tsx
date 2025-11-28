@@ -142,19 +142,32 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
       settings={{
         environmentId: dynamicEnvId,
         shadowDOMEnabled: true,
+        // Only use Ethereum wallets to avoid email signin complexity unless backend is fully configured
+        walletConnectors: [EthereumWalletConnectors],
+        overrides: { evmNetworks },
         cssOverrides: `
           :host {
-            --dynamic-font-family-primary: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            --dynamic-base-1: #2c2c2e;
-            --dynamic-base-2: #1a1a1c;
-            --dynamic-overlay: rgba(26, 26, 28, 0.95);
-            --dynamic-text-primary: #f5f7fa;
-            --dynamic-text-secondary: rgba(245, 247, 250, 0.7);
-            --dynamic-brand-primary-color: #0047ab;
+            --dynamic-base-1: #1c1c1e;
+            --dynamic-base-2: #2c2c2e;
+            --dynamic-base-3: #3a3a3c;
+            --dynamic-base-4: #48484a;
+            
+            --dynamic-text-primary: #ffffff;
+            --dynamic-text-secondary: #a1a1aa;
+            --dynamic-text-tertiary: #71717a;
+            
+            --dynamic-brand-primary-color: #ffffff;
+            --dynamic-brand-secondary-color: #a1a1aa;
+            
+            --dynamic-badge-background: #2c2c2e;
+            --dynamic-badge-color: #ffffff;
+            
+            --dynamic-overlay: rgba(0, 0, 0, 0.85);
+            
+            --dynamic-modal-border: 1px solid rgba(255, 255, 255, 0.1);
+            --dynamic-radius: 16px;
           }
         `,
-        walletConnectors: [EthereumWalletConnectors, ZeroDevSmartWalletConnectors],
-        overrides: { evmNetworks },
         events: {
           onAuthSuccess: handleAuthSuccess,
           onUserProfileUpdate: handleUserProfileUpdate,
