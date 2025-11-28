@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/custom/card";
+import HumanBadge from "@/components/custom/human-badge";
 import { AudioCapsuleMetadata } from "@/lib/types/audio";
 
 interface AudioMetadataDisplayProps {
@@ -68,13 +69,11 @@ export function AudioMetadataDisplay({ metadata }: AudioMetadataDisplayProps) {
           </h4>
           <div className='flex flex-wrap gap-2'>
             {metadata.verification.world_id_verified && (
-              <span className='bg-[rgba(0,71,171,0.15)] text-[rgba(184,212,240,0.9)] border border-[rgba(0,71,171,0.3)] rounded-md px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide'>
-                🌐 World ID Verified
-              </span>
+              <HumanBadge variant='icon-label' size='small' />
             )}
             {metadata.verification.cv_video_verified && (
               <span className='bg-[rgba(0,71,171,0.15)] text-[rgba(184,212,240,0.9)] border border-[rgba(0,71,171,0.3)] rounded-md px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide'>
-                🎥 CV Verified
+                🎥 Verified Human Through Video Drills
               </span>
             )}
           </div>
