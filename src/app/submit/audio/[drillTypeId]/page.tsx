@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
@@ -29,24 +29,31 @@ export default function AudioSubmissionPage() {
   const [loadingError, setLoadingError] = useState<string | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
+  const hasInitialized = useRef(false);
+
+  // Initialize upload hook
   const uploadHook =
     challenge && athleteProfile && athleteId
       ? useAudioUpload({ challenge, athleteId, athleteProfile })
       : null;
 
   useEffect(() => {
+    if (hasInitialized.current) return;
+
     const initialize = async () => {
       try {
         const drill = getDrillById(drillTypeId);
         if (!drill || drill.asset_type !== "audio") {
           setLoadingError("Invalid challenge ID");
           setIsLoadingAuth(false);
+          hasInitialized.current = true;
           return;
         }
         setChallenge(drill as AudioCapsule);
 
         if (!user?.userId) {
           setIsLoadingAuth(false);
+          hasInitialized.current = true;
           return;
         }
 
@@ -63,16 +70,19 @@ export default function AudioSubmissionPage() {
         if (!data.athlete) {
           setLoadingError("Athlete profile not found");
           setIsLoadingAuth(false);
+          hasInitialized.current = true;
           return;
         }
 
         setAthleteId(data.athlete.id);
         setAthleteProfile(data.athlete);
         setIsLoadingAuth(false);
+        hasInitialized.current = true;
       } catch (err) {
         console.error("[Audio Submission] Initialization error:", err);
         setLoadingError("Failed to load challenge");
         setIsLoadingAuth(false);
+        hasInitialized.current = true;
       }
     };
 
@@ -147,7 +157,6 @@ export default function AudioSubmissionPage() {
     );
   }
 
-  // Not authenticated - show login prompt
   if (!user || !athleteId || !athleteProfile) {
     return (
       <div className='min-h-screen bg-[#2C2C2E]'>
@@ -222,6 +231,7 @@ export default function AudioSubmissionPage() {
     );
   }
 
+  // Authenticated - show challenge content
   return (
     <AudioAccessGate athleteId={athleteId}>
       <div className='min-h-screen bg-[#2C2C2E]'>
