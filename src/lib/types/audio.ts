@@ -1,5 +1,3 @@
-// Metadata structure, types, and helpers for Audio Capsules
-
 import { AthleteProfile } from "./metadata";
 
 export type VerificationMethod =
@@ -8,45 +6,27 @@ export type VerificationMethod =
   | "world_id_and_cv_video"
   | "none";
 
-/**
- * Verification information for audio capsule
- */
 export interface AudioVerification {
   world_id_verified: boolean;
   cv_video_verified: boolean;
   verification_method: VerificationMethod;
 }
 
-/**
- * Audio Capsule Metadata
- *
- * Stored in assets.metadata JSONB column and registered on Story Protocol
- */
 export interface AudioCapsuleMetadata {
   schema_version: string;
   asset_type: string;
-  drill_type_id: string; // "MENT_CAPSULE_001"
-
+  drill_type_id: string;
   athlete_profile: AthleteProfile;
-
-  // Layered verification
   verification: AudioVerification;
-
-  // Challenge details
   challenge_name: string;
   questions_answered: number;
   questions: string[];
-
-  // Recording metadata
   recording_duration_seconds: number;
-  recorded_at: string; // ISO timestamp
+  recorded_at: string;
   file_size_bytes: number;
-  mime_type: string; // "audio/webm" or "audio/ogg"
+  mime_type: string;
 }
 
-/**
- * Audio Access Check Response
- */
 export interface AudioAccessResponse {
   hasAccess: boolean;
   method: VerificationMethod | "none";
@@ -54,9 +34,6 @@ export interface AudioAccessResponse {
   cvVideoVerified: boolean;
 }
 
-/**
- * Helper to determine verification method
- */
 export function getVerificationMethod(
   worldIdVerified: boolean,
   cvVideoVerified: boolean
@@ -73,9 +50,6 @@ export function getVerificationMethod(
   return "none";
 }
 
-/**
- * Build audio capsule metadata object
- */
 export function buildAudioCapsuleMetadata(params: {
   drillTypeId: string;
   challengeName: string;
@@ -127,9 +101,6 @@ export function buildAudioCapsuleMetadata(params: {
   };
 }
 
-/**
- * Validate audio capsule metadata
- */
 export function validateAudioMetadata(metadata: AudioCapsuleMetadata): {
   valid: boolean;
   errors: string[];
@@ -172,7 +143,6 @@ export function validateAudioMetadata(metadata: AudioCapsuleMetadata): {
   }
 
   if (metadata.recording_duration_seconds > 300) {
-    // 5 minutes max (buffer beyond 4 min limit)
     errors.push("Recording duration exceeds maximum allowed (5 minutes)");
   }
 
@@ -181,7 +151,6 @@ export function validateAudioMetadata(metadata: AudioCapsuleMetadata): {
   }
 
   if (metadata.file_size_bytes > 10485760) {
-    // 10MB limit
     errors.push("File size exceeds maximum allowed (10MB)");
   }
 

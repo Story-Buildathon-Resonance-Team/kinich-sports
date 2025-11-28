@@ -1,9 +1,16 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { ProfileSidebar, AssetCard, FilterTabs } from "@/components/dashboard";
-import type { Athlete } from "@/lib/types/athlete";
+import { useDynamicContext, DynamicWidget } from "@dynamic-labs/sdk-react-core";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { FilterTabs, AssetCard } from "@/components/dashboard";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { Athlete, SyncAthleteRequest } from "@/lib/types/athlete";
+import { AlertCircle, Plus, Shield, Activity, DollarSign, Layers, Trophy, TrendingUp, BarChart3, LineChart } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { DashboardSidebar } from "@/components/dashboard/sidebar";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 interface Asset {
   id: string;
@@ -47,69 +54,94 @@ const DEMO_ASSETS = [
   },
 ];
 
-export default function AthleteDashboard() {
-  const { user } = useDynamicContext();
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<FilterOption>("all");
+const performanceData = [
+  { name: 'Mon', value: 4000 },
+  { name: 'Tue', value: 3000 },
+  { name: 'Wed', value: 5000 },
+  { name: 'Thu', value: 2780 },
+  { name: 'Fri', value: 1890 },
+  { name: 'Sat', value: 6390 },
+  { name: 'Sun', value: 8490 },
+];
 
-  const fetchDashboardData = useCallback(async () => {
-    if (!user?.userId) {
-      setLoading(false);
-      return;
-    }
+// Fetcher function for React Query
+async function fetchDashboardDataApi(userId: string, primaryWalletAddress: string | undefined, firstName?: string, lastName?: string): Promise<DashboardData> {
+  // Attempt to fetch athlete data
+  let athleteResponse = await fetch(
+    `/api/athletes/me?dynamic_user_id=${userId}`
+  );
+
+  // If user not found (404), attempt to sync athlete record
+  if (athleteResponse.status === 404 && primaryWalletAddress) {
+    console.log("Athlete not found in database, attempting sync...");
+
+    const syncData: SyncAthleteRequest = {
+      dynamicUserId: userId,
+      walletAddress: primaryWalletAddress,
+      firstName: firstName,
+      lastName: lastName,
+    };
 
     try {
-      setLoading(true);
-      setError(null);
-
-      // Fetch athlete data and stats
-      const athleteResponse = await fetch(
-        `/api/athletes/me?dynamic_user_id=${user.userId}`
-      );
-
-      if (!athleteResponse.ok) {
-        throw new Error("Failed to fetch athlete data");
-      }
-
-      const athleteData = await athleteResponse.json();
-
-      // Fetch assets
-      const assetsResponse = await fetch(
-        `/api/assets?athlete_id=${athleteData.athlete.id}`
-      );
-
-      if (!assetsResponse.ok) {
-        throw new Error("Failed to fetch assets");
-      }
-
-      const assetsData = await assetsResponse.json();
-
-      setDashboardData({
-        athlete: athleteData.athlete,
-        stats: athleteData.stats,
-        assets: assetsData.assets,
+      const syncResponse = await fetch("/api/sync-athlete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(syncData),
       });
-    } catch (err) {
-      console.error("Error fetching dashboard data:", err);
-      setError(err instanceof Error ? err.message : "Failed to load dashboard");
-    } finally {
-      setLoading(false);
+
+      if (syncResponse.ok) {
+        // Retry fetch after successful sync
+        athleteResponse = await fetch(
+          `/api/athletes/me?dynamic_user_id=${userId}`
+        );
+      }
+    } catch (syncErr) {
+      console.error("Auto-sync failed:", syncErr);
     }
-  }, [user?.userId]); // Only recreate if user.userId changes
+  }
 
-  // Fetch dashboard data when component mounts or user.userId changes
-  useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]); // Safe to include because it's memoized with useCallback
+  if (!athleteResponse.ok) {
+    throw new Error("Failed to fetch athlete data");
+  }
 
-  const handleVerificationSuccess = useCallback(() => {
-    // Refresh dashboard data to show updated verification status
-    fetchDashboardData();
-  }, [fetchDashboardData]);
+  const athleteData = await athleteResponse.json();
+
+  // Fetch assets
+  const assetsResponse = await fetch(
+    `/api/assets?athlete_id=${athleteData.athlete.id}`
+  );
+
+  if (!assetsResponse.ok) {
+    throw new Error("Failed to fetch assets");
+  }
+
+  const assetsData = await assetsResponse.json();
+
+  return {
+    athlete: athleteData.athlete,
+    stats: athleteData.stats,
+    assets: assetsData.assets,
+  };
+}
+
+export default function AthleteDashboard() {
+  const { user, primaryWallet, sdkHasLoaded } = useDynamicContext();
+  const [activeFilter, setActiveFilter] = useState<FilterOption>("all");
+  const [chartType, setChartType] = useState<"area" | "bar">("area");
+  const pathname = usePathname();
+
+  // Use React Query for data fetching
+  const { data: dashboardData, isLoading, error, refetch } = useQuery({
+    queryKey: ['dashboard', user?.userId],
+    queryFn: () => {
+      if (!user?.userId) throw new Error("User not authenticated");
+      return fetchDashboardDataApi(user.userId, primaryWallet?.address, user.firstName, user.lastName);
+    },
+    enabled: !!user?.userId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
   const formatDuration = (seconds?: number): string => {
     if (!seconds) return "0:00";
@@ -119,22 +151,14 @@ export default function AthleteDashboard() {
   };
 
   const transformAssetForCard = (asset: Asset) => {
-    // Extract data from metadata JSONB (populated during asset registration)
     const metadata = asset.metadata || {};
-
-    // Get title from metadata
     const title = metadata.drill_name || metadata.title || asset.drill_type_id;
-
-    // Get duration from metadata
     let duration = "0:00";
     if (metadata.video_metadata?.duration_seconds) {
-      // Video drill: duration from CV processing
       duration = formatDuration(metadata.video_metadata.duration_seconds);
     } else if (metadata.recording_duration_seconds) {
-      // Audio capsule: duration from recording
       duration = formatDuration(metadata.recording_duration_seconds);
     } else if (metadata.duration_seconds) {
-      // Fallback: generic duration field
       duration = formatDuration(metadata.duration_seconds);
     }
 
@@ -148,12 +172,28 @@ export default function AthleteDashboard() {
     };
   };
 
-  if (loading) {
+  // Show loading state while SDK is loading, user is not yet resolved, or query is loading
+  if (!sdkHasLoaded || !user || isLoading) {
     return (
-      <div className='min-h-screen bg-[#2C2C2E] flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='w-16 h-16 border-4 border-[rgba(245,247,250,0.1)] border-t-[#FF6B35] rounded-full animate-spin mx-auto mb-4'></div>
-          <p className='text-[#F5F7FA] text-lg'>Loading your arena...</p>
+      <div className='min-h-screen bg-[#050505] flex'>
+        <DashboardSidebar currentPath={pathname} />
+        <div className='flex-1 lg:ml-64 p-8 pt-12'>
+          <div className="max-w-6xl mx-auto space-y-8">
+            <div className="flex justify-between">
+              <Skeleton className="h-12 w-1/3 rounded-lg" />
+              <Skeleton className="h-12 w-32 rounded-lg" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Skeleton className="h-32 w-full rounded-xl" />
+              <Skeleton className="h-32 w-full rounded-xl" />
+              <Skeleton className="h-32 w-full rounded-xl" />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Skeleton key={i} className="h-[320px] w-full rounded-2xl" />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -161,17 +201,22 @@ export default function AthleteDashboard() {
 
   if (error || !dashboardData) {
     return (
-      <div className='min-h-screen bg-[#2C2C2E] flex items-center justify-center'>
-        <div className='text-center max-w-md'>
-          <p className='text-[#F5F7FA] text-lg mb-4'>
-            {error || "Failed to load dashboard"}
-          </p>
-          <button
-            onClick={fetchDashboardData}
-            className='px-6 py-3 bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)] border border-[rgba(184,212,240,0.2)] text-[#F5F7FA] rounded-xl hover:shadow-[0_8px_28px_rgba(0,71,171,0.3)] transition-all duration-300'
-          >
-            Retry
-          </button>
+      <div className='min-h-screen bg-[#050505] flex'>
+        <DashboardSidebar currentPath={pathname} />
+        <div className='flex-1 lg:ml-64 flex items-center justify-center p-8'>
+          <div className='text-center max-w-md p-8 glass-panel rounded-2xl'>
+            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2">Unable to load dashboard</h3>
+            <p className='text-gray-400 mb-6 text-sm'>
+              {error instanceof Error ? error.message : "We encountered an issue loading your athlete data."}
+            </p>
+            <button
+              onClick={() => refetch()}
+              className='px-6 py-2.5 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition-colors'
+            >
+              Retry Connection
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -179,7 +224,6 @@ export default function AthleteDashboard() {
 
   const { athlete, stats, assets } = dashboardData;
 
-  // Demo mode: show demo assets if athlete has < 2 real assets
   const isDemoMode = assets.length < 2;
   const realAssets = assets.map(transformAssetForCard);
   const demoAssetsToShow = isDemoMode
@@ -187,13 +231,11 @@ export default function AthleteDashboard() {
     : [];
   const allAssets = [...realAssets, ...demoAssetsToShow];
 
-  // Filter assets
   const filteredAssets =
     activeFilter === "all"
       ? allAssets
       : allAssets.filter((asset) => asset.type === activeFilter);
 
-  // Get initials for profile
   const getInitials = (name: string | null): string => {
     if (!name) return "AT";
     const parts = name.split(" ");
@@ -203,7 +245,6 @@ export default function AthleteDashboard() {
     return name.substring(0, 2).toUpperCase();
   };
 
-  // Capitalize first letter of each word
   const capitalizeWords = (str: string | null): string => {
     if (!str) return "";
     return str
@@ -212,7 +253,6 @@ export default function AthleteDashboard() {
       .join(" ");
   };
 
-  // Map competitive_level to level type
   const mapLevel = (
     level: string | null
   ): "Competitive" | "Professional" | "Amateur" | "Elite" => {
@@ -235,58 +275,239 @@ export default function AthleteDashboard() {
   };
 
   return (
-    <div className='min-h-screen bg-[#2C2C2E]'>
-      <div className='grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 pt-[100px] px-6 lg:px-16 pb-16 max-w-[1600px] mx-auto'>
-        <ProfileSidebar
-          athlete={athleteProfile}
-          stats={stats}
-          onVerificationSuccess={handleVerificationSuccess}
-        />
+    <div className='min-h-screen bg-[#050505] flex selection:bg-blue-500/30'>
+      <DashboardSidebar currentPath={pathname} />
 
-        <main className='min-h-[calc(100vh-164px)]'>
-          <div className='mb-10'>
-            <h1 className='text-[32px] lg:text-[42px] font-light tracking-tight mb-2'>
-              Performance Portfolio
-            </h1>
-            <p className='text-[15px] text-[rgba(245,247,250,0.6)]'>
-              Verified training data • Blockchain-registered IP
-            </p>
+      <div className='flex-1 lg:ml-64 min-h-screen overflow-y-auto relative'>
+        <header className="sticky top-0 z-40 flex items-center justify-between px-8 py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 lg:hidden">
+          <Link href="/" className="text-xl font-bold text-white">KINICH</Link>
+          <DynamicWidget variant="dropdown" />
+        </header>
+
+        <div className='p-2 lg:p-4 w-full max-w-[1600px] animate-fade-in-up'>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+            <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-blue-500/30 transition-colors group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                  <DollarSign className="w-6 h-6" />
+                </div>
+                <span className="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full flex items-center gap-1">
+                  <TrendingUp className="w-3 h-3" /> +12.5%
+                </span>
+              </div>
+              <div className="text-3xl font-bold text-white mb-1 tracking-tight">{stats.totalRoyalties.toLocaleString()} <span className="text-lg text-gray-500 font-normal">IP</span></div>
+              <div className="text-sm text-gray-500">Total IP Value</div>
+            </div>
+
+            <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-purple-500/30 transition-colors group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                  <Activity className="w-6 h-6" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-white mb-1 tracking-tight">{stats.profileScore}<span className="text-lg text-gray-500 font-normal">/100</span></div>
+              <div className="text-sm text-gray-500">Profile Score</div>
+            </div>
+
+            <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-orange-500/30 transition-colors group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 rounded-xl bg-orange-500/10 text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                  <Layers className="w-6 h-6" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-white mb-1 tracking-tight">{stats.totalAssets}</div>
+              <div className="text-sm text-gray-500">Total Assets</div>
+            </div>
+
+            <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-pink-500/30 transition-colors group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 rounded-xl bg-pink-500/10 text-pink-400 group-hover:bg-pink-500 group-hover:text-white transition-colors">
+                  <Trophy className="w-6 h-6" />
+                </div>
+                <span className="text-xs font-medium text-white bg-white/10 px-2 py-1 rounded-full">
+                  {athleteProfile.level}
+                </span>
+              </div>
+              <div className="text-3xl font-bold text-white mb-1 tracking-tight">#42</div>
+              <div className="text-sm text-gray-500">Global Rank</div>
+            </div>
+          </div>
+
+          {/* Main Chart Section */}
+          <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 mb-10">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h3 className="text-xl font-bold text-white mb-1">Performance Analytics</h3>
+                <p className="text-sm text-gray-500">Your asset growth and engagement over time</p>
+              </div>
+              <div className="flex items-center gap-4">
+                {/* Chart Type Toggle */}
+                <div className="flex bg-black rounded-lg p-1 border border-white/10">
+                  <button
+                    onClick={() => setChartType("area")}
+                    className={`p-1.5 rounded-md transition-all ${chartType === 'area' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}
+                    title="Line Chart"
+                  >
+                    <LineChart className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setChartType("bar")}
+                    className={`p-1.5 rounded-md transition-all ${chartType === 'bar' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'}`}
+                    title="Bar Chart"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Time Period Toggle */}
+                <div className="flex bg-black rounded-lg p-1 border border-white/10">
+                  {['1D', '1W', '1M', '1Y', 'ALL'].map((period) => (
+                    <button key={period} className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${period === '1M' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-white'}`}>
+                      {period}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                {chartType === 'area' ? (
+                  <AreaChart data={performanceData}>
+                    <defs>
+                      <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                    <XAxis
+                      dataKey="name"
+                      stroke="#6b7280"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      dy={10}
+                    />
+                    <YAxis
+                      stroke="#6b7280"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${value}`}
+                      dx={-10}
+                    />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+                      itemStyle={{ color: '#e5e7eb' }}
+                      labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
+                      cursor={{ stroke: '#ffffff20' }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#3b82f6"
+                      strokeWidth={3}
+                      fillOpacity={1}
+                      fill="url(#colorValue)"
+                    />
+                  </AreaChart>
+                ) : (
+                  <BarChart data={performanceData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                    <XAxis
+                      dataKey="name"
+                      stroke="#6b7280"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      dy={10}
+                    />
+                    <YAxis
+                      stroke="#6b7280"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${value}`}
+                      dx={-10}
+                    />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+                      itemStyle={{ color: '#e5e7eb' }}
+                      labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
+                      cursor={{ fill: '#ffffff05' }}
+                    />
+                    <Bar
+                      dataKey="value"
+                      fill="#3b82f6"
+                      radius={[4, 4, 0, 0]}
+                      maxBarSize={50}
+                    />
+                  </BarChart>
+                )}
+              </ResponsiveContainer>
+            </div>
           </div>
 
           <section>
-            <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8'>
-              <h2 className='text-[18px] font-medium uppercase tracking-[1.5px] text-[rgba(245,247,250,0.7)]'>
-                All Performance Assets
-              </h2>
-              <FilterTabs
-                onFilterChange={(filter) => setActiveFilter(filter)}
-              />
+            {/* ... (Portfolio Header and Assets Grid remain same) ... */}
+            <div className='flex flex-col md:flex-row justify-between items-end gap-6 mb-8'>
+              <div>
+                <h2 className='text-2xl font-bold text-white mb-1'>
+                  Portfolio
+                </h2>
+                <p className="text-sm text-gray-500">Manage your intellectual property assets.</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <FilterTabs
+                  onFilterChange={(filter) => setActiveFilter(filter)}
+                />
+                <Link
+                  href="/dashboard/arena"
+                  className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)]"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add New
+                </Link>
+              </div>
             </div>
 
             {isDemoMode && (
-              <div className='mb-6 bg-[rgba(0,71,171,0.08)] border border-[rgba(0,71,171,0.2)] rounded-lg p-4'>
-                <p className='text-[13px] text-[rgba(184,212,240,0.9)]'>
-                  <strong>Demo Mode:</strong> Showing sample assets. Upload your
-                  first performance data to get started.
-                </p>
+              <div className='mb-8 bg-blue-900/10 border border-blue-500/20 rounded-xl p-4 flex items-center gap-4 animate-fade-in-up'>
+                <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400">
+                  <AlertCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className='text-sm text-white font-medium'>Demo Mode Active</p>
+                  <p className='text-xs text-gray-400'>Upload your first performance data to unlock full potential.</p>
+                </div>
               </div>
             )}
 
             {filteredAssets.length === 0 ? (
-              <div className='text-center py-16'>
-                <p className='text-[rgba(245,247,250,0.6)] text-lg mb-4'>
+              <div className='text-center py-24 bg-[#0a0a0a] rounded-2xl border border-dashed border-white/10'>
+                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Plus className="w-6 h-6 text-gray-500" />
+                </div>
+                <p className='text-lg text-white font-medium mb-2'>
                   No assets found
                 </p>
-                <p className='text-[rgba(245,247,250,0.4)] text-sm'>
-                  {activeFilter !== "all"
-                    ? `Try changing the filter or upload your first ${activeFilter} asset.`
-                    : "Upload your first performance asset to get started."}
+                <p className='text-sm text-gray-500 mb-6'>
+                  Start building your portfolio by recording your first drill.
                 </p>
+                <Link
+                  href="/dashboard/arena"
+                  className="text-sm text-blue-400 hover:text-blue-300 font-medium"
+                >
+                  Go to Arena →
+                </Link>
               </div>
             ) : (
-              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
                 {filteredAssets.map((asset) => (
-                  <div key={asset.id} className='relative'>
+                  <div key={asset.id} className='relative animate-fade-in-up' style={{ animationDelay: '100ms' }}>
                     <AssetCard
                       type={asset.type}
                       title={asset.title}
@@ -295,7 +516,7 @@ export default function AthleteDashboard() {
                       onClick={() => console.log("Asset clicked:", asset.id)}
                     />
                     {"isDemo" in asset && asset.isDemo && (
-                      <div className='absolute top-3 left-3 bg-[rgba(255,107,53,0.9)] text-[#F5F7FA] text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded'>
+                      <div className='absolute top-3 right-3 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-lg'>
                         Demo
                       </div>
                     )}
@@ -304,7 +525,7 @@ export default function AthleteDashboard() {
               </div>
             )}
           </section>
-        </main>
+        </div>
       </div>
     </div>
   );

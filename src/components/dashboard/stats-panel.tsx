@@ -7,24 +7,26 @@ interface StatItemProps {
 
 function StatItem({ label, value, unit, barPercentage }: StatItemProps) {
   return (
-    <div className='mb-5 last:mb-0'>
-      <div className='text-[13px] text-[rgba(245,247,250,0.6)] mb-2'>
-        {label}
+    <div className='mb-6 last:mb-0 group'>
+      <div className='flex justify-between items-baseline mb-2'>
+        <span className='text-xs font-medium text-gray-500 uppercase tracking-wider group-hover:text-gray-400 transition-colors'>
+            {label}
+        </span>
       </div>
 
-      <div className='text-[28px] font-light font-mono text-[#F5F7FA]'>
+      <div className='text-3xl font-medium text-white tracking-tight'>
         {value}
         {unit && (
-          <span className='text-[14px] text-[rgba(0,71,171,0.8)] ml-1'>
+          <span className='text-sm text-blue-400 font-medium ml-1.5'>
             {unit}
           </span>
         )}
       </div>
 
       {barPercentage !== undefined && (
-        <div className='w-full h-1 bg-[rgba(245,247,250,0.1)] rounded-sm mt-2 overflow-hidden'>
+        <div className='w-full h-1.5 bg-white/5 rounded-full mt-3 overflow-hidden'>
           <div
-            className='h-full bg-gradient-to-r from-[rgba(0,71,171,0.8)] to-[rgba(184,212,240,0.6)] rounded-sm transition-all duration-[600ms]'
+            className='h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-1000 ease-out group-hover:shadow-[0_0_10px_rgba(59,130,246,0.5)]'
             style={{ width: `${barPercentage}%` }}
           />
         </div>
@@ -39,11 +41,7 @@ interface StatsPanelProps {
 
 export function StatsPanel({ stats }: StatsPanelProps) {
   return (
-    <div className='bg-[rgba(26,26,28,0.6)] border border-[rgba(245,247,250,0.06)] rounded-xl p-6'>
-      <h3 className='text-[12px] font-medium uppercase tracking-[1.5px] text-[rgba(245,247,250,0.5)] mb-5'>
-        Performance
-      </h3>
-
+    <div className="space-y-6 border-t border-white/5 pt-6">
       {stats.map((stat, index) => (
         <StatItem key={index} {...stat} />
       ))}

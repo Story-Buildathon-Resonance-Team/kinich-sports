@@ -54,28 +54,37 @@ export function ProfileSidebar({
   };
 
   return (
-    <aside className='lg:sticky lg:top-[100px] h-fit space-y-6'>
-      <ProfileHeader
-        initials={athlete.initials}
-        name={athlete.name}
-        discipline={athlete.discipline}
-        level={athlete.level}
-        isWorldIdVerified={athlete.world_id_verified}
-      />
+    <aside className='lg:sticky lg:top-[140px] h-fit space-y-8 animate-fade-in-up'>
+      <div className="glass-panel rounded-3xl p-6 relative overflow-hidden">
+          {/* Decorative ambient light */}
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+          
+          <ProfileHeader
+            initials={athlete.initials}
+            name={athlete.name}
+            discipline={athlete.discipline}
+            level={athlete.level}
+            isWorldIdVerified={athlete.world_id_verified}
+          />
+          
+          <div className="mt-8">
+             <StatsPanel stats={formattedStats} />
+          </div>
+      </div>
 
       {!athlete.world_id_verified && (
-        <VerificationCard
-          athleteId={athlete.id}
-          isWorldIdVerified={athlete.world_id_verified}
-          verifiedAt={athlete.world_id_verified_at || undefined}
-          onVerificationSuccess={onVerificationSuccess}
-        />
+        <div className="glass-panel rounded-2xl p-1 border-orange-500/20">
+            <VerificationCard
+              athleteId={athlete.id}
+              isWorldIdVerified={athlete.world_id_verified}
+              verifiedAt={athlete.world_id_verified_at || undefined}
+              onVerificationSuccess={onVerificationSuccess}
+            />
+        </div>
       )}
 
-      <StatsPanel stats={formattedStats} />
-
-      <ButtonCobalt className='w-full' onClick={handleAcceptChallenge}>
-        Accept New Challenge
+      <ButtonCobalt className='w-full py-5 text-lg font-semibold tracking-wide' onClick={handleAcceptChallenge}>
+        NEW ENTRY
       </ButtonCobalt>
     </aside>
   );

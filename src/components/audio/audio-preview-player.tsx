@@ -26,28 +26,23 @@ export function AudioPreviewPlayer({
   useEffect(() => {
     const url = URL.createObjectURL(audioBlob);
     setAudioUrl(url);
-
-    // Cleanup
     return () => {
       URL.revokeObjectURL(url);
     };
   }, [audioBlob]);
 
-  // Handle audio metadata loaded
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
     }
   };
 
-  // Handle time update
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
     }
   };
 
-  // Handle play/pause
   const togglePlayPause = () => {
     if (!audioRef.current) return;
 
@@ -60,13 +55,11 @@ export function AudioPreviewPlayer({
     }
   };
 
-  // Handle audio end
   const handleEnded = () => {
     setIsPlaying(false);
     setCurrentTime(0);
   };
 
-  // Handle seek
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = Number(e.target.value);
     if (audioRef.current) {
@@ -75,7 +68,6 @@ export function AudioPreviewPlayer({
     }
   };
 
-  // Format time as MM:SS
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -86,7 +78,6 @@ export function AudioPreviewPlayer({
 
   return (
     <div className='w-full max-w-[600px] mx-auto'>
-      {/* Audio Element */}
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -110,7 +101,6 @@ export function AudioPreviewPlayer({
 
           {/* Playback Controls */}
           <div className='flex items-center gap-4'>
-            {/* Play/Pause Button */}
             <button
               onClick={togglePlayPause}
               disabled={isUploading}
