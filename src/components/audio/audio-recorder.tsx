@@ -28,7 +28,7 @@ export function AudioRecorder({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // Request microphone permission
+  // Request permission
   const requestPermission = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -42,7 +42,7 @@ export function AudioRecorder({
       streamRef.current = stream;
       setHasPermission(true);
 
-      // Setup audio context for waveform
+      // Setup waveform
       const audioContext = new AudioContext();
       const analyser = audioContext.createAnalyser();
       const source = audioContext.createMediaStreamSource(stream);
@@ -64,7 +64,7 @@ export function AudioRecorder({
     }
   };
 
-  // Animate waveform bars based on audio levels
+  // Animate waveform
   const animateWaveform = () => {
     if (!analyserRef.current || recordingState !== "recording") {
       return;
@@ -73,13 +73,11 @@ export function AudioRecorder({
     const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
     analyserRef.current.getByteFrequencyData(dataArray);
 
-    // Calculate average volume for each bar
     const bars = [0, 1, 2, 3, 4].map((i) => {
       const start = Math.floor((i * dataArray.length) / 5);
       const end = Math.floor(((i + 1) * dataArray.length) / 5);
       const slice = dataArray.slice(start, end);
       const average = slice.reduce((a, b) => a + b, 0) / slice.length;
-      // Normalize to 0-1 range and add minimum height
       return Math.max(0.2, Math.min(1, average / 255));
     });
 
@@ -97,7 +95,6 @@ export function AudioRecorder({
     try {
       chunksRef.current = [];
 
-      // Create MediaRecorder
       const mimeType = MediaRecorder.isTypeSupported("audio/webm")
         ? "audio/webm"
         : "audio/ogg";
@@ -126,11 +123,9 @@ export function AudioRecorder({
       setRecordingState("recording");
       setRecordingTime(0);
 
-      // Start timer
       timerRef.current = setInterval(() => {
         setRecordingTime((prev) => {
           const newTime = prev + 1;
-          // Auto-stop at max duration
           if (newTime >= maxDurationSeconds) {
             stopRecording();
           }
@@ -138,7 +133,6 @@ export function AudioRecorder({
         });
       }, 1000);
 
-      // Start waveform animation
       animateWaveform();
 
       console.log("[AudioRecorder] Recording started");
@@ -154,13 +148,11 @@ export function AudioRecorder({
       mediaRecorderRef.current.stop();
       setRecordingState("stopped");
 
-      // Stop timer
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
 
-      // Stop waveform animation
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
@@ -170,7 +162,7 @@ export function AudioRecorder({
     }
   };
 
-  // Format time as MM:SS
+  // Format MM:SS
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -179,7 +171,7 @@ export function AudioRecorder({
       .padStart(2, "0")}`;
   };
 
-  // Cleanup on unmount
+  // Cleanup
   useEffect(() => {
     return () => {
       if (timerRef.current) {

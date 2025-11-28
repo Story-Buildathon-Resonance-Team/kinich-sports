@@ -9,7 +9,7 @@ export class BurpeeCounter {
   private repTimestamps: number[] = [];
   private frameCount = 0;
 
-  // Thresholds: 1.0 = Upright, 0.0 = Horizontal
+  // Thresholds
   private readonly STANDING_RATIO_THRESHOLD = 0.7;
   private readonly DOWN_RATIO_THRESHOLD = 0.3;
   private readonly HYSTERESIS = 0.1;
@@ -31,7 +31,6 @@ export class BurpeeCounter {
     const shoulderX = (leftShoulder.x + rightShoulder.x) / 2;
     const shoulderY = (leftShoulder.y + rightShoulder.y) / 2;
 
-    // Torso Length (pixels)
     const dx = hipX - shoulderX;
     const dy = hipY - shoulderY;
     const torsoLength = Math.sqrt(dx * dx + dy * dy);
@@ -40,7 +39,6 @@ export class BurpeeCounter {
       return { reps: this.repCount, state: this.state, feedback: "Too small" };
     }
 
-    // Vertical Ratio
     const verticalRatio = dy / torsoLength;
     let feedback = "";
 

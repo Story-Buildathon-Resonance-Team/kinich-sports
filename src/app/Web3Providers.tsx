@@ -29,8 +29,7 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Use environment variable or fallback for development/testing if not set (to prevent hard crash, though env is preferred)
-  // Ideally, we should ensure the env var is loaded.
+  // Use environment variable or fallback for development
   const dynamicEnvId = process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID || "4f755b1f-1989-48ae-a596-864c24894094";
 
   return (
@@ -44,7 +43,6 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
         cssOverrides: <link rel='stylesheet' href='/external-styles.css' />,
         events: {
           onAuthSuccess: async (args) => {
-            // Sync athlete data on successful authentication
             const userId = args.user.userId;
             const firstName = args.user.firstName;
             const lastName = args.user.lastName;
@@ -86,13 +84,11 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
               }
             }
 
-            // Redirect to dashboard on successful auth from landing page
             if (pathname === "/") {
               router.push("/dashboard");
             }
           },
           onUserProfileUpdate: async (user) => {
-            // Sync profile changes when user updates their information
             const userId = user.userId;
             const firstName = user.firstName;
             const lastName = user.lastName;
@@ -131,7 +127,6 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
             }
           },
           onLogout: (args) => {
-            // Redirect to home page on logout
             router.push("/");
           },
         },

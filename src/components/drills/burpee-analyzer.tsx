@@ -83,7 +83,7 @@ export default function BurpeeAnalyzer() {
 
   return (
     <div ref={containerRef} className="w-full h-[calc(100vh-100px)] flex gap-6">
-      {/* Video Column (80%) - Left Side */}
+      {/* Video Column */}
       <div className="flex-1 h-full bg-black rounded-xl border border-blue-500/20 relative overflow-hidden shadow-2xl">
         <canvas
             ref={canvasRef}
@@ -94,7 +94,7 @@ export default function BurpeeAnalyzer() {
             <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-scan z-20 pointer-events-none" />
         )}
 
-        {/* Floating Controls */}
+        {/* Controls */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-30 px-6 py-3 bg-zinc-900/80 backdrop-blur-md border border-white/10 rounded-full shadow-xl hover:bg-zinc-900 transition-colors">
              {!isProcessing ? (
                 <Button 
@@ -114,7 +114,7 @@ export default function BurpeeAnalyzer() {
              <Button 
                 variant="ghost" 
                 className="text-gray-400 hover:text-white hover:bg-transparent p-0 h-auto"
-             >
+            >
                 <label className="cursor-pointer flex flex-col items-center gap-1">
                     <input
                         type="file"
@@ -128,10 +128,10 @@ export default function BurpeeAnalyzer() {
         </div>
       </div>
 
-      {/* Stats Column (20%) - Right Side */}
+      {/* Stats Column */}
       <div className="w-[280px] flex flex-col gap-4 h-full flex-shrink-0">
           
-          {/* Rep Counter - Most Important */}
+          {/* Rep Counter */}
           <Card className="p-6 bg-black/60 backdrop-blur border border-white/10 flex flex-col items-center justify-center text-center relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="p-3 rounded-full bg-blue-500/10 text-blue-400 mb-3 group-hover:scale-110 transition-transform duration-500">
@@ -143,9 +143,9 @@ export default function BurpeeAnalyzer() {
                 <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">Valid Reps</p>
           </Card>
 
-          {/* Progress & Phase Group */}
+          {/* Progress & Phase */}
           <div className="grid gap-4">
-            {/* Phase Indicator */}
+            {/* Phase */}
             <Card className="p-4 bg-black/40 backdrop-blur border border-white/10">
                 <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Current Phase</span>
@@ -163,7 +163,7 @@ export default function BurpeeAnalyzer() {
                 )}
             </Card>
 
-            {/* Progress Status */}
+            {/* Progress */}
             <Card className="p-4 bg-black/40 backdrop-blur border border-white/10">
                 <div className="flex items-center justify-between mb-3">
                     <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Analysis Progress</span>
@@ -182,7 +182,7 @@ export default function BurpeeAnalyzer() {
             </Card>
           </div>
 
-          {/* Metadata Skeleton / Result */}
+          {/* Metadata / Result */}
           <div className="flex-1 min-h-[200px] flex flex-col">
               {metadata ? (
                   <Card className="h-full p-5 bg-zinc-900/80 border border-green-500/30 animate-in fade-in duration-700 flex flex-col shadow-lg shadow-green-900/5">
