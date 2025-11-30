@@ -7,10 +7,12 @@ import { Card } from "@/components/custom/card";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+import { VideoDrillMetadata } from "@/lib/types/video";
+
 interface MetadataModalProps {
   isOpen: boolean;
   onClose: () => void;
-  metadata: any;
+  metadata: VideoDrillMetadata;
   onUpload?: () => void;
   onRegister?: () => void;
   athleteWallet?: string;
