@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 import { AudioRecorder } from "@/components/audio/audio-recorder";
 import { AudioPreviewPlayer } from "@/components/audio/audio-preview-player";
 import { AudioAccessGate } from "@/components/audio/audio-access-gate";
@@ -170,31 +169,6 @@ export default function AudioSubmissionPage() {
               Please log in to submit audio challenges and register your
               performance as IP.
             </p>
-            <div className='flex justify-center'>
-              <DynamicWidget
-                variant='modal'
-                innerButtonComponent={
-                  <button
-                    className='
-                      relative overflow-hidden
-                      bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
-                      border border-[rgba(184,212,240,0.2)]
-                      text-[#F5F7FA] font-medium
-                      rounded-xl px-12 py-4
-                      text-[16px]
-                      shadow-[0_4px_20px_rgba(0,71,171,0.2)]
-                      transition-all duration-[400ms]
-                      hover:-translate-y-0.5
-                      hover:shadow-[0_8px_28px_rgba(0,71,171,0.3)]
-                      group
-                    '
-                  >
-                    <span className='absolute inset-0 -left-full bg-gradient-to-r from-transparent via-[rgba(255,107,53,0.2)] to-transparent transition-all duration-[600ms] group-hover:left-full pointer-events-none' />
-                    <span className='relative z-10'>Log In</span>
-                  </button>
-                }
-              />
-            </div>
             <button
               onClick={() => router.push("/arena")}
               className='
