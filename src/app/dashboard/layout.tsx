@@ -33,7 +33,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     return (
         <div className="min-h-screen bg-[#050505] flex">
             <DashboardSidebar currentPath={pathname} />
-            <div className="flex-1 lg:ml-64 min-h-screen flex flex-col">
+            <div className="flex-1 lg:ml-64 min-h-screen flex flex-col overflow-x-hidden">
                 <DashboardMobileHeader />
                 {children}
             </div>

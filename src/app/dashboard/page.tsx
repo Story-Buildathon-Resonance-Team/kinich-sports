@@ -334,7 +334,7 @@ export default function AthleteDashboard() {
 
           {/* Main Chart Section */}
           <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 mb-10">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
               <div>
                 <h3 className="text-xl font-bold text-white mb-1">Performance Analytics</h3>
                 <p className="text-sm text-gray-500">Your asset growth and engagement over time</p>
@@ -359,9 +359,9 @@ export default function AthleteDashboard() {
                 </div>
 
                 {/* Time Period Toggle */}
-                <div className="flex bg-black rounded-lg p-1 border border-white/10">
+                <div className="flex overflow-x-auto bg-black rounded-lg p-1 border border-white/10">
                   {['1D', '1W', '1M', '1Y', 'ALL'].map((period) => (
-                    <button key={period} className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${period === '1M' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-white'}`}>
+                    <button key={period} className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all flex-shrink-0 ${period === '1M' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-white'}`}>
                       {period}
                     </button>
                   ))}
