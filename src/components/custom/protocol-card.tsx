@@ -59,7 +59,12 @@ export function ProtocolCard({ drill, onAcceptChallenge, activeMode }: ProtocolC
         </div>
 
         <div className='flex items-center justify-center w-12 h-12 rounded-full bg-white/5 text-gray-400 group-hover:bg-white/10 group-hover:text-white transition-colors'>
-          <ChevronRight className='w-6 h-6' />
+          <ChevronRight
+            className={cn(
+              "w-6 h-6 transition-transform duration-300",
+              isExpanded && "rotate-90"
+            )}
+          />
         </div>
       </div>
 
