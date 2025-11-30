@@ -30,11 +30,11 @@ export default function AudioSubmissionPage() {
 
   const hasInitialized = useRef(false);
 
-  // Initialize upload hook
-  const uploadHook =
-    challenge && athleteProfile && athleteId
-      ? useAudioUpload({ challenge, athleteId, athleteProfile })
-      : null;
+  const uploadHook = useAudioUpload({
+    challenge: challenge || null,
+    athleteId: athleteId || null,
+    athleteProfile: athleteProfile || null,
+  });
 
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -98,11 +98,13 @@ export default function AudioSubmissionPage() {
     setRecordedBlob(null);
     setRecordingDuration(0);
     setCurrentStep("recording");
-    uploadHook?.resetError();
+    if (uploadHook.isReady) {
+      uploadHook.resetError();
+    }
   };
 
   const handleSubmit = async () => {
-    if (!recordedBlob || !uploadHook) return;
+    if (!recordedBlob || !uploadHook.isReady) return;
 
     try {
       setCurrentStep("uploading");
@@ -191,7 +193,6 @@ export default function AudioSubmissionPage() {
     );
   }
 
-  // TypeScript guard: challenge must be loaded at this point
   if (!challenge) {
     return (
       <div className='min-h-screen bg-[#2C2C2E] flex items-center justify-center'>
@@ -205,7 +206,6 @@ export default function AudioSubmissionPage() {
     );
   }
 
-  // Authenticated - show challenge content
   return (
     <AudioAccessGate athleteId={athleteId}>
       <div className='min-h-screen bg-[#2C2C2E]'>
@@ -333,7 +333,7 @@ export default function AudioSubmissionPage() {
           )}
 
           {/* Uploading Step */}
-          {currentStep === "uploading" && uploadHook && (
+          {currentStep === "uploading" && uploadHook.isReady && (
             <div className='flex flex-col items-center justify-center py-20'>
               <div className='inline-block w-16 h-16 border-4 border-[rgba(0,71,171,0.3)] border-t-[rgba(0,71,171,0.8)] rounded-full animate-spin mb-6' />
               <h3 className='text-[24px] font-medium text-[#F5F7FA] mb-2'>

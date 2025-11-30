@@ -18,13 +18,16 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     const checkAccess = async () => {
       try {
         setIsLoading(true);
         setError(null);
 
         const response = await fetch(
-          `/api/check-audio-access?athleteId=${athleteId}`
+          `/api/check-audio-access?athleteId=${athleteId}`,
+          { signal: abortController.signal }
         );
 
         if (!response.ok) {
@@ -36,6 +39,11 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
 
         console.log("[AudioAccessGate] Access check:", data);
       } catch (err) {
+        // Ignore abort errors
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
+
         console.error("[AudioAccessGate] Error checking access:", err);
         setError(
           err instanceof Error
@@ -50,6 +58,10 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
     if (athleteId) {
       checkAccess();
     }
+
+    return () => {
+      abortController.abort();
+    };
   }, [athleteId]);
 
   // Loading state

@@ -5,9 +5,9 @@ import { buildAudioCapsuleMetadata } from "@/lib/types/audio";
 import { AudioCapsule } from "@/lib/drills/constants";
 
 interface UseAudioUploadParams {
-  challenge: AudioCapsule;
-  athleteId: string;
-  athleteProfile: any;
+  challenge?: AudioCapsule | null;
+  athleteId?: string | null;
+  athleteProfile?: any | null;
 }
 
 interface UploadState {
@@ -25,7 +25,7 @@ export function useAudioUpload({
   challenge,
   athleteId,
   athleteProfile,
-}: UseAudioUploadParams) {
+}: UseAudioUploadParams = {}) {
   const router = useRouter();
   const [state, setState] = useState<UploadState>({
     isUploading: false,
@@ -33,10 +33,16 @@ export function useAudioUpload({
     progress: "idle",
   });
 
+  const isReady = Boolean(challenge && athleteId && athleteProfile);
+
   const uploadAudio = async (
     audioBlob: Blob,
     recordingDuration: number
   ): Promise<void> => {
+    if (!isReady || !challenge || !athleteId || !athleteProfile) {
+      throw new Error("Upload hook not ready - missing required data");
+    }
+
     try {
       setState({
         isUploading: true,
@@ -46,7 +52,6 @@ export function useAudioUpload({
 
       const supabase = createClient();
 
-      // Step 1: Upload audio to Supabase Storage
       const timestamp = Date.now();
       const filePath = `audio/${athleteId}/${timestamp}-${challenge.drill_type_id}.webm`;
 
@@ -65,14 +70,12 @@ export function useAudioUpload({
 
       console.log("[useAudioUpload] Upload successful:", uploadData);
 
-      // Get public URL
       const {
         data: { publicUrl },
       } = supabase.storage.from("kinich-assets").getPublicUrl(filePath);
 
       console.log("[useAudioUpload] Public URL:", publicUrl);
 
-      // Step 2: Build metadata
       const metadata = buildAudioCapsuleMetadata({
         drillTypeId: challenge.drill_type_id,
         challengeName: challenge.name,
@@ -94,7 +97,6 @@ export function useAudioUpload({
         progress: "creating-record",
       });
 
-      // Step 3: Create asset record in database
       const { data: asset, error: assetError } = await supabase
         .from("assets")
         .insert({
@@ -121,7 +123,6 @@ export function useAudioUpload({
         progress: "registering",
       });
 
-      // Step 4: Register on Story Protocol
       console.log("[useAudioUpload] Registering on Story Protocol...");
 
       const registerResponse = await fetch("/api/register-audio", {
@@ -162,7 +163,6 @@ export function useAudioUpload({
         progress: "complete",
       });
 
-      // Step 5: Redirect to asset page
       router.push(`/asset/${asset.id}`);
     } catch (err) {
       console.error("[useAudioUpload] Upload failed:", err);
@@ -171,7 +171,7 @@ export function useAudioUpload({
         error: err instanceof Error ? err.message : "Upload failed",
         progress: "idle",
       });
-      throw err; // Re-throw so caller can handle
+      throw err;
     }
   };
 
@@ -181,6 +181,7 @@ export function useAudioUpload({
 
   return {
     uploadAudio,
+    isReady,
     isUploading: state.isUploading,
     error: state.error,
     progress: state.progress,
