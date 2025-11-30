@@ -10,7 +10,12 @@ import { AlertCircle, Plus, Shield, Activity, DollarSign, Layers, Trophy, Trendi
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import dynamic from 'next/dynamic';
+
+const PerformanceChart = dynamic(() => import('@/components/dashboard/performance-chart'), {
+  loading: () => <div className="h-[350px] w-full flex items-center justify-center bg-white/5 rounded-lg animate-pulse">Loading Chart...</div>,
+  ssr: false
+});
 
 interface Asset {
   id: string;
@@ -281,7 +286,7 @@ export default function AthleteDashboard() {
         <DynamicWidget variant="dropdown" />
       </header>
 
-      <div className='p-2 lg:p-4 w-full max-w-[1600px] mx-auto animate-fade-in-up'>
+      <div className='p-6 lg:p-8 w-full max-w-[1600px] mx-auto animate-fade-in-up'>
 
         {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
@@ -370,81 +375,7 @@ export default function AthleteDashboard() {
             </div>
 
             <div className="h-[350px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                {chartType === 'area' ? (
-                  <AreaChart data={performanceData}>
-                    <defs>
-                      <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                    <XAxis
-                      dataKey="name"
-                      stroke="#6b7280"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                      dy={10}
-                    />
-                    <YAxis
-                      stroke="#6b7280"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(value) => `${value}`}
-                      dx={-10}
-                    />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
-                      itemStyle={{ color: '#e5e7eb' }}
-                      labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
-                      cursor={{ stroke: '#ffffff20' }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="value"
-                      stroke="#3b82f6"
-                      strokeWidth={3}
-                      fillOpacity={1}
-                      fill="url(#colorValue)"
-                    />
-                  </AreaChart>
-                ) : (
-                  <BarChart data={performanceData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                    <XAxis
-                      dataKey="name"
-                      stroke="#6b7280"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                      dy={10}
-                    />
-                    <YAxis
-                      stroke="#6b7280"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(value) => `${value}`}
-                      dx={-10}
-                    />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
-                      itemStyle={{ color: '#e5e7eb' }}
-                      labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
-                      cursor={{ fill: '#ffffff05' }}
-                    />
-                    <Bar
-                      dataKey="value"
-                      fill="#3b82f6"
-                      radius={[4, 4, 0, 0]}
-                      maxBarSize={50}
-                    />
-                  </BarChart>
-                )}
-              </ResponsiveContainer>
+              <PerformanceChart data={performanceData} type={chartType} />
             </div>
           </div>
 

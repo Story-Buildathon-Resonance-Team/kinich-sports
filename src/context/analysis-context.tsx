@@ -192,7 +192,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
             if (counterRef.current) {
               const result = counterRef.current.process(landmarks, video.currentTime);
               setReps(result.reps);
-              setStatus(result.state as any);
+              setStatus(result.state as "STANDING" | "DOWN" | "UP_PHASE" | "Idle");
               if (result.feedback) setFeedback(result.feedback);
             }
           }

@@ -7,7 +7,7 @@ export interface VideoDrillMetadata {
   name?: string;
   description?: string;
   image?: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 
   schema_version: string; // "1.1"
   asset_type: string; // "video_drill"

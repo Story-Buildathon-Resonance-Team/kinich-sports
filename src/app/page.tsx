@@ -1,9 +1,7 @@
-import {
-  HeroSection,
-  StatCard,
-  FeatureCard,
-  ButtonCobalt,
-} from "@/components/custom";
+import { HeroSection } from "@/components/custom/hero-section";
+import { StatCard } from "@/components/custom/stat-card";
+import { FeatureCard } from "@/components/custom/feature-card";
+import { ButtonCobalt } from "@/components/custom/button-cobalt";
 
 export default function HomePage() {
   return (

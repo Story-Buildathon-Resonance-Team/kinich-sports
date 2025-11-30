@@ -9,9 +9,11 @@ import gsap from "gsap";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalysis } from "@/context/analysis-context";
 import { MetadataModal } from "@/components/custom/metadata-modal";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 
 export default function BurpeeAnalyzer() {
     const [showMetadata, setShowMetadata] = useState(false);
+    const { user } = useDynamicContext();
     const {
         setCanvasRef,
         isProcessing,
@@ -251,7 +253,8 @@ export default function BurpeeAnalyzer() {
                                 isOpen={showMetadata}
                                 onClose={() => setShowMetadata(false)}
                                 metadata={metadata}
-                                onUpload={() => console.log("Upload to IPFS triggered")}
+                                athleteName={user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : "Kinich Athlete"}
+                                athleteWallet={user?.verifiedCredentials?.[0]?.address}
                             />
                         </>
                     ) : (
