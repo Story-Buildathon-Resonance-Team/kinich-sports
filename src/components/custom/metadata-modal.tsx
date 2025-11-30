@@ -13,18 +13,26 @@ interface MetadataModalProps {
   metadata: any;
   onUpload?: () => void;
   onRegister?: () => void;
+  athleteWallet?: string;
+  athleteName?: string;
 }
 
 export function MetadataModal({
   isOpen,
   onClose,
   metadata,
-  onRegister
+  athleteWallet,
+  athleteName
 }: MetadataModalProps) {
   const [copied, setCopied] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [ipfsHash, setIpfsHash] = useState<string | null>(null);
   const [gatewayUrl, setGatewayUrl] = useState<string | null>(null);
+  const [registrationResult, setRegistrationResult] = useState<{
+    ipId: string;
+    explorerUrl: string;
+  } | null>(null);
 
   if (!isOpen) return null;
 
@@ -59,6 +67,38 @@ export function MetadataModal({
       toast.error("Failed to upload metadata to IPFS");
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!ipfsHash) return;
+
+    setIsRegistering(true);
+    try {
+      const response = await fetch("/api/story/register-ip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          metadata,
+          ipfsHash,
+          athleteWallet: athleteWallet || "0x...", // Fallback if not provided, but should be
+          athleteName: athleteName || "Athlete"
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+
+      setRegistrationResult({
+        ipId: data.ipId,
+        explorerUrl: data.explorerUrl
+      });
+      toast.success("Asset registered on Story Protocol!");
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("Failed to register IP asset");
+    } finally {
+      setIsRegistering(false);
     }
   };
 
@@ -176,9 +216,27 @@ export function MetadataModal({
                 </>
               )}
             </Button>
+          ) : !registrationResult ? (
+            <Button
+              className="bg-green-600 hover:bg-green-500 text-white gap-2"
+              onClick={handleRegister}
+              disabled={isRegistering}
+            >
+              {isRegistering ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Registering...
+                </>
+              ) : (
+                "Register Asset on Story"
+              )}
+            </Button>
           ) : (
-            <Button className="bg-green-600 hover:bg-green-500 text-white gap-2" onClick={onRegister}>
-              Register Asset on Story
+            <Button asChild className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2">
+              <a href={registrationResult.explorerUrl} target="_blank" rel="noopener noreferrer">
+                View on Story Explorer
+                <ExternalLink className="w-4 h-4" />
+              </a>
             </Button>
           )}
         </div>
