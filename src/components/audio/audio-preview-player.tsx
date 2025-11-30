@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { Play, Pause, RotateCcw, Check } from "lucide-react";
 
 interface AudioPreviewPlayerProps {
   audioBlob: Blob;
@@ -87,7 +88,7 @@ export function AudioPreviewPlayer({
       />
 
       {/* Player Card */}
-      <div className='bg-[rgba(26,26,28,0.6)] border border-[rgba(245,247,250,0.06)] rounded-xl p-6'>
+      <div className='bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-white/15 transition-all duration-300'>
         <div className='flex flex-col gap-4'>
           {/* Title */}
           <div className='text-center'>
@@ -121,9 +122,9 @@ export function AudioPreviewPlayer({
               '
             >
               {isPlaying ? (
-                <span className='text-[20px]'>⏸️</span>
+                <Pause className='w-5 h-5' />
               ) : (
-                <span className='text-[20px]'>▶️</span>
+                <Play className='w-5 h-5 ml-0.5' />
               )}
             </button>
 
@@ -198,9 +199,12 @@ export function AudioPreviewPlayer({
                 hover:text-[#F5F7FA]
                 disabled:opacity-50
                 disabled:cursor-not-allowed
+                flex items-center justify-center gap-2
+                cursor-pointer
               '
             >
-              🔄 Re-record
+              <RotateCcw className='w-4 h-4' />
+              Re-record
             </button>
 
             <button
@@ -221,11 +225,19 @@ export function AudioPreviewPlayer({
                 disabled:cursor-not-allowed
                 disabled:hover:translate-y-0
                 group
+                cursor-pointer
               '
             >
               <span className='absolute inset-0 -left-full bg-gradient-to-r from-transparent via-[rgba(255,107,53,0.2)] to-transparent transition-all duration-[600ms] group-hover:left-full pointer-events-none' />
-              <span className='relative z-10'>
-                {isUploading ? "Uploading..." : "✓ Submit Recording"}
+              <span className='relative z-10 flex items-center justify-center gap-2'>
+                {isUploading ? (
+                  "Uploading..."
+                ) : (
+                  <>
+                    <Check className='w-4 h-4' />
+                    Submit Recording
+                  </>
+                )}
               </span>
             </button>
           </div>

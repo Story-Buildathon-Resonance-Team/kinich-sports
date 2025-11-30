@@ -3,6 +3,7 @@
 import { Card } from "@/components/custom/card";
 import HumanBadge from "@/components/custom/human-badge";
 import { AudioCapsuleMetadata } from "@/lib/types/audio";
+import { Clock, FileAudio, Calendar, FileType, Video } from "lucide-react";
 
 interface AudioMetadataDisplayProps {
   metadata: AudioCapsuleMetadata;
@@ -42,6 +43,33 @@ export function AudioMetadataDisplay({ metadata }: AudioMetadataDisplayProps) {
           </p>
         </div>
 
+        {/* Stats Grid */}
+        <div className='grid grid-cols-2 gap-4'>
+          <div className='bg-[rgba(0,71,171,0.08)] border border-[rgba(0,71,171,0.15)] rounded-lg p-4'>
+            <div className='flex items-center gap-2 mb-2'>
+              <Clock className="w-4 h-4 text-blue-400" />
+              <p className='text-[11px] uppercase tracking-wider text-[rgba(245,247,250,0.5)]'>
+                Duration
+              </p>
+            </div>
+            <p className='text-[24px] font-mono font-light text-[#F5F7FA]'>
+              {formatDuration(metadata.recording_duration_seconds)}
+            </p>
+          </div>
+
+          <div className='bg-[rgba(0,71,171,0.08)] border border-[rgba(0,71,171,0.15)] rounded-lg p-4'>
+            <div className='flex items-center gap-2 mb-2'>
+              <FileAudio className="w-4 h-4 text-blue-400" />
+              <p className='text-[11px] uppercase tracking-wider text-[rgba(245,247,250,0.5)]'>
+                File Size
+              </p>
+            </div>
+            <p className='text-[24px] font-mono font-light text-[#F5F7FA]'>
+              {formatFileSize(metadata.file_size_bytes)}
+            </p>
+          </div>
+        </div>
+
         {/* Questions */}
         <div>
           <h4 className='text-[14px] font-medium text-[rgba(245,247,250,0.9)] mb-3'>
@@ -72,8 +100,9 @@ export function AudioMetadataDisplay({ metadata }: AudioMetadataDisplayProps) {
               <HumanBadge variant='icon-label' size='small' />
             )}
             {metadata.verification.cv_video_verified && (
-              <span className='bg-[rgba(0,71,171,0.15)] text-[rgba(184,212,240,0.9)] border border-[rgba(0,71,171,0.3)] rounded-md px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide'>
-                🎥 Verified Human Through Video Drills
+              <span className='bg-[rgba(0,71,171,0.15)] text-[rgba(184,212,240,0.9)] border border-[rgba(0,71,171,0.3)] rounded-md px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide flex items-center gap-2'>
+                <Video className="w-3 h-3" />
+                Verified Human Through Video Drills
               </span>
             )}
           </div>

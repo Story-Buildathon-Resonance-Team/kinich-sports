@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AudioAccessResponse } from "@/lib/types/audio";
+import { Lock, AlertCircle, Video, Loader2 } from "lucide-react";
 
 interface AudioAccessGateProps {
   athleteId: string;
@@ -67,9 +68,9 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
   // Loading state
   if (isLoading) {
     return (
-      <div className='min-h-screen bg-[#2C2C2E] flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='inline-block w-12 h-12 border-4 border-[rgba(0,71,171,0.3)] border-t-[rgba(0,71,171,0.8)] rounded-full animate-spin mb-4' />
+      <div className='min-h-screen bg-[#050505] flex items-center justify-center'>
+        <div className='text-center flex flex-col items-center gap-4'>
+          <Loader2 className="w-12 h-12 text-blue-400 animate-spin" />
           <p className='text-[16px] text-[rgba(245,247,250,0.7)]'>
             Verifying access...
           </p>
@@ -81,10 +82,12 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
   // Error state
   if (error) {
     return (
-      <div className='min-h-screen bg-[#2C2C2E]'>
+      <div className='min-h-screen bg-[#050505]'>
         <div className='max-w-[600px] mx-auto px-6 pt-[140px]'>
-          <div className='bg-[rgba(26,26,28,0.6)] border border-[rgba(255,107,53,0.2)] rounded-xl p-8 text-center'>
-            <div className='text-[48px] mb-4'>⚠️</div>
+          <div className='bg-[#0a0a0a] border border-orange-500/20 rounded-2xl p-8 text-center'>
+            <div className='flex justify-center mb-4'>
+              <AlertCircle className="w-12 h-12 text-orange-400" />
+            </div>
             <h2 className='text-[24px] font-medium text-[#F5F7FA] mb-3'>
               Verification Error
             </h2>
@@ -117,13 +120,17 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
 
   // Access denied - show locked state
   return (
-    <div className='min-h-screen bg-[#2C2C2E]'>
+    <div className='min-h-screen bg-[#050505]'>
       <div className='max-w-[600px] mx-auto px-6 pt-[140px]'>
         <div className='bg-gradient-to-br from-[rgba(0,71,171,0.15)] to-[rgba(26,26,28,0.6)] border border-[rgba(0,71,171,0.2)] rounded-2xl p-8 relative'>
           <div className='absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,71,171,0.3)] to-transparent' />
 
           <div className='text-center'>
-            <div className='text-[64px] mb-4'>🔒</div>
+            <div className='flex justify-center mb-6'>
+              <div className='w-20 h-20 rounded-full bg-blue-500/10 flex items-center justify-center'>
+                <Lock className="w-10 h-10 text-blue-400" />
+              </div>
+            </div>
             <h2 className='text-[28px] font-medium text-[#F5F7FA] mb-3'>
               Audio Challenges Locked
             </h2>
@@ -134,7 +141,7 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
 
           <div className='space-y-4 mb-8'>
             {/* World ID Option */}
-            <div className='bg-[rgba(26,26,28,0.4)] border border-[rgba(245,247,250,0.06)] rounded-xl p-6'>
+            <div className='bg-[#0a0a0a] border border-white/10 rounded-xl p-6'>
               <div className='flex items-start gap-4'>
                 <img
                   src='/World-Logomark-Black-RGB.svg'
@@ -180,9 +187,11 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
             </div>
 
             {/* CV Video Option */}
-            <div className='bg-[rgba(26,26,28,0.4)] border border-[rgba(245,247,250,0.06)] rounded-xl p-6'>
+            <div className='bg-[#0a0a0a] border border-white/10 rounded-xl p-6'>
               <div className='flex items-start gap-4'>
-                <div className='text-[32px]'>🎥</div>
+                <div className='w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0'>
+                  <Video className="w-6 h-6 text-purple-400" />
+                </div>
                 <div className='flex-1'>
                   <h3 className='text-[18px] font-medium text-[#F5F7FA] mb-2'>
                     Submit a Verified Video Drill
