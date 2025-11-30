@@ -20,7 +20,7 @@ export default function ArenaPage() {
     if (activeMode === "video") {
       router.push("/dashboard/analyze");
     } else {
-      console.log("Audio flow pending");
+      router.push("/dashboard/record-audio");
     }
   };
 
