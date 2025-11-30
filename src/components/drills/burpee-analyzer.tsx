@@ -3,13 +3,15 @@
 import { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/custom/card";
-import { Upload, Play, Activity, Trophy, CheckCircle2, Download, Maximize2 } from "lucide-react";
+import { Upload, Play, Activity, Trophy, CheckCircle2, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalysis } from "@/context/analysis-context";
 import { MetadataModal } from "@/components/custom/metadata-modal";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+
+import { CompressionStatus } from "@/components/drills/compression-status";
 
 export default function BurpeeAnalyzer() {
     const [showMetadata, setShowMetadata] = useState(false);
@@ -25,7 +27,8 @@ export default function BurpeeAnalyzer() {
         videoSrc,
         setVideoSrc,
         startProcessing,
-        resetAnalysis
+        resetAnalysis,
+        compressVideo // We need to trigger compression!
     } = useAnalysis();
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -52,6 +55,9 @@ export default function BurpeeAnalyzer() {
             const url = URL.createObjectURL(file);
             setVideoSrc(url);
             resetAnalysis();
+            
+            // Trigger compression immediately when file is uploaded
+            compressVideo(file);
         }
     };
 
@@ -188,6 +194,9 @@ export default function BurpeeAnalyzer() {
 
                 {/* Metadata / Result */}
                 <div className="flex-1 min-h-[200px] flex flex-col">
+                    {/* Always render CompressionStatus if we have a video file, even before metadata */}
+                    <CompressionStatus />
+                    
                     {metadata ? (
                         <>
                             <Card 
