@@ -1,15 +1,17 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/custom/card";
-import { Upload, Play, Activity, Trophy, CheckCircle2, Download } from "lucide-react";
+import { Upload, Play, Activity, Trophy, CheckCircle2, Download, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalysis } from "@/context/analysis-context";
+import { MetadataModal } from "@/components/custom/metadata-modal";
 
 export default function BurpeeAnalyzer() {
+    const [showMetadata, setShowMetadata] = useState(false);
     const {
         setCanvasRef,
         isProcessing,
@@ -185,50 +187,73 @@ export default function BurpeeAnalyzer() {
                 {/* Metadata / Result */}
                 <div className="flex-1 min-h-[200px] flex flex-col">
                     {metadata ? (
-                        <Card className="h-full p-5 bg-zinc-900/80 border border-green-500/30 animate-in fade-in duration-700 flex flex-col shadow-lg shadow-green-900/5">
-                            <div className="flex items-center gap-2 text-green-400 mb-4 pb-3 border-b border-white/5">
-                                <CheckCircle2 className="w-4 h-4" />
-                                <span className="font-bold text-sm tracking-wide">
-                                    {metadata.verification?.is_verified ? "VERIFIED" : "ANALYZED"}
-                                </span>
-                            </div>
+                        <>
+                            <Card 
+                                onClick={() => setShowMetadata(true)}
+                                className="h-full p-5 bg-zinc-900/80 border border-green-500/30 animate-in fade-in duration-700 flex flex-col shadow-lg shadow-green-900/5 cursor-pointer hover:border-green-500/60 transition-colors group/card relative"
+                            >
+                                <div className="absolute top-3 right-3 opacity-0 group-hover/card:opacity-100 transition-opacity">
+                                    <Maximize2 className="w-4 h-4 text-gray-400" />
+                                </div>
+                                <div className="flex items-center gap-2 text-green-400 mb-4 pb-3 border-b border-white/5">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    <span className="font-bold text-sm tracking-wide">
+                                        {metadata.verification?.is_verified ? "VERIFIED" : "ANALYZED"}
+                                    </span>
+                                </div>
 
-                            <div className="space-y-4 flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/10">
-                                <div>
-                                    <p className="text-[10px] text-gray-500 uppercase mb-1 font-bold tracking-wider">Drill ID</p>
-                                    <p className="text-xs text-white font-mono bg-black/20 p-1.5 rounded border border-white/5">{metadata.drill_type_id}</p>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] text-gray-500 uppercase mb-1 font-bold tracking-wider">Form Score</p>
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-1.5 flex-1 bg-white/10 rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full bg-green-500"
-                                                style={{ width: `${(metadata.cv_metrics?.form_score_avg || 0) * 100}%` }}
-                                            />
-                                        </div>
-                                        <span className="text-xs text-white font-mono">
-                                            {(metadata.cv_metrics?.form_score_avg || 0).toFixed(2)}
-                                        </span>
+                                <div className="space-y-4 flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/10 pointer-events-none">
+                                    <div>
+                                        <p className="text-[10px] text-gray-500 uppercase mb-1 font-bold tracking-wider">Drill ID</p>
+                                        <p className="text-xs text-white font-mono bg-black/20 p-1.5 rounded border border-white/5">{metadata.drill_type_id}</p>
                                     </div>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] text-gray-500 uppercase mb-1 font-bold tracking-wider">Rep Timestamps</p>
-                                    <div className="flex flex-wrap gap-1.5 h-20 overflow-y-auto content-start">
-                                        {metadata.cv_metrics?.rep_timestamps?.map((ts: number, i: number) => (
-                                            <span key={i} className="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-300 font-mono">
-                                                {ts.toFixed(2)}s
+                                    <div>
+                                        <p className="text-[10px] text-gray-500 uppercase mb-1 font-bold tracking-wider">Form Score</p>
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-1.5 flex-1 bg-white/10 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-green-500"
+                                                    style={{ width: `${(metadata.cv_metrics?.form_score_avg || 0) * 100}%` }}
+                                                />
+                                            </div>
+                                            <span className="text-xs text-white font-mono">
+                                                {(metadata.cv_metrics?.form_score_avg || 0).toFixed(2)}
                                             </span>
-                                        ))}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-gray-500 uppercase mb-1 font-bold tracking-wider">Rep Timestamps</p>
+                                        <div className="flex flex-wrap gap-1.5 h-20 overflow-y-auto content-start">
+                                            {metadata.cv_metrics?.rep_timestamps?.map((ts: number, i: number) => (
+                                                <span key={i} className="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-300 font-mono">
+                                                    {ts.toFixed(2)}s
+                                                </span>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <Button variant="outline" size="sm" className="w-full mt-4 text-xs h-8 border-white/10 hover:bg-white/5 hover:text-white">
-                                <Download className="w-3 h-3 mr-2" />
-                                Save Asset
-                            </Button>
-                        </Card>
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="w-full mt-4 text-xs h-8 border-white/10 hover:bg-white/5 hover:text-white pointer-events-auto"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowMetadata(true);
+                                    }}
+                                >
+                                    <Maximize2 className="w-3 h-3 mr-2" />
+                                    View Full Metadata
+                                </Button>
+                            </Card>
+
+                            <MetadataModal 
+                                isOpen={showMetadata}
+                                onClose={() => setShowMetadata(false)}
+                                metadata={metadata}
+                                onUpload={() => console.log("Upload to IPFS triggered")}
+                            />
+                        </>
                     ) : (
                         <div className="h-full flex flex-col gap-3 p-1">
                             <Skeleton className="h-8 w-2/3 bg-white/5 rounded-md" />

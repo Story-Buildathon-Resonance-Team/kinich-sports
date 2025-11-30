@@ -3,6 +3,12 @@
 import { AthleteProfile } from "./metadata";
 
 export interface VideoDrillMetadata {
+  // Standard IPFS/NFT Fields
+  name?: string;
+  description?: string;
+  image?: string;
+  properties?: Record<string, any>;
+
   schema_version: string; // "1.1"
   asset_type: string; // "video_drill"
   drill_type_id: string;
