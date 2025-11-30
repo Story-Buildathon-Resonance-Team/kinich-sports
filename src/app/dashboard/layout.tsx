@@ -1,6 +1,7 @@
 "use client";
 
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
+import { DashboardMobileHeader } from "@/components/dashboard/mobile-header";
 import { AnalysisProvider } from "@/context/analysis-context";
 import { Toaster } from "sonner";
 
@@ -33,6 +34,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         <div className="min-h-screen bg-[#050505] flex">
             <DashboardSidebar currentPath={pathname} />
             <div className="flex-1 lg:ml-64 min-h-screen flex flex-col">
+                <DashboardMobileHeader />
                 {children}
             </div>
         </div>

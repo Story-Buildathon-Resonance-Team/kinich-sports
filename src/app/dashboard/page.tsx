@@ -281,11 +281,6 @@ export default function AthleteDashboard() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex items-center justify-between px-8 py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 lg:hidden">
-        <Link href="/" className="text-xl font-bold text-white">KINICH</Link>
-        <DynamicWidget variant="dropdown" />
-      </header>
-
       <div className='p-6 lg:p-8 w-full max-w-[1600px] mx-auto animate-fade-in-up'>
 
         {/* Stats Grid */}
