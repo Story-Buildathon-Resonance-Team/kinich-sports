@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { useDynamicContext, DynamicWidget } from "@dynamic-labs/sdk-react-core";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { FilterTabs, AssetCard } from "@/components/dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Athlete, SyncAthleteRequest } from "@/lib/types/athlete";
 import { AlertCircle, Plus, Shield, Activity, DollarSign, Layers, Trophy, TrendingUp, BarChart3, LineChart } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import dynamic from 'next/dynamic';
 
@@ -136,6 +136,7 @@ export default function AthleteDashboard() {
   const [activeFilter, setActiveFilter] = useState<FilterOption>("all");
   const [chartType, setChartType] = useState<"area" | "bar">("area");
   const pathname = usePathname();
+  const router = useRouter();
 
   // Use React Query for data fetching
   const { data: dashboardData, isLoading, error, refetch } = useQuery({
@@ -436,7 +437,7 @@ export default function AthleteDashboard() {
                       title={asset.title}
                       price={asset.price}
                       duration={asset.duration}
-                      onClick={() => console.log("Asset clicked:", asset.id)}
+                      onClick={() => router.push(`/asset/${asset.id}`)}
                     />
                     {"isDemo" in asset && asset.isDemo && (
                       <div className='absolute top-3 right-3 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-lg'>
