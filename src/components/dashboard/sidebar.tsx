@@ -5,12 +5,11 @@ import { usePathname } from "next/navigation";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 import { useState, useEffect } from "react";
-import { Menu, X, ChevronRight, LayoutDashboard, Activity, Microscope, LogOut } from "lucide-react";
+import { Menu, X, ChevronRight, LayoutDashboard, Activity, Microscope } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Sidebar Navigation Component
 export function DashboardSidebar({ currentPath }: { currentPath: string }) {
-    const { handleLogOut } = useDynamicContext();
 
     const navItems = [
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -49,13 +48,7 @@ export function DashboardSidebar({ currentPath }: { currentPath: string }) {
             </nav>
 
             <div className="px-8 pt-8 pb-16 mt-auto space-y-4 border-t border-white/5 bg-[#080808]">
-                <button
-                    onClick={handleLogOut}
-                    className="w-full flex items-center gap-4 text-gray-500 hover:text-red-400 transition-colors font-medium text-left"
-                >
-                    <LogOut className="w-5 h-5" />
-                    Logout
-                </button>
+                <DynamicWidget variant="dropdown" />
             </div>
         </aside>
     );
