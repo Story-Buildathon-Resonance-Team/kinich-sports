@@ -281,15 +281,10 @@ export default function AthleteDashboard() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex items-center justify-between px-8 py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 lg:hidden">
-        <Link href="/" className="text-xl font-bold text-white">KINICH</Link>
-        <DynamicWidget variant="dropdown" />
-      </header>
-
       <div className='p-6 lg:p-8 w-full max-w-[1600px] mx-auto animate-fade-in-up'>
 
         {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
             <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-blue-500/30 transition-colors group">
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors">
@@ -339,7 +334,7 @@ export default function AthleteDashboard() {
 
           {/* Main Chart Section */}
           <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 mb-10">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
               <div>
                 <h3 className="text-xl font-bold text-white mb-1">Performance Analytics</h3>
                 <p className="text-sm text-gray-500">Your asset growth and engagement over time</p>
@@ -364,9 +359,9 @@ export default function AthleteDashboard() {
                 </div>
 
                 {/* Time Period Toggle */}
-                <div className="flex bg-black rounded-lg p-1 border border-white/10">
+                <div className="flex overflow-x-auto bg-black rounded-lg p-1 border border-white/10">
                   {['1D', '1W', '1M', '1Y', 'ALL'].map((period) => (
-                    <button key={period} className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${period === '1M' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-white'}`}>
+                    <button key={period} className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all flex-shrink-0 ${period === '1M' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-white'}`}>
                       {period}
                     </button>
                   ))}

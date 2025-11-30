@@ -73,50 +73,50 @@ export default function ArenaPage() {
           >
             <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500' />
 
-            <div className='p-8 flex items-center gap-8 relative z-10'>
+            <div className='p-4 sm:p-8 flex items-start sm:items-center gap-4 sm:gap-8 relative z-10'>
               <div
                 className={cn(
-                  "w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-105",
+                  "w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-105 flex-shrink-0",
                   activeMode === "video"
                     ? "bg-blue-500/20 text-blue-400"
                     : "bg-purple-500/20 text-purple-400"
                 )}
               >
                 {activeMode === "video" ? (
-                  <Activity className='w-8 h-8' />
+                  <Activity className='w-6 h-6 sm:w-8 sm:h-8' />
                 ) : (
-                  <Mic className='w-8 h-8' />
+                  <Mic className='w-6 h-6 sm:w-8 sm:h-8' />
                 )}
               </div>
 
               <div className='flex-1'>
-                <div className='flex items-center gap-3 mb-2'>
-                  <h3 className='text-xl font-bold text-white'>{drill.name}</h3>
-                  <span className='px-2 py-0.5 rounded-full bg-white/10 text-xs font-mono text-gray-400 border border-white/5'>
+                <div className='flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2 flex-wrap'>
+                  <h3 className='text-base sm:text-xl font-bold text-white'>{drill.name}</h3>
+                  <span className='px-2 py-0.5 rounded-full bg-white/10 text-[10px] sm:text-xs font-mono text-gray-400 border border-white/5'>
                     {activeMode === "video" ? "60s" : "3 mins"}
                   </span>
                 </div>
-                <p className='text-gray-400 text-sm leading-relaxed max-w-2xl'>
+                <p className='text-gray-400 text-xs sm:text-sm leading-relaxed'>
                   {drill.description}
                 </p>
               </div>
 
-              <div className='flex items-center justify-center w-12 h-12 rounded-full bg-white/5 text-gray-400 group-hover:bg-white/10 group-hover:text-white transition-colors'>
-                <ChevronRight className='w-6 h-6' />
+              <div className='flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 text-gray-400 group-hover:bg-white/10 group-hover:text-white transition-colors flex-shrink-0'>
+                <ChevronRight className='w-5 h-5 sm:w-6 sm:h-6' />
               </div>
             </div>
           </div>
         ))}
 
-        <div className='rounded-2xl border border-white/5 bg-zinc-900/20 p-8 flex items-center gap-8 opacity-50 cursor-not-allowed'>
-          <div className='w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-gray-600'>
-            <Lock className='w-6 h-6' />
+        <div className='rounded-2xl border border-white/5 bg-zinc-900/20 p-4 sm:p-8 flex items-start sm:items-center gap-4 sm:gap-8 opacity-50 cursor-not-allowed'>
+          <div className='w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-white/5 flex items-center justify-center text-gray-600 flex-shrink-0'>
+            <Lock className='w-5 h-5 sm:w-6 sm:h-6' />
           </div>
           <div>
-            <h3 className='text-xl font-bold text-gray-500 mb-1'>
+            <h3 className='text-base sm:text-xl font-bold text-gray-500 mb-1'>
               Locked Protocols
             </h3>
-            <p className='text-gray-600 text-sm'>
+            <p className='text-gray-600 text-xs sm:text-sm'>
               Advanced {activeMode === "video" ? "drills" : "capsules"}{" "}
               unlocking in Season 2.
             </p>

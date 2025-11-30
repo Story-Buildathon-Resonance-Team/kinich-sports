@@ -85,10 +85,6 @@ export function Navigation() {
         </div>
 
         <div className='flex md:hidden items-center gap-4'>
-          <DynamicWidget
-             variant='dropdown'
-             innerButtonComponent={<span className="text-xs">Connect</span>}
-          />
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className='text-white p-2 hover:bg-white/10 rounded-lg transition-colors'
@@ -105,6 +101,11 @@ export function Navigation() {
           mobileMenuOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
+        {/* DynamicWidget at top of menu */}
+        <div className="mb-6 pb-6 border-b border-white/10">
+          <DynamicWidget variant="dropdown" />
+        </div>
+
         <div className='flex flex-col gap-2'>
           {navLinks.map((link) => (
             <Link
