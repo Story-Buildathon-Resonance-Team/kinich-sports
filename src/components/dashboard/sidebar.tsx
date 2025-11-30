@@ -10,6 +10,16 @@ import { cn } from "@/lib/utils";
 
 // Sidebar Navigation Component
 export function DashboardSidebar({ currentPath }: { currentPath: string }) {
+    const [isDesktop, setIsDesktop] = useState(false);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(min-width: 1024px)');
+        setIsDesktop(mediaQuery.matches);
+
+        const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+        mediaQuery.addEventListener('change', handler);
+        return () => mediaQuery.removeEventListener('change', handler);
+    }, []);
 
     const navItems = [
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -48,7 +58,7 @@ export function DashboardSidebar({ currentPath }: { currentPath: string }) {
             </nav>
 
             <div className="px-8 pt-8 pb-16 mt-auto space-y-4 border-t border-white/5 bg-[#080808]">
-                <DynamicWidget variant="modal" />
+                {isDesktop && <DynamicWidget variant="modal" />}
             </div>
         </aside>
     );
