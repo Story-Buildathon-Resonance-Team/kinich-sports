@@ -5,7 +5,11 @@ import { PropsWithChildren } from "react";
 import Web3Providers from "./Web3Providers";
 import { Navigation } from "@/components/custom/navigation";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: "Kinich Sports",
@@ -21,7 +25,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html lang='en'>
+    <html lang='en' className={inter.variable}>
       <body className={inter.className}>
         <Web3Providers>
           <Navigation />
