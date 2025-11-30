@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
 import { buildAudioCapsuleMetadata } from "@/lib/types/audio";
 import { AudioCapsule } from "@/lib/drills/constants";
+import { createClient } from "@/utils/supabase/client";
 
 interface UseAudioUploadParams {
   challenge?: AudioCapsule | null;
@@ -50,29 +50,27 @@ export function useAudioUpload({
         progress: "uploading",
       });
 
-      const supabase = createClient();
+      console.log("[useAudioUpload] Uploading to server...");
 
-      const timestamp = Date.now();
-      const filePath = `audio/${athleteId}/${timestamp}-${challenge.drill_type_id}.webm`;
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", audioBlob, "recording.webm");
+      uploadFormData.append("athleteId", athleteId);
+      uploadFormData.append("drillTypeId", challenge.drill_type_id);
 
-      console.log("[useAudioUpload] Uploading to:", filePath);
+      const uploadResponse = await fetch("/api/upload-audio", {
+        method: "POST",
+        body: uploadFormData,
+      });
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("kinich-assets")
-        .upload(filePath, audioBlob, {
-          contentType: audioBlob.type,
-          upsert: false,
-        });
-
-      if (uploadError) {
-        throw new Error(`Upload failed: ${uploadError.message}`);
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(`Upload failed: ${errorData.error || "Unknown error"}`);
       }
 
-      console.log("[useAudioUpload] Upload successful:", uploadData);
+      const uploadResult = await uploadResponse.json();
+      console.log("[useAudioUpload] Upload successful:", uploadResult);
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("kinich-assets").getPublicUrl(filePath);
+      const publicUrl = uploadResult.publicUrl;
 
       console.log("[useAudioUpload] Public URL:", publicUrl);
 
@@ -96,6 +94,8 @@ export function useAudioUpload({
         error: null,
         progress: "creating-record",
       });
+
+      const supabase = createClient();
 
       const { data: asset, error: assetError } = await supabase
         .from("assets")
