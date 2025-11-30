@@ -275,18 +275,15 @@ export default function AthleteDashboard() {
   };
 
   return (
-    <div className='min-h-screen bg-[#050505] flex selection:bg-blue-500/30'>
-      <DashboardSidebar currentPath={pathname} />
+    <>
+      <header className="sticky top-0 z-40 flex items-center justify-between px-8 py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 lg:hidden">
+        <Link href="/" className="text-xl font-bold text-white">KINICH</Link>
+        <DynamicWidget variant="dropdown" />
+      </header>
 
-      <div className='flex-1 lg:ml-64 min-h-screen overflow-y-auto relative'>
-        <header className="sticky top-0 z-40 flex items-center justify-between px-8 py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 lg:hidden">
-          <Link href="/" className="text-xl font-bold text-white">KINICH</Link>
-          <DynamicWidget variant="dropdown" />
-        </header>
+      <div className='p-2 lg:p-4 w-full max-w-[1600px] mx-auto animate-fade-in-up'>
 
-        <div className='p-2 lg:p-4 w-full max-w-[1600px] animate-fade-in-up'>
-
-          {/* Stats Grid */}
+        {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
             <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-blue-500/30 transition-colors group">
               <div className="flex justify-between items-start mb-4">
@@ -526,7 +523,6 @@ export default function AthleteDashboard() {
             )}
           </section>
         </div>
-      </div>
-    </div>
+    </>
   );
 }

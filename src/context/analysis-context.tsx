@@ -80,6 +80,17 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
     // Construct robust metadata for Story Protocol verification
     const meta: VideoDrillMetadata = {
+      // Standard IPFS/NFT Fields
+      name: "Burpee Drill Assessment",
+      description: `Automated analysis of Burpee drill. ${results.reps} reps performed with ${(results.humanConfidence * 100).toFixed(0)}% confidence.`,
+      image: "ipfs://placeholder", // TODO: Generate thumbnail
+      properties: {
+        drill_type: "Burpee",
+        reps: results.reps,
+        intensity: "High",
+        score: results.avgFormScore
+      },
+
       schema_version: "1.1",
       asset_type: "video_drill",
       drill_type_id: "EXPL_BURPEE_001",
