@@ -48,7 +48,7 @@ export function DashboardSidebar({ currentPath }: { currentPath: string }) {
             </nav>
 
             <div className="px-8 pt-8 pb-16 mt-auto space-y-4 border-t border-white/5 bg-[#080808]">
-                <DynamicWidget variant="dropdown" />
+                <DynamicWidget variant="modal" />
             </div>
         </aside>
     );
