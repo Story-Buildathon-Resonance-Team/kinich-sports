@@ -6,6 +6,7 @@ import { BurpeeCounter } from "@/lib/mediapipe/burpee-counter";
 import { PoseLandmarker, DrawingUtils } from "@mediapipe/tasks-vision";
 import { toast } from "sonner";
 import { VideoDrillMetadata } from "@/lib/types/video";
+import { NativeCompressionService } from "@/lib/compression/native";
 
 interface AnalysisContextType {
   setCanvasRef: (ref: HTMLCanvasElement | null) => void;
@@ -19,6 +20,12 @@ interface AnalysisContextType {
   setVideoSrc: (src: string | null) => void;
   startProcessing: () => Promise<void>;
   resetAnalysis: () => void;
+  
+  // Compression Integration
+  compressedFile: File | null;
+  isCompressing: boolean;
+  compressionProgress: number;
+  compressVideo: (file: File) => Promise<void>;
 }
 
 const AnalysisContext = createContext<AnalysisContextType | undefined>(undefined);
@@ -31,6 +38,11 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<"STANDING" | "DOWN" | "UP_PHASE" | "Idle">("Idle");
   const [feedback, setFeedback] = useState<string>("");
   const [metadata, setMetadata] = useState<VideoDrillMetadata | null>(null);
+
+  // Compression State
+  const [compressedFile, setCompressedFile] = useState<File | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState(0);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const uiCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -66,7 +78,34 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     setProgress(0);
     setStatus("Idle");
     setFeedback("");
+    setCompressedFile(null);
+    setCompressionProgress(0);
+    setIsCompressing(false);
     if (counterRef.current) counterRef.current.reset();
+  };
+
+  const compressVideo = async (file: File) => {
+    setIsCompressing(true);
+    setCompressionProgress(0);
+    
+    try {
+      // Start compression in background
+      console.log("Starting background video compression...");
+      const result = await NativeCompressionService.compressVideo(file, (p) => {
+        setCompressionProgress(p);
+      });
+      
+      console.log("Compression complete:", result.name, result.size);
+      setCompressedFile(result);
+      toast.success("Video Compressed & Ready for Upload", {
+        description: `Size reduced to ${(result.size / 1024 / 1024).toFixed(2)} MB`
+      });
+    } catch (error) {
+      console.error("Compression failed:", error);
+      toast.error("Video compression failed");
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   const setCanvasRef = (ref: HTMLCanvasElement | null) => {
@@ -106,7 +145,10 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       video_metadata: {
         resolution: `${videoRef.current.videoWidth}x${videoRef.current.videoHeight}`,
         framerate: 30, // Assumed
-        duration_seconds: videoRef.current.duration || results.duration
+        duration_seconds: videoRef.current.duration || results.duration,
+        // Add compression metadata if available
+        file_size_bytes: compressedFile?.size,
+        mime_type: compressedFile?.type
       },
       cv_metrics: {
         rep_count: results.reps,
@@ -221,7 +263,12 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       videoSrc,
       setVideoSrc,
       startProcessing,
-      resetAnalysis
+      resetAnalysis,
+      // Compression exports
+      compressedFile,
+      isCompressing,
+      compressionProgress,
+      compressVideo
     }}>
       {children}
       <div style={{ display: 'none' }}>
