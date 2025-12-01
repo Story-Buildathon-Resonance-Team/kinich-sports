@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
 import { buildAudioCapsuleMetadata } from "@/lib/types/audio";
 import { AudioCapsule } from "@/lib/drills/constants";
+import { createClient } from "@/utils/supabase/client";
 
 interface UseAudioUploadParams {
-  challenge: AudioCapsule;
-  athleteId: string;
-  athleteProfile: any;
+  challenge?: AudioCapsule | null;
+  athleteId?: string | null;
+  athleteProfile?: any | null;
 }
 
 interface UploadState {
@@ -25,7 +25,7 @@ export function useAudioUpload({
   challenge,
   athleteId,
   athleteProfile,
-}: UseAudioUploadParams) {
+}: UseAudioUploadParams = {}) {
   const router = useRouter();
   const [state, setState] = useState<UploadState>({
     isUploading: false,
@@ -33,10 +33,16 @@ export function useAudioUpload({
     progress: "idle",
   });
 
+  const isReady = Boolean(challenge && athleteId && athleteProfile);
+
   const uploadAudio = async (
     audioBlob: Blob,
     recordingDuration: number
   ): Promise<void> => {
+    if (!isReady || !challenge || !athleteId || !athleteProfile) {
+      throw new Error("Upload hook not ready - missing required data");
+    }
+
     try {
       setState({
         isUploading: true,
@@ -44,35 +50,30 @@ export function useAudioUpload({
         progress: "uploading",
       });
 
-      const supabase = createClient();
+      console.log("[useAudioUpload] Uploading to server...");
 
-      // Step 1: Upload audio to Supabase Storage
-      const timestamp = Date.now();
-      const filePath = `audio/${athleteId}/${timestamp}-${challenge.drill_type_id}.webm`;
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", audioBlob, "recording.webm");
+      uploadFormData.append("athleteId", athleteId);
+      uploadFormData.append("drillTypeId", challenge.drill_type_id);
 
-      console.log("[useAudioUpload] Uploading to:", filePath);
+      const uploadResponse = await fetch("/api/upload-audio", {
+        method: "POST",
+        body: uploadFormData,
+      });
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("kinich-assets")
-        .upload(filePath, audioBlob, {
-          contentType: audioBlob.type,
-          upsert: false,
-        });
-
-      if (uploadError) {
-        throw new Error(`Upload failed: ${uploadError.message}`);
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(`Upload failed: ${errorData.error || "Unknown error"}`);
       }
 
-      console.log("[useAudioUpload] Upload successful:", uploadData);
+      const uploadResult = await uploadResponse.json();
+      console.log("[useAudioUpload] Upload successful:", uploadResult);
 
-      // Get public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("kinich-assets").getPublicUrl(filePath);
+      const publicUrl = uploadResult.publicUrl;
 
       console.log("[useAudioUpload] Public URL:", publicUrl);
 
-      // Step 2: Build metadata
       const metadata = buildAudioCapsuleMetadata({
         drillTypeId: challenge.drill_type_id,
         challengeName: challenge.name,
@@ -94,7 +95,8 @@ export function useAudioUpload({
         progress: "creating-record",
       });
 
-      // Step 3: Create asset record in database
+      const supabase = createClient();
+
       const { data: asset, error: assetError } = await supabase
         .from("assets")
         .insert({
@@ -121,7 +123,6 @@ export function useAudioUpload({
         progress: "registering",
       });
 
-      // Step 4: Register on Story Protocol
       console.log("[useAudioUpload] Registering on Story Protocol...");
 
       const registerResponse = await fetch("/api/register-audio", {
@@ -162,7 +163,6 @@ export function useAudioUpload({
         progress: "complete",
       });
 
-      // Step 5: Redirect to asset page
       router.push(`/asset/${asset.id}`);
     } catch (err) {
       console.error("[useAudioUpload] Upload failed:", err);
@@ -171,7 +171,7 @@ export function useAudioUpload({
         error: err instanceof Error ? err.message : "Upload failed",
         progress: "idle",
       });
-      throw err; // Re-throw so caller can handle
+      throw err;
     }
   };
 
@@ -181,6 +181,7 @@ export function useAudioUpload({
 
   return {
     uploadAudio,
+    isReady,
     isUploading: state.isUploading,
     error: state.error,
     progress: state.progress,

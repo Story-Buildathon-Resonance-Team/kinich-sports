@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/custom/card";
+import { CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
 
 interface StoryRegistrationStatusProps {
   storyIpId: string | null;
@@ -21,7 +22,7 @@ export function StoryRegistrationStatus({
     return (
       <Card variant='default' hover={false} className='p-6'>
         <div className='flex items-center gap-4'>
-          <div className='w-10 h-10 border-4 border-[rgba(0,71,171,0.3)] border-t-[rgba(0,71,171,0.8)] rounded-full animate-spin' />
+          <Loader2 className="w-10 h-10 text-blue-400 animate-spin" />
           <div>
             <h4 className='text-[16px] font-medium text-[#F5F7FA] mb-1'>
               Registering on Story Protocol
@@ -37,11 +38,13 @@ export function StoryRegistrationStatus({
 
   if (status === "failed") {
     return (
-      <Card variant='default' hover={false} className='p-6'>
+      <Card variant='default' hover={false} className='p-6 border-orange-500/20'>
         <div className='flex items-start gap-4'>
-          <div className='text-[32px]'>⚠️</div>
+          <div className='w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center flex-shrink-0'>
+            <AlertTriangle className="w-6 h-6 text-orange-400" />
+          </div>
           <div>
-            <h4 className='text-[16px] font-medium text-[rgba(255,107,53,0.9)] mb-1'>
+            <h4 className='text-[16px] font-medium text-orange-400 mb-1'>
               Registration Failed
             </h4>
             <p className='text-[13px] text-[rgba(245,247,250,0.6)]'>
@@ -54,11 +57,13 @@ export function StoryRegistrationStatus({
   }
 
   return (
-    <Card variant='elevated' hover={false} className='p-6'>
+    <Card variant='default' hover={false} className='p-6 border-green-500/20'>
       <div className='space-y-4'>
         {/* Success Header */}
         <div className='flex items-start gap-3'>
-          <div className='text-[28px]'>✓</div>
+          <div className='w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0'>
+            <CheckCircle2 className="w-6 h-6 text-green-400" />
+          </div>
           <div className='flex-1'>
             <h4 className='text-[16px] font-medium text-[#F5F7FA] mb-1'>
               Registered on Story Protocol
