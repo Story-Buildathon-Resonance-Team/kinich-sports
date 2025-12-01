@@ -7,6 +7,7 @@ import {
   FilterTabs,
   AssetCard,
   ProfileScoreDisplay,
+  ProfileHeaderSection,
 } from "@/components/dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Athlete, SyncAthleteRequest } from "@/lib/types/athlete";
@@ -335,6 +336,12 @@ export default function AthleteDashboard() {
       </header>
 
       <div className='p-6 lg:p-8 w-full max-w-[1600px] mx-auto animate-fade-in-up'>
+        {/* Profile Header Section */}
+        <ProfileHeaderSection
+          athlete={athleteProfile}
+          onVerificationSuccess={() => refetch()}
+        />
+
         {/* Stats Grid */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8'>
           <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-blue-500/30 transition-colors group'>
