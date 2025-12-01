@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useDynamicContext, DynamicWidget } from "@dynamic-labs/sdk-react-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { FilterTabs, AssetCard } from "@/components/dashboard";
+import { FilterTabs, AssetCard, ProfileScoreDisplay } from "@/components/dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Athlete, SyncAthleteRequest } from "@/lib/types/athlete";
 import { AlertCircle, Plus, Shield, Activity, DollarSign, Layers, Trophy, TrendingUp, BarChart3, LineChart } from "lucide-react";

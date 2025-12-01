@@ -139,6 +139,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Update profile score after World ID verification
+    const { recalculateAthleteScoreSafe } = await import('@/lib/scoring/calculateProfileScore');
+    const scoreResult = await recalculateAthleteScoreSafe(athlete_id);
+    if (scoreResult.success) {
+      console.log(`✓ Profile score updated after World ID verification: ${scoreResult.score}`);
+    }
+
     // Success! Return verification details
     return NextResponse.json({
       success: true,

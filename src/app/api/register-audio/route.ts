@@ -123,6 +123,21 @@ export async function POST(request: NextRequest) {
       console.error("[Register Audio] Database update failed:", updateError);
     }
 
+    // Update profile score after audio registration
+    const { data: asset } = await supabase
+      .from("assets")
+      .select("athlete_id")
+      .eq("id", assetId)
+      .single();
+
+    if (asset) {
+      const { recalculateAthleteScoreSafe } = await import('@/lib/scoring/calculateProfileScore');
+      const scoreResult = await recalculateAthleteScoreSafe(asset.athlete_id);
+      if (scoreResult.success) {
+        console.log(`✓ Profile score updated after audio registration: ${scoreResult.score}`);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       ipId: result.ipId,
