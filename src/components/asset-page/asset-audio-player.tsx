@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/custom/card";
+import { Play, Pause, Volume2, Mic } from "lucide-react";
 
 interface AssetAudioPlayerProps {
   audioUrl: string;
@@ -76,37 +77,43 @@ export function AssetAudioPlayer({
       <audio ref={audioRef} src={audioUrl} preload='metadata' />
 
       <div className='space-y-6'>
-        {/* Title */}
-        <div>
-          <h3 className='text-[20px] font-medium text-[#F5F7FA] mb-1'>
-            {challengeName}
-          </h3>
-          <p className='text-[13px] text-[rgba(245,247,250,0.5)]'>
-            Audio Capsule
-          </p>
+        {/* Icon Header */}
+        <div className='flex items-center gap-4'>
+          <div className='w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0'>
+            <Mic className='w-6 h-6 text-purple-400' />
+          </div>
+          <div>
+            <h3 className='text-[18px] font-medium text-[#F5F7FA]'>
+              {challengeName}
+            </h3>
+            <p className='text-[13px] text-[rgba(245,247,250,0.5)]'>
+              Audio Capsule
+            </p>
+          </div>
         </div>
 
         {/* Play/Pause Button */}
-        <div className='flex justify-center'>
+        <div className='flex justify-center py-4'>
           <button
             onClick={togglePlayPause}
             className='
               flex items-center justify-center
-              w-16 h-16
+              w-20 h-20
               bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
               border border-[rgba(184,212,240,0.2)]
               rounded-full
               text-[#F5F7FA]
-              shadow-[0_4px_20px_rgba(0,71,171,0.2)]
+              shadow-[0_4px_20px_rgba(0,71,171,0.3)]
               transition-all duration-300
               hover:-translate-y-1
-              hover:shadow-[0_6px_24px_rgba(0,71,171,0.3)]
+              hover:shadow-[0_6px_28px_rgba(0,71,171,0.4)]
+              cursor-pointer
             '
           >
             {isPlaying ? (
-              <span className='text-[24px]'>⏸️</span>
+              <Pause className='w-8 h-8' />
             ) : (
-              <span className='text-[24px]'>▶️</span>
+              <Play className='w-8 h-8 ml-1' />
             )}
           </button>
         </div>
@@ -159,7 +166,7 @@ export function AssetAudioPlayer({
 
         {/* Volume Control */}
         <div className='flex items-center gap-3'>
-          <span className='text-[16px]'>🔊</span>
+          <Volume2 className='w-4 h-4 text-gray-400' />
           <input
             type='range'
             min='0'

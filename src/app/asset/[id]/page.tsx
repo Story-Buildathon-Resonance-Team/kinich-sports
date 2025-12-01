@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AssetAudioPlayer } from "@/components/asset-page/asset-audio-player";
 import { AudioMetadataDisplay } from "@/components/asset-page/audio-metadata-display";
@@ -9,6 +9,9 @@ import { LicenseDisplay } from "@/components/asset-page/license-terms-display";
 import { Card } from "@/components/custom/card";
 import { AudioCapsuleMetadata } from "@/lib/types/audio";
 import { createClient } from "@/utils/supabase/client";
+import gsap from "gsap";
+import Lenis from "lenis";
+import { Loader2, AlertCircle, Video } from "lucide-react";
 
 // Demo asset mock data
 const DEMO_ASSET_DATA: Record<string, any> = {
@@ -70,6 +73,7 @@ export default function AssetPage() {
   const [asset, setAsset] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchAsset = async () => {
@@ -109,12 +113,34 @@ export default function AssetPage() {
     }
   }, [assetId]);
 
-  // Loading state
+  useEffect(() => {
+    const lenis = new Lenis();
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    if (containerRef.current) {
+      gsap.fromTo(
+        containerRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+      );
+    }
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
   if (loading) {
     return (
-      <div className='min-h-screen bg-[#2C2C2E] flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='inline-block w-12 h-12 border-4 border-[rgba(0,71,171,0.3)] border-t-[rgba(0,71,171,0.8)] rounded-full animate-spin mb-4' />
+      <div className='min-h-screen bg-[#050505] flex items-center justify-center'>
+        <div className='text-center flex flex-col items-center gap-4'>
+          <Loader2 className='w-12 h-12 text-blue-400 animate-spin' />
           <p className='text-[16px] text-[rgba(245,247,250,0.7)]'>
             Loading asset...
           </p>
@@ -123,13 +149,14 @@ export default function AssetPage() {
     );
   }
 
-  // Error state
   if (error || !asset) {
     return (
-      <div className='min-h-screen bg-[#2C2C2E]'>
+      <div className='min-h-screen bg-[#050505]'>
         <div className='max-w-[600px] mx-auto px-6 pt-[140px]'>
           <Card variant='default' className='p-8 text-center'>
-            <div className='text-[48px] mb-4'>⚠️</div>
+            <div className='flex justify-center mb-4'>
+              <AlertCircle className='w-12 h-12 text-orange-400' />
+            </div>
             <h2 className='text-[24px] font-medium text-[#F5F7FA] mb-3'>
               Asset Not Found
             </h2>
@@ -157,13 +184,14 @@ export default function AssetPage() {
 
   const metadata = asset.metadata as AudioCapsuleMetadata;
 
-  // Only show audio layout if asset is audio type
   if (asset.asset_type !== "audio") {
     return (
-      <div className='min-h-screen bg-[#2C2C2E]'>
+      <div className='min-h-screen bg-[#050505]'>
         <div className='max-w-[600px] mx-auto px-6 pt-[140px]'>
           <Card variant='default' className='p-8 text-center'>
-            <div className='text-[48px] mb-4'>🎥</div>
+            <div className='flex justify-center mb-4'>
+              <Video className='w-12 h-12 text-purple-400' />
+            </div>
             <h2 className='text-[24px] font-medium text-[#F5F7FA] mb-3'>
               Video Asset
             </h2>
@@ -190,7 +218,7 @@ export default function AssetPage() {
   }
 
   return (
-    <div className='min-h-screen bg-[#2C2C2E]'>
+    <div ref={containerRef} className='min-h-screen bg-[#050505]'>
       <div className='max-w-[1400px] mx-auto px-6 md:px-16 pt-[140px] pb-20'>
         {/* Header */}
         <div className='mb-12'>

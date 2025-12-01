@@ -1,90 +1,75 @@
 "use client";
 
 import { useState } from "react";
+import { Activity, Mic, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { ButtonCobalt } from "./button-cobalt";
 import { VideoDrill, AudioCapsule } from "@/lib/drills/constants";
+
+type ChallengeMode = "video" | "audio";
 
 interface ProtocolCardProps {
   drill: VideoDrill | AudioCapsule;
   onAcceptChallenge: (drillTypeId: string) => void;
+  activeMode?: ChallengeMode;
 }
 
-export function ProtocolCard({ drill, onAcceptChallenge }: ProtocolCardProps) {
+export function ProtocolCard({ drill, onAcceptChallenge, activeMode }: ProtocolCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const isVideo = drill.asset_type === "video";
 
   const duration = isVideo
-    ? `${(drill as VideoDrill).duration_seconds} seconds`
-    : `${(drill as AudioCapsule).duration_minutes}-4 minutes`;
-
-  const getIcon = () => {
-    if (drill.drill_type_id === "EXPL_BURPEE_001") return "🔥";
-    if (drill.drill_type_id === "MENT_CAPSULE_001") return "🎯";
-    if (drill.drill_type_id === "MENT_CAPSULE_002") return "👤";
-    if (drill.drill_type_id === "MENT_CAPSULE_003") return "⚡";
-    if (drill.drill_type_id === "MENT_CAPSULE_004") return "🔄";
-    return "⏳";
-  };
-
-  const getProtocolId = () => {
-    if (drill.drill_type_id === "EXPL_BURPEE_001") return "Explosive_01";
-    if (drill.drill_type_id === "MENT_CAPSULE_001") return "Identity_01";
-    if (drill.drill_type_id === "MENT_CAPSULE_002") return "Identity_02";
-    if (drill.drill_type_id === "MENT_CAPSULE_003") return "Identity_03";
-    if (drill.drill_type_id === "MENT_CAPSULE_004") return "Identity_04";
-    return drill.drill_type_id;
-  };
+    ? `${(drill as VideoDrill).duration_seconds}s`
+    : `${(drill as AudioCapsule).duration_minutes} mins`;
 
   return (
-    <div
-      className={`
-        bg-[rgba(26,26,28,0.4)] 
-        border border-[rgba(245,247,250,0.04)] 
-        rounded-xl 
-        transition-all duration-300
-        ${isExpanded ? "bg-[rgba(26,26,28,0.6)]" : ""}
-      `}
-    >
+    <div className='group relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40 hover:bg-zinc-900/60 hover:border-white/20 transition-all duration-300 cursor-pointer'>
+      <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500' />
       <div
-        className='flex items-center justify-between p-6 cursor-pointer'
+        className='flex items-center justify-between p-8 cursor-pointer relative z-10'
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className='flex items-start gap-6 flex-1'>
-          <div className='text-[40px] leading-none shrink-0'>{getIcon()}</div>
+        <div className='flex items-center gap-8 flex-1'>
+          <div
+            className={cn(
+              "w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-105",
+              isVideo
+                ? "bg-blue-500/20 text-blue-400"
+                : "bg-purple-500/20 text-purple-400"
+            )}
+          >
+            {isVideo ? (
+              <Activity className='w-8 h-8' />
+            ) : (
+              <Mic className='w-8 h-8' />
+            )}
+          </div>
 
           <div className='flex-1'>
-            <div className='flex items-center gap-4 mb-2'>
-              <span className='text-[11px] font-mono font-medium text-[rgba(245,247,250,0.4)] uppercase tracking-wider'>
-                {getProtocolId()}
-              </span>
-              <span className='text-[11px] font-mono font-medium text-[rgba(245,247,250,0.4)]'>
+            <div className='flex items-center gap-3 mb-2'>
+              <h3 className='text-xl font-bold text-white'>{drill.name}</h3>
+              <span className='px-2 py-0.5 rounded-full bg-white/10 text-xs font-mono text-gray-400 border border-white/5'>
                 {duration}
               </span>
             </div>
-
-            <h3 className='text-[20px] font-medium text-[#F5F7FA] mb-2'>
-              {drill.name}
-            </h3>
-
-            <p className='text-[14px] text-[rgba(245,247,250,0.6)] font-light leading-relaxed'>
+            <p className='text-gray-400 text-sm leading-relaxed max-w-2xl'>
               {drill.description}
             </p>
           </div>
         </div>
 
-        <div
-          className={`
-            text-[24px] text-[rgba(245,247,250,0.4)] shrink-0 ml-4
-            transition-transform duration-300
-            ${isExpanded ? "rotate-90" : ""}
-          `}
-        >
-          ›
+        <div className='flex items-center justify-center w-12 h-12 rounded-full bg-white/5 text-gray-400 group-hover:bg-white/10 group-hover:text-white transition-colors'>
+          <ChevronRight
+            className={cn(
+              "w-6 h-6 transition-transform duration-300",
+              isExpanded && "rotate-90"
+            )}
+          />
         </div>
       </div>
 
       {isExpanded && (
-        <div className='px-6 pb-6 pt-2 border-t border-[rgba(245,247,250,0.04)]'>
+        <div className='px-8 pb-8 pt-6 border-t border-[rgba(245,247,250,0.04)] relative z-10'>
           {isVideo && (
             <>
               <div className='mb-6'>
@@ -160,18 +145,28 @@ export function ProtocolCard({ drill, onAcceptChallenge }: ProtocolCardProps) {
           )}
 
           {!isVideo && (
-            <div className='mb-6'>
-              <div className='text-[12px] font-medium text-[rgba(245,247,250,0.5)] uppercase tracking-wider mb-3'>
-                Questions
+            <>
+              {(drill as AudioCapsule).verification_required && (
+                <div className='mb-4 px-3 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg'>
+                  <p className='text-xs text-purple-400 font-medium flex items-center gap-2'>
+                    <span>🔐</span> Verification Required
+                  </p>
+                </div>
+              )}
+
+              <div className='mb-6'>
+                <div className='text-[12px] font-medium text-[rgba(245,247,250,0.5)] uppercase tracking-wider mb-3'>
+                  Questions
+                </div>
+                <div className='text-[14px] text-[rgba(245,247,250,0.7)] font-light'>
+                  <ol className='list-decimal list-inside space-y-2'>
+                    {(drill as AudioCapsule).questions.map((question, i) => (
+                      <li key={i}>{question}</li>
+                    ))}
+                  </ol>
+                </div>
               </div>
-              <div className='text-[14px] text-[rgba(245,247,250,0.7)] font-light'>
-                <ol className='list-decimal list-inside space-y-2'>
-                  {(drill as AudioCapsule).questions.map((question, i) => (
-                    <li key={i}>{question}</li>
-                  ))}
-                </ol>
-              </div>
-            </div>
+            </>
           )}
 
           <ButtonCobalt

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { Mic } from "lucide-react";
 
 interface AudioRecorderProps {
   onRecordingComplete: (blob: Blob, duration: number) => void;
@@ -192,29 +193,31 @@ export function AudioRecorder({
   return (
     <div className='flex flex-col items-center gap-6'>
       {/* Waveform Visualization */}
-      <div className='flex items-end justify-center gap-2 h-24'>
-        {waveformBars.map((height, index) => (
-          <div
-            key={index}
-            className='w-2 rounded-full transition-all duration-150 ease-out'
-            style={{
-              height: `${height * 100}%`,
-              backgroundColor:
-                index === 2
-                  ? "rgba(255, 107, 53, 0.8)" // Kinetic orange for center bar
-                  : "rgba(0, 71, 171, 0.8)", // Cobalt for other bars
-              minHeight: "20%",
-            }}
-          />
-        ))}
+      <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 w-full max-w-md'>
+        <div className='flex items-end justify-center gap-2 h-24'>
+          {waveformBars.map((height, index) => (
+            <div
+              key={index}
+              className='w-3 rounded-full transition-all duration-150 ease-out'
+              style={{
+                height: `${height * 100}%`,
+                background:
+                  index === 2
+                    ? "linear-gradient(to top, rgba(255,107,53,0.8), rgba(255,107,53,0.4))"
+                    : "linear-gradient(to top, rgba(0,71,171,0.8), rgba(0,71,171,0.4))",
+                minHeight: "20%",
+              }}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Timer Display */}
-      <div className='text-center'>
-        <div className='text-[32px] font-mono font-light text-[#F5F7FA] tracking-wider'>
+      <div className='bg-[#0a0a0a] rounded-xl p-4 border border-white/10 text-center min-w-[200px]'>
+        <div className='text-[36px] font-mono font-light text-[#F5F7FA]'>
           {formatTime(recordingTime)}
         </div>
-        <div className='text-[14px] font-mono text-[rgba(245,247,250,0.5)]'>
+        <div className='text-[12px] font-mono text-[rgba(245,247,250,0.5)]'>
           {formatTime(maxDurationSeconds)} max
         </div>
       </div>
@@ -234,9 +237,12 @@ export function AudioRecorder({
               hover:bg-[rgba(0,71,171,0.1)]
               hover:border-[rgba(0,71,171,0.3)]
               hover:text-[#F5F7FA]
+              flex items-center gap-2
+              cursor-pointer
             '
           >
-            🎤 Enable Microphone
+            <Mic className='w-5 h-5' />
+            Enable Microphone
           </button>
         )}
 
@@ -254,11 +260,12 @@ export function AudioRecorder({
               hover:-translate-y-0.5
               hover:shadow-[0_8px_28px_rgba(0,71,171,0.3)]
               group
+              cursor-pointer
             '
           >
             <span className='absolute inset-0 -left-full bg-gradient-to-r from-transparent via-[rgba(255,107,53,0.2)] to-transparent transition-all duration-[600ms] group-hover:left-full pointer-events-none' />
             <span className='relative z-10 flex items-center gap-3'>
-              <span className='text-[20px]'>🎙️</span>
+              <Mic className='w-5 h-5' />
               Start Recording
             </span>
           </button>
@@ -277,6 +284,7 @@ export function AudioRecorder({
               hover:-translate-y-0.5
               hover:shadow-[0_8px_28px_rgba(255,107,53,0.4)]
               animate-pulse
+              cursor-pointer
             '
           >
             <span className='flex items-center gap-3'>

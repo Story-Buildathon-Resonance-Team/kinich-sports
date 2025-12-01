@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card } from "@/components/custom/card";
-import { CircleCheckBig, Ban } from "lucide-react";
+import { CircleCheckBig, Ban, Loader2 } from "lucide-react";
 
 interface LicenseDisplayProps {
   licenseFee: number; // In $IP
@@ -62,7 +62,6 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
     fetchLicenseTerms();
   }, [storyIpId]);
 
-  // Render loading state
   if (loading) {
     return (
       <Card variant='default' hover={false} className='p-6'>
@@ -76,14 +75,13 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
             </p>
           </div>
           <div className='flex items-center justify-center py-8'>
-            <div className='inline-block w-8 h-8 border-4 border-[rgba(0,71,171,0.3)] border-t-[rgba(0,71,171,0.8)] rounded-full animate-spin' />
+            <Loader2 className='w-8 h-8 text-blue-400 animate-spin' />
           </div>
         </div>
       </Card>
     );
   }
 
-  // Render error state - fallback to static display
   if (error || !licenseData) {
     return (
       <Card variant='default' hover={false} className='p-6'>
@@ -99,16 +97,16 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
           </div>
 
           {/* License Fee */}
-          <div className='bg-[rgba(0,71,171,0.08)] border border-[rgba(0,71,171,0.15)] rounded-lg p-4'>
-            <div className='flex items-baseline gap-2'>
-              <span className='text-[32px] font-mono font-light text-[#F5F7FA]'>
+          <div className='bg-gradient-to-br from-[rgba(0,71,171,0.12)] to-[rgba(0,71,171,0.05)] border-2 border-[rgba(0,71,171,0.2)] rounded-2xl p-6'>
+            <div className='flex items-baseline gap-3 mb-2'>
+              <span className='text-[48px] font-mono font-light text-[#F5F7FA] tracking-tight'>
                 {licenseFee}
               </span>
-              <span className='text-[16px] font-mono text-[rgba(0,71,171,0.9)]'>
+              <span className='text-[20px] font-mono text-blue-400 font-medium'>
                 $IP
               </span>
             </div>
-            <p className='text-[12px] text-[rgba(245,247,250,0.5)] mt-1'>
+            <p className='text-[13px] text-[rgba(245,247,250,0.5)]'>
               License fee (testnet)
             </p>
           </div>
@@ -212,16 +210,16 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
         </div>
 
         {/* License Fee */}
-        <div className='bg-[rgba(0,71,171,0.08)] border border-[rgba(0,71,171,0.15)] rounded-lg p-4'>
-          <div className='flex items-baseline gap-2'>
-            <span className='text-[32px] font-mono font-light text-[#F5F7FA]'>
+        <div className='bg-gradient-to-br from-[rgba(0,71,171,0.12)] to-[rgba(0,71,171,0.05)] border-2 border-[rgba(0,71,171,0.2)] rounded-2xl p-6'>
+          <div className='flex items-baseline gap-3 mb-2'>
+            <span className='text-[48px] font-mono font-light text-[#F5F7FA] tracking-tight'>
               {licenseFee}
             </span>
-            <span className='text-[16px] font-mono text-[rgba(0,71,171,0.9)]'>
+            <span className='text-[20px] font-mono text-blue-400 font-medium'>
               $IP
             </span>
           </div>
-          <p className='text-[12px] text-[rgba(245,247,250,0.5)] mt-1'>
+          <p className='text-[13px] text-[rgba(245,247,250,0.5)]'>
             License fee (testnet)
           </p>
         </div>

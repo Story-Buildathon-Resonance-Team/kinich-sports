@@ -3,13 +3,15 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 import { AudioRecorder } from "@/components/audio/audio-recorder";
 import { AudioPreviewPlayer } from "@/components/audio/audio-preview-player";
 import { AudioAccessGate } from "@/components/audio/audio-access-gate";
 import { Card } from "@/components/custom/card";
 import { getDrillById, AudioCapsule } from "@/lib/drills/constants";
 import { useAudioUpload } from "@/hooks/useAudioUpload";
+import gsap from "gsap";
+import Lenis from "lenis";
+import { Loader2 } from "lucide-react";
 
 type SubmissionStep = "instructions" | "recording" | "preview" | "uploading";
 
@@ -30,12 +32,13 @@ export default function AudioSubmissionPage() {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
   const hasInitialized = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Initialize upload hook
-  const uploadHook =
-    challenge && athleteProfile && athleteId
-      ? useAudioUpload({ challenge, athleteId, athleteProfile })
-      : null;
+  const uploadHook = useAudioUpload({
+    challenge: challenge || null,
+    athleteId: athleteId || null,
+    athleteProfile: athleteProfile || null,
+  });
 
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -89,6 +92,29 @@ export default function AudioSubmissionPage() {
     initialize();
   }, [drillTypeId, user?.userId]);
 
+  useEffect(() => {
+    const lenis = new Lenis();
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    if (containerRef.current) {
+      gsap.fromTo(
+        containerRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+      );
+    }
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
   const handleRecordingComplete = (blob: Blob, duration: number) => {
     setRecordedBlob(blob);
     setRecordingDuration(duration);
@@ -99,11 +125,13 @@ export default function AudioSubmissionPage() {
     setRecordedBlob(null);
     setRecordingDuration(0);
     setCurrentStep("recording");
-    uploadHook?.resetError();
+    if (uploadHook.isReady) {
+      uploadHook.resetError();
+    }
   };
 
   const handleSubmit = async () => {
-    if (!recordedBlob || !uploadHook) return;
+    if (!recordedBlob || !uploadHook.isReady) return;
 
     try {
       setCurrentStep("uploading");
@@ -115,9 +143,9 @@ export default function AudioSubmissionPage() {
 
   if (isLoadingAuth) {
     return (
-      <div className='min-h-screen bg-[#2C2C2E] flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='inline-block w-12 h-12 border-4 border-[rgba(0,71,171,0.3)] border-t-[rgba(0,71,171,0.8)] rounded-full animate-spin mb-4' />
+      <div className='min-h-screen bg-[#050505] flex items-center justify-center'>
+        <div className='text-center flex flex-col items-center gap-4'>
+          <Loader2 className='w-12 h-12 text-blue-400 animate-spin' />
           <p className='text-[16px] text-[rgba(245,247,250,0.7)]'>
             Loading challenge...
           </p>
@@ -128,7 +156,7 @@ export default function AudioSubmissionPage() {
 
   if (loadingError && challenge === null) {
     return (
-      <div className='min-h-screen bg-[#2C2C2E]'>
+      <div className='min-h-screen bg-[#050505]'>
         <div className='max-w-[600px] mx-auto px-6 pt-[140px]'>
           <Card variant='default' className='p-8 text-center'>
             <div className='text-[48px] mb-4'>⚠️</div>
@@ -159,7 +187,7 @@ export default function AudioSubmissionPage() {
 
   if (!user || !athleteId || !athleteProfile) {
     return (
-      <div className='min-h-screen bg-[#2C2C2E]'>
+      <div className='min-h-screen bg-[#050505]'>
         <div className='max-w-[600px] mx-auto px-6 pt-[140px]'>
           <Card variant='elevated' className='p-8 text-center'>
             <div className='text-[64px] mb-4'>🔐</div>
@@ -170,31 +198,6 @@ export default function AudioSubmissionPage() {
               Please log in to submit audio challenges and register your
               performance as IP.
             </p>
-            <div className='flex justify-center'>
-              <DynamicWidget
-                variant='modal'
-                innerButtonComponent={
-                  <button
-                    className='
-                      relative overflow-hidden
-                      bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
-                      border border-[rgba(184,212,240,0.2)]
-                      text-[#F5F7FA] font-medium
-                      rounded-xl px-12 py-4
-                      text-[16px]
-                      shadow-[0_4px_20px_rgba(0,71,171,0.2)]
-                      transition-all duration-[400ms]
-                      hover:-translate-y-0.5
-                      hover:shadow-[0_8px_28px_rgba(0,71,171,0.3)]
-                      group
-                    '
-                  >
-                    <span className='absolute inset-0 -left-full bg-gradient-to-r from-transparent via-[rgba(255,107,53,0.2)] to-transparent transition-all duration-[600ms] group-hover:left-full pointer-events-none' />
-                    <span className='relative z-10'>Log In</span>
-                  </button>
-                }
-              />
-            </div>
             <button
               onClick={() => router.push("/arena")}
               className='
@@ -217,12 +220,11 @@ export default function AudioSubmissionPage() {
     );
   }
 
-  // TypeScript guard: challenge must be loaded at this point
   if (!challenge) {
     return (
-      <div className='min-h-screen bg-[#2C2C2E] flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='inline-block w-12 h-12 border-4 border-[rgba(0,71,171,0.3)] border-t-[rgba(0,71,171,0.8)] rounded-full animate-spin mb-4' />
+      <div className='min-h-screen bg-[#050505] flex items-center justify-center'>
+        <div className='text-center flex flex-col items-center gap-4'>
+          <Loader2 className='w-12 h-12 text-blue-400 animate-spin' />
           <p className='text-[16px] text-[rgba(245,247,250,0.7)]'>
             Loading challenge...
           </p>
@@ -231,11 +233,10 @@ export default function AudioSubmissionPage() {
     );
   }
 
-  // Authenticated - show challenge content
   return (
     <AudioAccessGate athleteId={athleteId}>
-      <div className='min-h-screen bg-[#2C2C2E]'>
-        <div className='max-w-[800px] mx-auto px-6 md:px-16 pt-[140px] pb-20'>
+      <div ref={containerRef} className='min-h-screen bg-[#050505]'>
+        <div className='max-w-[1000px] mx-auto px-6 md:px-16 pt-[140px] pb-20'>
           {/* Header */}
           <div className='text-center mb-12'>
             <h1 className='text-[40px] md:text-[48px] font-light tracking-tight mb-3'>
@@ -359,9 +360,9 @@ export default function AudioSubmissionPage() {
           )}
 
           {/* Uploading Step */}
-          {currentStep === "uploading" && uploadHook && (
+          {currentStep === "uploading" && uploadHook.isReady && (
             <div className='flex flex-col items-center justify-center py-20'>
-              <div className='inline-block w-16 h-16 border-4 border-[rgba(0,71,171,0.3)] border-t-[rgba(0,71,171,0.8)] rounded-full animate-spin mb-6' />
+              <Loader2 className='w-16 h-16 text-blue-400 animate-spin mb-6' />
               <h3 className='text-[24px] font-medium text-[#F5F7FA] mb-2'>
                 {uploadHook.progress === "uploading" &&
                   "Uploading Your Recording"}
