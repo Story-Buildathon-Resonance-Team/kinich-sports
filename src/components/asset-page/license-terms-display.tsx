@@ -97,12 +97,12 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
           </div>
 
           {/* License Fee */}
-          <div className='bg-gradient-to-br from-[rgba(0,71,171,0.12)] to-[rgba(0,71,171,0.05)] border-2 border-[rgba(0,71,171,0.2)] rounded-2xl p-6'>
+          <div className='bg-gradient-to-br from-[rgba(0,71,171,0.12)] to-[rgba(0,71,171,0.05)] border-2 border-[rgba(0,71,171,0.2)] rounded-2xl p-4'>
             <div className='flex items-baseline gap-3 mb-2'>
-              <span className='text-[48px] font-mono font-light text-[#F5F7FA] tracking-tight'>
+              <span className='text-[24px] font-mono font-light text-[#F5F7FA] tracking-tight'>
                 {licenseFee}
               </span>
-              <span className='text-[20px] font-mono text-blue-400 font-medium'>
+              <span className='text-[14px] font-mono text-blue-400 font-medium'>
                 $IP
               </span>
             </div>
@@ -158,34 +158,18 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
             </p>
           )}
 
-          {/* Action Button */}
-          <button
-            disabled
-            className='
-              w-full
-              bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
-              border border-[rgba(184,212,240,0.2)]
-              text-[#F5F7FA] font-medium
-              rounded-lg px-4 py-2.5
-              text-[14px]
-              opacity-50 cursor-not-allowed
-            '
-          >
-            License Purchase (Coming Soon)
-          </button>
-
           {/* License URI */}
           <div className='pt-3 border-t border-[rgba(245,247,250,0.06)]'>
             <p className='text-[11px] uppercase tracking-wider text-[rgba(245,247,250,0.5)] mb-2'>
               License Terms
             </p>
             <a
-              href=''
+              href='https://github.com/piplabs/pil-document/blob/v1.4.0/Story%20Foundation%20-%20Programmable%20IP%20License%20-%20V%201.4%20-%2011.13.25.docx.pdf'
               target='_blank'
               rel='noopener noreferrer'
               className='text-[12px] text-[rgba(0,71,171,0.9)] hover:text-[rgba(0,71,171,1)] underline break-all'
             >
-              View Full Terms →
+              Read Full Terms
             </a>
           </div>
         </div>
@@ -210,12 +194,12 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
         </div>
 
         {/* License Fee */}
-        <div className='bg-gradient-to-br from-[rgba(0,71,171,0.12)] to-[rgba(0,71,171,0.05)] border-2 border-[rgba(0,71,171,0.2)] rounded-2xl p-6'>
+        <div className='bg-gradient-to-br from-[rgba(0,71,171,0.12)] to-[rgba(0,71,171,0.05)] border-2 border-[rgba(0,71,171,0.2)] rounded-2xl p-4'>
           <div className='flex items-baseline gap-3 mb-2'>
-            <span className='text-[48px] font-mono font-light text-[#F5F7FA] tracking-tight'>
+            <span className='text-[24px] font-mono font-light text-[#F5F7FA] tracking-tight'>
               {licenseFee}
             </span>
-            <span className='text-[20px] font-mono text-blue-400 font-medium'>
+            <span className='text-[14px] font-mono text-blue-400 font-medium'>
               $IP
             </span>
           </div>
@@ -297,41 +281,22 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
           )}
         </div>
 
-        {/* Action Button */}
-        <button
-          disabled
-          className='
-            w-full
-            bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
-            border border-[rgba(184,212,240,0.2)]
-            text-[#F5F7FA] font-medium
-            rounded-lg px-4 py-2.5
-            text-[14px]
-            opacity-50 cursor-not-allowed
-          '
-        >
-          License Purchase (Coming Soon)
-        </button>
-
         {/* License URI */}
         <div className='pt-3 border-t border-[rgba(245,247,250,0.06)]'>
           <p className='text-[11px] uppercase tracking-wider text-[rgba(245,247,250,0.5)] mb-2'>
             License Terms
           </p>
-          {terms.uri ? (
-            <a
-              href={terms.uri}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-[12px] text-[rgba(0,71,171,0.9)] hover:text-[rgba(0,71,171,1)] underline break-all'
-            >
-              View Full Terms →
-            </a>
-          ) : (
-            <span className='text-[12px] text-[rgba(245,247,250,0.5)]'>
-              No URI available
-            </span>
-          )}
+          <a
+            href={
+              terms.uri ||
+              "https://github.com/piplabs/pil-document/blob/v1.4.0/Story%20Foundation%20-%20Programmable%20IP%20License%20-%20V%201.4%20-%2011.13.25.docx.pdf"
+            }
+            target='_blank'
+            rel='noopener noreferrer'
+            className='text-[12px] text-[rgba(0,71,171,0.9)] hover:text-[rgba(0,71,171,1)] underline break-all'
+          >
+            Read Full Terms
+          </a>
         </div>
       </div>
     </Card>

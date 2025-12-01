@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card } from "@/components/custom/card";
 import HumanBadge from "@/components/custom/human-badge";
 import { AudioCapsuleMetadata } from "@/lib/types/audio";
@@ -7,9 +8,27 @@ import { Clock, FileAudio, Calendar, FileType, Video } from "lucide-react";
 
 interface AudioMetadataDisplayProps {
   metadata: AudioCapsuleMetadata;
+  audioUrl?: string;
 }
 
-export function AudioMetadataDisplay({ metadata }: AudioMetadataDisplayProps) {
+export function AudioMetadataDisplay({ metadata, audioUrl }: AudioMetadataDisplayProps) {
+  const [calculatedDuration, setCalculatedDuration] = useState<number | null>(null);
+
+  useEffect(() => {
+    if ((!metadata.recording_duration_seconds || metadata.recording_duration_seconds === 0) && audioUrl) {
+      // Load audio file to get actual duration
+      const audio = new Audio(audioUrl);
+      audio.addEventListener('loadedmetadata', () => {
+        setCalculatedDuration(audio.duration);
+      });
+      // Cleanup
+      return () => {
+        audio.pause();
+        audio.src = '';
+      };
+    }
+  }, [metadata.recording_duration_seconds, audioUrl]);
+
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -29,6 +48,9 @@ export function AudioMetadataDisplay({ metadata }: AudioMetadataDisplayProps) {
       year: "numeric",
     });
   };
+
+  // Use metadata duration if available, otherwise use calculated duration
+  const displayDuration = metadata.recording_duration_seconds || calculatedDuration || 0;
 
   return (
     <Card variant='default' hover={false} className='p-6'>
@@ -53,7 +75,7 @@ export function AudioMetadataDisplay({ metadata }: AudioMetadataDisplayProps) {
               </p>
             </div>
             <p className='text-[24px] font-mono font-light text-[#F5F7FA]'>
-              {formatDuration(metadata.recording_duration_seconds)}
+              {formatDuration(displayDuration)}
             </p>
           </div>
 
@@ -135,7 +157,7 @@ export function AudioMetadataDisplay({ metadata }: AudioMetadataDisplayProps) {
               Duration
             </p>
             <p className='text-[13px] font-mono text-[rgba(245,247,250,0.7)]'>
-              {formatDuration(metadata.recording_duration_seconds)}
+              {formatDuration(displayDuration)}
             </p>
           </div>
           <div>

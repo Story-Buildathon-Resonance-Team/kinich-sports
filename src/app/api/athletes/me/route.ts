@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate stats
     const stats = {
-      profileScore: 0, // Mock for now
+      profileScore: athlete.profile_score || 0, // Real score from database
       totalRoyalties: 0, // Mock for now
       totalAssets: assetCount || 0,
     };

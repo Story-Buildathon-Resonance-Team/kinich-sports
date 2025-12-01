@@ -254,7 +254,10 @@ export default function AssetPage() {
           {/* Right Column */}
           <div className='space-y-6'>
             {/* Metadata */}
-            <AudioMetadataDisplay metadata={metadata} />
+            <AudioMetadataDisplay
+              metadata={metadata}
+              audioUrl={asset.asset_url}
+            />
 
             {/* License - Pass storyIpId prop */}
             <LicenseDisplay

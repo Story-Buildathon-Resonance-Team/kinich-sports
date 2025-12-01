@@ -4,6 +4,7 @@ import { buildAudioIPMetadata, buildNFTMetadata } from "@/lib/story/metadata";
 import { createClient } from "@/utils/supabase/server";
 import { getDrillById } from "@/lib/drills/constants";
 import { Address } from "viem";
+import { recalculateAthleteScoreSafe } from "@/lib/scoring/calculateProfileScore";
 
 export async function POST(request: NextRequest) {
   try {
@@ -121,6 +122,22 @@ export async function POST(request: NextRequest) {
 
     if (updateError) {
       console.error("[Register Audio] Database update failed:", updateError);
+    }
+
+    // Update profile score after audio registration
+    const { data: asset } = await supabase
+      .from("assets")
+      .select("athlete_id")
+      .eq("id", assetId)
+      .single();
+
+    if (asset) {
+      const scoreResult = await recalculateAthleteScoreSafe(asset.athlete_id);
+      if (scoreResult.success) {
+        console.log(
+          `Profile score updated after audio registration: ${scoreResult.score}`
+        );
+      }
     }
 
     return NextResponse.json({
