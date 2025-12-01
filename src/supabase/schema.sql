@@ -30,7 +30,8 @@ CREATE TABLE assets (
   metadata JSONB NOT NULL, -- Full drill metadata from submission protocol
   cv_verified BOOLEAN DEFAULT FALSE,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'failed')),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  profile_score INTEGER DEFAULT 0
 );
 
 -- Indexes
@@ -42,7 +43,8 @@ CREATE INDEX idx_assets_status ON assets(status);
 CREATE INDEX idx_assets_metadata ON assets USING GIN (metadata);
 CREATE INDEX idx_assets_athlete_drill ON assets(athlete_id, drill_type_id); -- For querying all attempts of same drill by athlete
 CREATE INDEX idx_assets_drill_type ON assets(drill_type_id); -- For filtering by drill type
-CREATE INDEX idx_assets_cv_verified ON assets(athlete_id, cv_verified) WHERE asset_type = 'video' AND status = 'active'
+CREATE INDEX idx_assets_cv_verified ON assets(athlete_id, cv_verified) WHERE asset_type = 'video' AND status = 'active';
+CREATE INDEX idx_athletes_profile_score ON athletes(profile_score DESC);
 
 -- Audio Access Function
 -- This can be called from SQL queries to check if athlete has audio access

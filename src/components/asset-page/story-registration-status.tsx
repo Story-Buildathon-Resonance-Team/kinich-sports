@@ -22,7 +22,7 @@ export function StoryRegistrationStatus({
     return (
       <Card variant='default' hover={false} className='p-6'>
         <div className='flex items-center gap-4'>
-          <Loader2 className="w-10 h-10 text-blue-400 animate-spin" />
+          <Loader2 className='w-10 h-10 text-blue-400 animate-spin' />
           <div>
             <h4 className='text-[16px] font-medium text-[#F5F7FA] mb-1'>
               Registering on Story Protocol
@@ -38,10 +38,14 @@ export function StoryRegistrationStatus({
 
   if (status === "failed") {
     return (
-      <Card variant='default' hover={false} className='p-6 border-orange-500/20'>
+      <Card
+        variant='default'
+        hover={false}
+        className='p-6 border-orange-500/20'
+      >
         <div className='flex items-start gap-4'>
           <div className='w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center flex-shrink-0'>
-            <AlertTriangle className="w-6 h-6 text-orange-400" />
+            <AlertTriangle className='w-6 h-6 text-orange-400' />
           </div>
           <div>
             <h4 className='text-[16px] font-medium text-orange-400 mb-1'>
@@ -57,12 +61,28 @@ export function StoryRegistrationStatus({
   }
 
   return (
-    <Card variant='default' hover={false} className='p-6 border-green-500/20'>
+    <Card
+      variant='default'
+      hover={false}
+      className='p-6 border-green-500/20 relative'
+    >
+      {/* Explorer Badge - Top Right */}
+      {explorerUrl && (
+        <a
+          href={explorerUrl}
+          target='_blank'
+          rel='noopener noreferrer'
+          className='absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-full text-xs font-medium text-blue-400 hover:bg-blue-500/20 transition-colors'
+        >
+          Explorer →
+        </a>
+      )}
+
       <div className='space-y-4'>
         {/* Success Header */}
         <div className='flex items-start gap-3'>
           <div className='w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0'>
-            <CheckCircle2 className="w-6 h-6 text-green-400" />
+            <CheckCircle2 className='w-6 h-6 text-green-400' />
           </div>
           <div className='flex-1'>
             <h4 className='text-[16px] font-medium text-[#F5F7FA] mb-1'>
@@ -83,41 +103,6 @@ export function StoryRegistrationStatus({
             {storyIpId}
           </p>
         </div>
-
-        {/* Explorer Link */}
-        {explorerUrl && (
-          <a
-            href={explorerUrl}
-            target='_blank'
-            rel='noopener noreferrer'
-            className='
-              block w-full
-              bg-transparent
-              border border-[rgba(245,247,250,0.1)]
-              text-[rgba(245,247,250,0.7)]
-              px-4 py-2.5 rounded-lg
-              text-[14px] font-medium text-center
-              transition-all duration-300
-              hover:bg-[rgba(0,71,171,0.1)]
-              hover:border-[rgba(0,71,171,0.3)]
-              hover:text-[#F5F7FA]
-            '
-          >
-            View on Story Explorer →
-          </a>
-        )}
-
-        {/* Transaction Hash */}
-        {storyTxHash && (
-          <div className='pt-3 border-t border-[rgba(245,247,250,0.06)]'>
-            <p className='text-[11px] uppercase tracking-wider text-[rgba(245,247,250,0.5)] mb-2'>
-              Transaction Hash
-            </p>
-            <p className='text-[11px] font-mono text-[rgba(245,247,250,0.6)] break-all'>
-              {storyTxHash}
-            </p>
-          </div>
-        )}
       </div>
     </Card>
   );
