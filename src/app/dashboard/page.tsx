@@ -434,11 +434,11 @@ export default function AthleteDashboard() {
               </div>
 
               {/* Time Period Toggle */}
-              <div className='flex bg-black rounded-lg p-1 border border-white/10'>
+              <div className='flex overflow-x-auto bg-black rounded-lg p-1 border border-white/10'>
                 {["1D", "1W", "1M", "1Y", "ALL"].map((period) => (
                   <button
                     key={period}
-                    className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${
+                    className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all flex-shrink-0 ${
                       period === "1M"
                         ? "bg-white text-black shadow-sm"
                         : "text-gray-500 hover:text-white"
@@ -446,16 +446,7 @@ export default function AthleteDashboard() {
                   >
                     {period}
                   </button>
-                </div>
-
-                {/* Time Period Toggle */}
-                <div className="flex overflow-x-auto bg-black rounded-lg p-1 border border-white/10">
-                  {['1D', '1W', '1M', '1Y', 'ALL'].map((period) => (
-                    <button key={period} className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all flex-shrink-0 ${period === '1M' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-white'}`}>
-                      {period}
-                    </button>
-                  ))}
-                </div>
+                ))}
               </div>
             </div>
           </div>
@@ -501,39 +492,10 @@ export default function AthleteDashboard() {
                   Upload your first performance data to unlock full potential.
                 </p>
               </div>
-            ) : (
-              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
-                {filteredAssets.map((asset) => (
-                  <div key={asset.id} className='relative animate-fade-in-up' style={{ animationDelay: '100ms' }}>
-                    <AssetCard
-                      type={asset.type}
-                      title={asset.title}
-                      price={asset.price}
-                      duration={asset.duration}
-                      onClick={() => router.push(`/asset/${asset.id}`)}
-                    />
-                    {"isDemo" in asset && asset.isDemo && (
-                      <div className='absolute top-3 right-3 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-lg'>
-                        Demo
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <p className='text-lg text-white font-medium mb-2'>
-                No assets found
-              </p>
-              <p className='text-sm text-gray-500 mb-6'>
-                Start building your portfolio by recording your first drill.
-              </p>
-              <Link
-                href='/dashboard/arena'
-                className='text-sm text-blue-400 hover:text-blue-300 font-medium'
-              >
-                Go to Arena →
-              </Link>
             </div>
-          ) : (
+          )}
+
+          {filteredAssets.length > 0 ? (
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
               {filteredAssets.map((asset) => (
                 <div
@@ -546,7 +508,7 @@ export default function AthleteDashboard() {
                     title={asset.title}
                     price={asset.price}
                     duration={asset.duration}
-                    onClick={() => console.log("Asset clicked:", asset.id)}
+                    onClick={() => router.push(`/asset/${asset.id}`)}
                   />
                   {"isDemo" in asset && asset.isDemo && (
                     <div className='absolute top-3 right-3 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-lg'>
@@ -555,6 +517,21 @@ export default function AthleteDashboard() {
                   )}
                 </div>
               ))}
+            </div>
+          ) : (
+            <div>
+              <p className='text-lg text-white font-medium mb-2'>
+                No assets found
+              </p>
+              <p className='text-sm text-gray-500 mb-6'>
+                Start building your portfolio by recording your first drill.
+              </p>
+              <Link
+                href='/dashboard/arena'
+                className='text-sm text-blue-400 hover:text-blue-300 font-medium'
+              >
+                Go to Arena →
+              </Link>
             </div>
           )}
         </section>
