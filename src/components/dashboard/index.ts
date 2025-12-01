@@ -1,4 +1,4 @@
-export { ProfileSidebar } from "./profile-sidebar";
+export { ProfileHeaderSection } from "./profile-header-section";
 export { ProfileHeader } from "./profile-header";
 export { VerificationCard } from "./verification-card";
 export { StatsPanel } from "./stats-panel";
