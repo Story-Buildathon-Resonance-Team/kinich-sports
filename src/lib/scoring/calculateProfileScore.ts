@@ -1,4 +1,18 @@
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from "@/utils/supabase/server";
+import {
+  WORLD_ID_POINTS,
+  ACCOUNT_AGE_POINTS,
+  ACCOUNT_AGE_DAYS_REQUIRED,
+  VIDEO_MAX_POINTS,
+  TOP_VIDEOS_COUNT,
+  VIDEO_WEIGHTS,
+  ELITE_CADENCE_RPM,
+  AUDIO_POINTS_EACH,
+  AUDIO_MAX_POINTS,
+  CONSISTENCY_ACTIVITY_BUFFER_DAYS,
+  STREAK_POINTS,
+} from "./constants";
+import { hasValidCVMetrics, hasValidVerification } from "./types";
 
 /**
  * Safe wrapper for profile score calculation with silent error handling
@@ -10,59 +24,55 @@ export async function recalculateAthleteScoreSafe(
     const score = await recalculateAthleteScore(athleteId);
     return { success: true, score };
   } catch (error) {
-    console.error('[Profile Score] Calculation failed for athlete:', athleteId, error);
+    console.error(
+      "[Profile Score] Calculation failed for athlete:",
+      athleteId,
+      error
+    );
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
 
-/**
- * Recalculates and updates an athlete's profile score (0-100)
- *
- * Scoring breakdown:
- * - Foundation: 20pts (World ID 15pts + Account Age 5pts)
- * - Video Excellence: 60pts (top 5 video average)
- * - Audio Contribution: 12pts (4pts each, max 3)
- * - Consistency Bonus: 8pts (monthly streak)
- */
-export async function recalculateAthleteScore(athleteId: string): Promise<number> {
+export async function recalculateAthleteScore(
+  athleteId: string
+): Promise<number> {
   const supabase = await createClient();
 
-  // Fetch all data in parallel with Promise.all
-  const [athleteResult, videosResult, audiosResult, allAssetsResult] = await Promise.all([
-    supabase
-      .from('athletes')
-      .select('world_id_verified, created_at')
-      .eq('id', athleteId)
-      .single(),
+  const [athleteResult, videosResult, audiosResult, allAssetsResult] =
+    await Promise.all([
+      supabase
+        .from("athletes")
+        .select("world_id_verified, created_at")
+        .eq("id", athleteId)
+        .single(),
 
-    supabase
-      .from('assets')
-      .select('metadata')
-      .eq('athlete_id', athleteId)
-      .eq('asset_type', 'video')
-      .eq('cv_verified', true)
-      .eq('status', 'active'),
+      supabase
+        .from("assets")
+        .select("metadata")
+        .eq("athlete_id", athleteId)
+        .eq("asset_type", "video")
+        .eq("cv_verified", true)
+        .eq("status", "active"),
 
-    supabase
-      .from('assets')
-      .select('id')
-      .eq('athlete_id', athleteId)
-      .eq('asset_type', 'audio')
-      .eq('status', 'active')
-      .limit(3),
+      supabase
+        .from("assets")
+        .select("id")
+        .eq("athlete_id", athleteId)
+        .eq("asset_type", "audio")
+        .eq("status", "active")
+        .limit(3),
 
-    supabase
-      .from('assets')
-      .select('created_at')
-      .eq('athlete_id', athleteId)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-  ]);
+      supabase
+        .from("assets")
+        .select("created_at")
+        .eq("athlete_id", athleteId)
+        .eq("status", "active")
+        .order("created_at", { ascending: false }),
+    ]);
 
-  // Error handling
   if (athleteResult.error) throw athleteResult.error;
   if (videosResult.error) throw videosResult.error;
   if (audiosResult.error) throw audiosResult.error;
@@ -73,45 +83,47 @@ export async function recalculateAthleteScore(athleteId: string): Promise<number
   const audios = audiosResult.data;
   const allAssets = allAssetsResult.data;
 
-  // A. Foundation Score (20pts)
-  const worldIdScore = athlete.world_id_verified ? 15 : 0;
+  const worldIdScore = athlete.world_id_verified ? WORLD_ID_POINTS : 0;
 
   let ageBonus = 0;
   if (allAssets && allAssets.length > 0) {
     const firstAssetDate = new Date(allAssets[allAssets.length - 1].created_at);
-    const daysSinceFirst = Math.floor((Date.now() - firstAssetDate.getTime()) / (1000 * 60 * 60 * 24));
-    ageBonus = daysSinceFirst >= 30 ? 5 : 0;
+    const daysSinceFirst = Math.floor(
+      (Date.now() - firstAssetDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    ageBonus =
+      daysSinceFirst >= ACCOUNT_AGE_DAYS_REQUIRED ? ACCOUNT_AGE_POINTS : 0;
   }
 
   const foundationScore = worldIdScore + ageBonus;
 
-  // B. Video Excellence Score (60pts)
   let videoScore = 0;
   if (videos && videos.length > 0) {
     const videoQualities = videos
-      .map(v => calculateVideoQualityScore(v))
+      .map((v) => calculateVideoQualityScore(v))
       .sort((a, b) => b - a);
 
-    const top5 = videoQualities.slice(0, 5);
-    const avgQuality = top5.reduce((sum, q) => sum + q, 0) / top5.length;
-    videoScore = avgQuality * 60;
+    const topVideos = videoQualities.slice(0, TOP_VIDEOS_COUNT);
+    const avgQuality =
+      topVideos.reduce((sum, q) => sum + q, 0) / topVideos.length;
+    videoScore = avgQuality * VIDEO_MAX_POINTS;
   }
 
-  // C. Audio Contribution Score (12pts)
   const audioCount = audios?.length ?? 0;
-  const audioScore = Math.min(audioCount * 4, 12);
+  const audioScore = Math.min(audioCount * AUDIO_POINTS_EACH, AUDIO_MAX_POINTS);
 
-  // D. Consistency Bonus (8pts) - WITH 45-DAY BUFFER
   const consistencyScore = calculateConsistencyBonus(allAssets);
 
-  // E. Final Score
-  const totalScore = foundationScore + videoScore + audioScore + consistencyScore;
+  const totalScore =
+    foundationScore + videoScore + audioScore + consistencyScore;
   const finalScore = Math.max(0, Math.min(100, Math.round(totalScore)));
 
-  // Update database
-  await supabase.from('athletes').update({ profile_score: finalScore }).eq('id', athleteId);
+  await supabase
+    .from("athletes")
+    .update({ profile_score: finalScore })
+    .eq("id", athleteId);
 
-  console.log(`✓ Profile score updated for athlete ${athleteId}: ${finalScore}`);
+  console.log(`Profile score updated for athlete ${athleteId}: ${finalScore}`);
   return finalScore;
 }
 
@@ -125,56 +137,47 @@ export async function recalculateAthleteScore(athleteId: string): Promise<number
  * - Human Confidence: 10%
  */
 function calculateVideoQualityScore(video: any): number {
-  const cv = video.metadata?.cv_metrics;
-  const verification = video.metadata?.verification;
+  if (
+    !hasValidCVMetrics(video.metadata) ||
+    !hasValidVerification(video.metadata)
+  ) {
+    return 0;
+  }
 
-  if (!cv || !verification) return 0;
+  const cv = video.metadata.cv_metrics;
+  const verification = video.metadata.verification;
 
   const romScore = cv.rom_score ?? 0;
   const consistencyScore = cv.consistency_score ?? 0;
   const cadenceAvg = cv.cadence_avg ?? 0;
   const humanConfidence = verification.human_confidence_score ?? 0;
 
-  // Normalize cadence (25 rpm = 1.0, elite sustained effort)
-  const cadenceScore = Math.min(cadenceAvg / 25, 1.0);
+  const cadenceScore = Math.min(cadenceAvg / ELITE_CADENCE_RPM, 1.0);
 
-  // Weighted scoring (percentages sum to 100%)
   const weighted =
-    (romScore * 0.35) +           // 35% - Range of Motion (form quality)
-    (consistencyScore * 0.30) +   // 30% - Tempo maintenance
-    (cadenceScore * 0.25) +       // 25% - Intensity/effort
-    (humanConfidence * 0.10);     // 10% - CV reliability check
+    romScore * VIDEO_WEIGHTS.ROM_SCORE +
+    consistencyScore * VIDEO_WEIGHTS.CONSISTENCY_SCORE +
+    cadenceScore * VIDEO_WEIGHTS.CADENCE_SCORE +
+    humanConfidence * VIDEO_WEIGHTS.HUMAN_CONFIDENCE;
 
   return weighted; // Returns 0.0 - 1.0
 }
 
-/**
- * Calculates consistency bonus (0-8pts) based on monthly submission streak
- *
- * Scoring:
- * - 2 months: 2pts
- * - 3 months: 4pts
- * - 4 months: 6pts
- * - 5+ months: 8pts
- *
- * Uses 45-day buffer to prevent streak loss at month boundaries
- */
 function calculateConsistencyBonus(assets: any[]): number {
   if (!assets || assets.length === 0) return 0;
 
-  // 45-DAY BUFFER CHECK
   const mostRecentDate = new Date(assets[0].created_at);
-  const daysSinceLastAsset = Math.floor((Date.now() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24));
+  const daysSinceLastAsset = Math.floor(
+    (Date.now() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
 
-  if (daysSinceLastAsset > 45) {
+  if (daysSinceLastAsset > CONSISTENCY_ACTIVITY_BUFFER_DAYS) {
     return 0; // Streak broken
   }
 
-  // Extract unique months in YYYY-MM format
-  const monthsSet = new Set(assets.map(a => a.created_at.substring(0, 7)));
+  const monthsSet = new Set(assets.map((a) => a.created_at.substring(0, 7)));
   const sortedMonths = Array.from(monthsSet).sort().reverse();
 
-  // Count consecutive months
   let streak = 1;
   for (let i = 0; i < sortedMonths.length - 1; i++) {
     const current = new Date(sortedMonths[i] + "-01");
@@ -190,10 +193,9 @@ function calculateConsistencyBonus(assets: any[]): number {
     }
   }
 
-  // Map streak to points
-  if (streak >= 5) return 8;
-  if (streak === 4) return 6;
-  if (streak === 3) return 4;
-  if (streak === 2) return 2;
+  if (streak >= 5) return STREAK_POINTS[5];
+  if (streak === 4) return STREAK_POINTS[4];
+  if (streak === 3) return STREAK_POINTS[3];
+  if (streak === 2) return STREAK_POINTS[2];
   return 0;
 }

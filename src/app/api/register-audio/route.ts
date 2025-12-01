@@ -4,6 +4,7 @@ import { buildAudioIPMetadata, buildNFTMetadata } from "@/lib/story/metadata";
 import { createClient } from "@/utils/supabase/server";
 import { getDrillById } from "@/lib/drills/constants";
 import { Address } from "viem";
+import { recalculateAthleteScoreSafe } from "@/lib/scoring/calculateProfileScore";
 
 export async function POST(request: NextRequest) {
   try {
@@ -131,10 +132,11 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (asset) {
-      const { recalculateAthleteScoreSafe } = await import('@/lib/scoring/calculateProfileScore');
       const scoreResult = await recalculateAthleteScoreSafe(asset.athlete_id);
       if (scoreResult.success) {
-        console.log(`✓ Profile score updated after audio registration: ${scoreResult.score}`);
+        console.log(
+          `Profile score updated after audio registration: ${scoreResult.score}`
+        );
       }
     }
 
