@@ -13,6 +13,58 @@ import gsap from "gsap";
 import Lenis from "lenis";
 import { Loader2, AlertCircle, Video } from "lucide-react";
 
+// Demo asset mock data
+const DEMO_ASSET_DATA: Record<string, any> = {
+  "demo-1": {
+    id: "demo-1",
+    asset_type: "video",
+    asset_url: "",
+    license_fee: 15,
+    status: "registered",
+    story_ip_id: null,
+    story_tx_hash: null,
+    metadata: {
+      drill_name: "Burpee Max Effort",
+      video_metadata: { duration_seconds: 60 }
+    }
+  },
+  "demo-2": {
+    id: "demo-2",
+    asset_type: "audio",
+    asset_url: "",
+    license_fee: 12,
+    status: "registered",
+    story_ip_id: null,
+    story_tx_hash: null,
+    metadata: {
+      schema_version: "1.0",
+      asset_type: "audio_capsule",
+      drill_type_id: "identity-capsule-origin",
+      challenge_name: "Identity Capsule - Origin Story",
+      recording_duration_seconds: 225,
+      questions_answered: 5,
+      questions: [
+        "Tell us about how you first got into your sport",
+        "What drives you to compete?",
+        "Describe your training routine",
+        "What's your biggest achievement?",
+        "Where do you see yourself in 5 years?"
+      ],
+      recorded_at: new Date().toISOString(),
+      file_size_bytes: 1800000,
+      mime_type: "audio/webm",
+      athlete_profile: {
+        discipline: "Crossfit",
+        experience_level: "competitive"
+      },
+      verification: {
+        world_id_verified: false,
+        cv_video_verified: false
+      }
+    }
+  }
+};
+
 export default function AssetPage() {
   const params = useParams();
   const router = useRouter();
@@ -25,6 +77,13 @@ export default function AssetPage() {
 
   useEffect(() => {
     const fetchAsset = async () => {
+      // Check if this is a demo asset
+      if (assetId.startsWith("demo-") && DEMO_ASSET_DATA[assetId]) {
+        setAsset(DEMO_ASSET_DATA[assetId]);
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         const supabase = createClient();

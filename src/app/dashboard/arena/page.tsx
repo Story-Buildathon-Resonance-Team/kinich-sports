@@ -78,15 +78,15 @@ export default function ArenaPage() {
           />
         ))}
 
-        <div className='rounded-2xl border border-white/5 bg-zinc-900/20 p-8 flex items-center gap-8 opacity-50 cursor-not-allowed'>
-          <div className='w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-gray-600'>
-            <Lock className='w-6 h-6' />
+        <div className='rounded-2xl border border-white/5 bg-zinc-900/20 p-4 sm:p-8 flex items-start sm:items-center gap-4 sm:gap-8 opacity-50 cursor-not-allowed'>
+          <div className='w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-white/5 flex items-center justify-center text-gray-600 flex-shrink-0'>
+            <Lock className='w-5 h-5 sm:w-6 sm:h-6' />
           </div>
           <div>
-            <h3 className='text-xl font-bold text-gray-500 mb-1'>
+            <h3 className='text-base sm:text-xl font-bold text-gray-500 mb-1'>
               Locked Protocols
             </h3>
-            <p className='text-gray-600 text-sm'>
+            <p className='text-gray-600 text-xs sm:text-sm'>
               Advanced {activeMode === "video" ? "drills" : "capsules"}{" "}
               unlocking in Season 2.
             </p>

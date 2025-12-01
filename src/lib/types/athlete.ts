@@ -1,5 +1,51 @@
 // TypeScript types for athlete data
 
+// Available sports for athlete profiles
+export const SPORTS = [
+  'soccer',
+  'basketball',
+  'boxing',
+  'mma',
+  'swimming',
+  'tennis',
+  'crossfit',
+  'surfing',
+  'other',
+] as const;
+
+export type Sport = (typeof SPORTS)[number];
+
+// Available competitive levels
+export const COMPETITIVE_LEVELS = [
+  'amateur',
+  'competitive',
+  'professional',
+  'elite',
+] as const;
+
+export type CompetitiveLevel = (typeof COMPETITIVE_LEVELS)[number];
+
+// Display labels for sports (capitalized for UI)
+export const SPORT_LABELS: Record<Sport, string> = {
+  soccer: 'Soccer',
+  basketball: 'Basketball',
+  boxing: 'Boxing',
+  mma: 'MMA',
+  swimming: 'Swimming',
+  tennis: 'Tennis',
+  crossfit: 'CrossFit',
+  surfing: 'Surfing',
+  other: 'Other',
+};
+
+// Display labels for competitive levels
+export const COMPETITIVE_LEVEL_LABELS: Record<CompetitiveLevel, string> = {
+  amateur: 'Amateur',
+  competitive: 'Competitive',
+  professional: 'Professional',
+  elite: 'Elite',
+};
+
 export interface Athlete {
   id: string;
   dynamic_user_id: string;

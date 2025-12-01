@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { useDynamicContext, DynamicWidget } from "@dynamic-labs/sdk-react-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -23,7 +23,7 @@ import {
   LineChart,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import dynamic from "next/dynamic";
 
@@ -163,6 +163,7 @@ export default function AthleteDashboard() {
   const [activeFilter, setActiveFilter] = useState<FilterOption>("all");
   const [chartType, setChartType] = useState<"area" | "bar">("area");
   const pathname = usePathname();
+  const router = useRouter();
 
   // Use React Query for data fetching
   const {
@@ -445,7 +446,16 @@ export default function AthleteDashboard() {
                   >
                     {period}
                   </button>
-                ))}
+                </div>
+
+                {/* Time Period Toggle */}
+                <div className="flex overflow-x-auto bg-black rounded-lg p-1 border border-white/10">
+                  {['1D', '1W', '1M', '1Y', 'ALL'].map((period) => (
+                    <button key={period} className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all flex-shrink-0 ${period === '1M' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-white'}`}>
+                      {period}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -491,13 +501,24 @@ export default function AthleteDashboard() {
                   Upload your first performance data to unlock full potential.
                 </p>
               </div>
-            </div>
-          )}
-
-          {filteredAssets.length === 0 ? (
-            <div className='text-center py-24 bg-[#0a0a0a] rounded-2xl border border-dashed border-white/10'>
-              <div className='w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4'>
-                <Plus className='w-6 h-6 text-gray-500' />
+            ) : (
+              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
+                {filteredAssets.map((asset) => (
+                  <div key={asset.id} className='relative animate-fade-in-up' style={{ animationDelay: '100ms' }}>
+                    <AssetCard
+                      type={asset.type}
+                      title={asset.title}
+                      price={asset.price}
+                      duration={asset.duration}
+                      onClick={() => router.push(`/asset/${asset.id}`)}
+                    />
+                    {"isDemo" in asset && asset.isDemo && (
+                      <div className='absolute top-3 right-3 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-lg'>
+                        Demo
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
               <p className='text-lg text-white font-medium mb-2'>
                 No assets found

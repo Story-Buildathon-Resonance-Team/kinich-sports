@@ -6,7 +6,7 @@ import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { ZeroDevSmartWalletConnectors } from "@dynamic-labs/ethereum-aa";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useState, useCallback } from "react";
 import { aeneid } from "@story-protocol/core-sdk";
 import { useRouter, usePathname } from "next/navigation";
 import type {
@@ -14,6 +14,7 @@ import type {
   SyncAthleteResponse,
   DynamicMetadata,
 } from "@/lib/types/athlete";
+import { OnboardingModal } from "@/components/onboarding/onboarding-modal";
 
 // setup wagmi
 const config = createConfig({
@@ -25,69 +26,101 @@ const config = createConfig({
 });
 const queryClient = new QueryClient();
 
+// Onboarding state for new users
+interface OnboardingState {
+  isOpen: boolean;
+  dynamicUserId: string;
+  walletAddress: string;
+}
+
 function DynamicProviderWrapper({ children }: PropsWithChildren) {
   const router = useRouter();
   const pathname = usePathname();
+
+  // State for onboarding modal
+  const [onboardingState, setOnboardingState] = useState<OnboardingState>({
+    isOpen: false,
+    dynamicUserId: "",
+    walletAddress: "",
+  });
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = useCallback(() => {
+    setOnboardingState({ isOpen: false, dynamicUserId: "", walletAddress: "" });
+    router.push("/dashboard");
+  }, [router]);
 
   // Use environment variable or fallback for development
   const dynamicEnvId = process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID || "4f755b1f-1989-48ae-a596-864c24894094";
 
   return (
-    <DynamicContextProvider
-      settings={{
-        environmentId: dynamicEnvId,
-        walletConnectors: [
-          EthereumWalletConnectors,
-          ZeroDevSmartWalletConnectors,
-        ],
-        cssOverrides: <link rel='stylesheet' href='/external-styles.css' />,
-        events: {
-          onAuthSuccess: async (args) => {
-            const userId = args.user.userId;
-            const firstName = args.user.firstName;
-            const lastName = args.user.lastName;
-            const metadata = args.user.metadata as DynamicMetadata | undefined;
-            const primaryWallet = args.user.verifiedCredentials?.[0];
+    <>
+      <DynamicContextProvider
+        settings={{
+          environmentId: dynamicEnvId,
+          walletConnectors: [
+            EthereumWalletConnectors,
+            ZeroDevSmartWalletConnectors,
+          ],
+          cssOverrides: <link rel='stylesheet' href='/external-styles.css' />,
+          events: {
+            onAuthSuccess: async (args) => {
+              const userId = args.user.userId;
+              const firstName = args.user.firstName;
+              const lastName = args.user.lastName;
+              const metadata = args.user.metadata as DynamicMetadata | undefined;
+              const primaryWallet = args.user.verifiedCredentials?.[0];
 
-            if (userId && primaryWallet?.address) {
-              const syncData: SyncAthleteRequest = {
-                dynamicUserId: userId,
-                walletAddress: primaryWallet.address,
-                firstName: firstName,
-                lastName: lastName,
-                sport: metadata?.["Sport"],
-                competitiveLevel: metadata?.["Competitive Level"],
-              };
+              if (userId && primaryWallet?.address) {
+                const syncData: SyncAthleteRequest = {
+                  dynamicUserId: userId,
+                  walletAddress: primaryWallet.address,
+                  firstName: firstName,
+                  lastName: lastName,
+                  sport: metadata?.["Sport"],
+                  competitiveLevel: metadata?.["Competitive Level"],
+                };
 
-              try {
-                const response = await fetch("/api/sync-athlete", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify(syncData),
-                });
+                try {
+                  const response = await fetch("/api/sync-athlete", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(syncData),
+                  });
 
-                const result: SyncAthleteResponse = await response.json();
+                  const result: SyncAthleteResponse = await response.json();
 
-                if (result.success) {
-                  console.log(
-                    `Athlete ${
-                      result.isNewUser ? "created" : "synced"
-                    } successfully`
-                  );
-                } else {
-                  console.error("Failed to sync athlete:", result.error);
+                  if (result.success) {
+                    console.log(
+                      `Athlete ${
+                        result.isNewUser ? "created" : "synced"
+                      } successfully`
+                    );
+
+                    // Show onboarding modal for new users
+                    if (result.isNewUser && pathname === "/") {
+                      setOnboardingState({
+                        isOpen: true,
+                        dynamicUserId: userId,
+                        walletAddress: primaryWallet.address,
+                      });
+                      return; // Don't redirect yet, wait for onboarding completion
+                    }
+                  } else {
+                    console.error("Failed to sync athlete:", result.error);
+                  }
+                } catch (error) {
+                  console.error("Error syncing athlete:", error);
                 }
-              } catch (error) {
-                console.error("Error syncing athlete:", error);
               }
-            }
 
-            if (pathname === "/") {
-              router.push("/dashboard");
-            }
-          },
+              // Only redirect if not showing onboarding
+              if (pathname === "/") {
+                router.push("/dashboard");
+              }
+            },
           onUserProfileUpdate: async (user) => {
             const userId = user.userId;
             const firstName = user.firstName;
@@ -132,8 +165,17 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
         },
       }}
     >
-      {children}
-    </DynamicContextProvider>
+        {children}
+      </DynamicContextProvider>
+
+      {/* Onboarding Modal for new users */}
+      <OnboardingModal
+        isOpen={onboardingState.isOpen}
+        dynamicUserId={onboardingState.dynamicUserId}
+        walletAddress={onboardingState.walletAddress}
+        onComplete={handleOnboardingComplete}
+      />
+    </>
   );
 }
 
