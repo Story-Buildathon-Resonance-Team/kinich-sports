@@ -24,11 +24,17 @@ export function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (isAuthenticated && (pathname.startsWith("/dashboard") || pathname.startsWith("/analyze") || pathname.startsWith("/arena"))) {
-      return null;
+  if (
+    isAuthenticated &&
+    (pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/analyze") ||
+      pathname.startsWith("/arena"))
+  ) {
+    return null;
   }
 
   const navLinks = [
+    { name: "Dashboard", href: "/dashboard" },
     { name: "Arena", href: "/dashboard/arena" },
     { name: "Analyze", href: "/dashboard/analyze" },
   ];
@@ -47,12 +53,12 @@ export function Navigation() {
           href='/'
           className='text-2xl font-bold tracking-tight text-white flex items-center gap-2 group'
         >
-          <span className="text-gradient-logo">KINICH</span>
-          <div className="h-1.5 w-1.5 rounded-full bg-blue-600 group-hover:bg-orange-500 transition-colors duration-300" />
+          <span className='text-gradient-logo'>KINICH</span>
+          <div className='h-1.5 w-1.5 rounded-full bg-blue-600 group-hover:bg-orange-500 transition-colors duration-300' />
         </Link>
 
         <div className='hidden md:flex items-center gap-8'>
-          <div className="flex items-center gap-1 bg-white/5 rounded-full px-1 py-1 border border-white/5 backdrop-blur-md">
+          <div className='flex items-center gap-1 bg-white/5 rounded-full px-1 py-1 border border-white/5 backdrop-blur-md'>
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
@@ -76,9 +82,7 @@ export function Navigation() {
             <DynamicWidget
               variant='dropdown'
               innerButtonComponent={
-                <span className="font-medium">
-                  Connect
-                </span>
+                <span className='font-medium'>Connect</span>
               }
             />
           </div>
@@ -90,7 +94,11 @@ export function Navigation() {
             className='text-white p-2 hover:bg-white/10 rounded-lg transition-colors'
             aria-label='Toggle menu'
           >
-            {mobileMenuOpen ? <X className='w-6 h-6' /> : <Menu className='w-6 h-6' />}
+            {mobileMenuOpen ? (
+              <X className='w-6 h-6' />
+            ) : (
+              <Menu className='w-6 h-6' />
+            )}
           </button>
         </div>
       </div>
@@ -102,8 +110,8 @@ export function Navigation() {
         )}
       >
         {/* DynamicWidget at top of menu */}
-        <div className="mb-6 pb-6 border-b border-white/10">
-          <DynamicWidget variant="dropdown" />
+        <div className='mb-6 pb-6 border-b border-white/10'>
+          <DynamicWidget variant='dropdown' />
         </div>
 
         <div className='flex flex-col gap-2'>
@@ -115,7 +123,7 @@ export function Navigation() {
               className='flex items-center justify-between py-4 text-lg font-medium text-gray-300 border-b border-white/5 hover:text-white hover:pl-2 transition-all'
             >
               {link.name}
-              <ChevronRight className="w-5 h-5 opacity-50" />
+              <ChevronRight className='w-5 h-5 opacity-50' />
             </Link>
           ))}
         </div>
