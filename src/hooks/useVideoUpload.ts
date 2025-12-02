@@ -47,44 +47,82 @@ export function useVideoUpload({
     }
 
     try {
-      // Step 1: Upload to Supabase Storage
+      // Step 1: Generate signed upload URL
       setState({
         isUploading: true,
         error: null,
         progress: "uploading",
       });
 
-      console.log("[useVideoUpload] Uploading compressed video to Supabase...");
+      console.log("[useVideoUpload] Generating signed upload URL...");
 
-      const uploadFormData = new FormData();
-      uploadFormData.append("file", compressedFile);
-      uploadFormData.append("athleteId", athleteId);
-      uploadFormData.append("drillTypeId", drillTypeId);
-
-      const uploadResponse = await fetch("/api/upload-video", {
+      const urlResponse = await fetch("/api/generate-upload-url", {
         method: "POST",
-        body: uploadFormData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          athleteId,
+          drillTypeId,
+          fileName: compressedFile.name,
+          mimeType: compressedFile.type,
+        }),
+      });
+
+      if (!urlResponse.ok) {
+        const errorData = await urlResponse.json();
+        throw new Error(`Failed to generate upload URL: ${errorData.error || "Unknown error"}`);
+      }
+
+      const { signedUrl, filePath } = await urlResponse.json();
+
+      // Step 2: Upload directly to Supabase Storage (bypasses Vercel)
+      console.log("[useVideoUpload] Uploading compressed video directly to Supabase...");
+
+      const uploadResponse = await fetch(signedUrl, {
+        method: "PUT",
+        body: compressedFile,
+        headers: {
+          "Content-Type": compressedFile.type,
+        },
       });
 
       if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json();
-        throw new Error(`Upload failed: ${errorData.error || "Unknown error"}`);
+        throw new Error(`Direct upload failed: ${uploadResponse.statusText}`);
       }
 
-      const uploadResult = await uploadResponse.json();
+      // Step 3: Create asset record
+      console.log("[useVideoUpload] Creating asset record...");
+
+      const recordResponse = await fetch("/api/create-asset-record", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          athleteId,
+          drillTypeId,
+          filePath,
+          fileSize: compressedFile.size,
+          mimeType: compressedFile.type,
+        }),
+      });
+
+      if (!recordResponse.ok) {
+        const errorData = await recordResponse.json();
+        throw new Error(`Asset record creation failed: ${errorData.error || "Unknown error"}`);
+      }
+
+      const uploadResult = await recordResponse.json();
       console.log("[useVideoUpload] Upload successful:", uploadResult.publicUrl);
 
       const publicUrl = uploadResult.publicUrl;
       setUploadedVideoUrl(publicUrl);
 
-      // Step 2: Create asset record in database (status: pending, empty metadata)
+      // Step 4: Create database asset record (status: pending, empty metadata)
       setState({
         isUploading: true,
         error: null,
         progress: "creating-record",
       });
 
-      console.log("[useVideoUpload] Creating asset record...");
+      console.log("[useVideoUpload] Creating database asset record...");
 
       const supabase = createClient();
       const { data: asset, error: assetError } = await supabase
@@ -108,7 +146,7 @@ export function useVideoUpload({
       console.log("[useVideoUpload] Asset created:", asset.id);
       setAssetId(asset.id);
 
-      // Step 3: Trigger video analysis
+      // Step 5: Trigger video analysis
       setState({
         isUploading: true,
         error: null,
