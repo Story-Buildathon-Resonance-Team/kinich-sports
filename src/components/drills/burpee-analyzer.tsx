@@ -56,7 +56,7 @@ export default function BurpeeAnalyzer() {
 
     // Initialize video upload hook
     const { uploadAndAnalyze, submitToStory, isUploading, error: uploadError, progress: uploadProgress } = useVideoUpload({
-        athleteId: user?.userId,
+        athleteId: athleteProfile?.id,
         athleteProfile: {
             wallet_address: user?.verifiedCredentials?.[0]?.address,
             name: user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : "Kinich Athlete",
