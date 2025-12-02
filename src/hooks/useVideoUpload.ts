@@ -43,7 +43,9 @@ export function useVideoUpload({
    */
   const uploadAndAnalyze = async (compressedFile: File): Promise<string> => {
     if (!isReady || !athleteId) {
-      throw new Error("Upload hook not ready - missing athleteId or athleteProfile");
+      throw new Error(
+        "Upload hook not ready - missing athleteId or athleteProfile"
+      );
     }
 
     try {
@@ -69,13 +71,17 @@ export function useVideoUpload({
 
       if (!urlResponse.ok) {
         const errorData = await urlResponse.json();
-        throw new Error(`Failed to generate upload URL: ${errorData.error || "Unknown error"}`);
+        throw new Error(
+          `Failed to generate upload URL: ${errorData.error || "Unknown error"}`
+        );
       }
 
       const { signedUrl, filePath } = await urlResponse.json();
 
       // Step 2: Upload directly to Supabase Storage (bypasses Vercel)
-      console.log("[useVideoUpload] Uploading compressed video directly to Supabase...");
+      console.log(
+        "[useVideoUpload] Uploading compressed video directly to Supabase..."
+      );
 
       const uploadResponse = await fetch(signedUrl, {
         method: "PUT",
@@ -106,11 +112,16 @@ export function useVideoUpload({
 
       if (!recordResponse.ok) {
         const errorData = await recordResponse.json();
-        throw new Error(`Asset record creation failed: ${errorData.error || "Unknown error"}`);
+        throw new Error(
+          `Asset record creation failed: ${errorData.error || "Unknown error"}`
+        );
       }
 
       const uploadResult = await recordResponse.json();
-      console.log("[useVideoUpload] Upload successful:", uploadResult.publicUrl);
+      console.log(
+        "[useVideoUpload] Upload successful:",
+        uploadResult.publicUrl
+      );
 
       const publicUrl = uploadResult.publicUrl;
       setUploadedVideoUrl(publicUrl);
@@ -245,7 +256,10 @@ export function useVideoUpload({
       }
 
       const registerData = await registerResponse.json();
-      console.log("[useVideoUpload] Story registration complete:", registerData);
+      console.log(
+        "[useVideoUpload] Story registration complete:",
+        registerData
+      );
 
       setState({
         isUploading: false,
@@ -254,7 +268,7 @@ export function useVideoUpload({
       });
 
       // Redirect to asset page
-      router.push(`/dashboard/assets/${assetId}`);
+      router.push(`/assets/${assetId}`);
     } catch (err) {
       console.error("[useVideoUpload] Submit to Story failed:", err);
       setState({
