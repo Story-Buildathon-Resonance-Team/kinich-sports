@@ -10,11 +10,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalysis } from "@/context/analysis-context";
 import { MetadataModal } from "@/components/custom/metadata-modal";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { useVideoUpload } from "@/hooks/useVideoUpload";
 
 import { CompressionStatus } from "@/components/drills/compression-status";
 
 export default function BurpeeAnalyzer() {
     const [showMetadata, setShowMetadata] = useState(false);
+    const [athleteProfile, setAthleteProfile] = useState<any>(null);
     const { user } = useDynamicContext();
     const {
         setCanvasRef,
@@ -28,8 +30,40 @@ export default function BurpeeAnalyzer() {
         setVideoSrc,
         startProcessing,
         resetAnalysis,
-        compressVideo // We need to trigger compression!
+        compressVideo,
+        compressedFile,
+        assetId
     } = useAnalysis();
+
+    // Fetch athlete profile on mount
+    useEffect(() => {
+        const fetchProfile = async () => {
+            if (!user?.userId) return;
+
+            try {
+                const response = await fetch(`/api/athletes/me?dynamic_user_id=${user.userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setAthleteProfile(data.athlete);
+                }
+            } catch (err) {
+                console.error("[BurpeeAnalyzer] Failed to fetch athlete profile:", err);
+            }
+        };
+
+        fetchProfile();
+    }, [user?.userId]);
+
+    // Initialize video upload hook
+    const { uploadAndAnalyze, submitToStory, isUploading, error: uploadError, progress: uploadProgress } = useVideoUpload({
+        athleteId: athleteProfile?.id,
+        athleteProfile: {
+            wallet_address: user?.verifiedCredentials?.[0]?.address,
+            name: user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : "Kinich Athlete",
+            competitive_level: athleteProfile?.competitive_level || "competitive",
+        },
+        drillTypeId: "EXPL_BURPEE_001",
+    });
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const repCounterRef = useRef<HTMLDivElement>(null);
@@ -55,11 +89,21 @@ export default function BurpeeAnalyzer() {
             const url = URL.createObjectURL(file);
             setVideoSrc(url);
             resetAnalysis();
-            
+
             // Trigger compression immediately when file is uploaded
             compressVideo(file);
         }
     };
+
+    // Auto-trigger upload after compression completes
+    useEffect(() => {
+        if (compressedFile && !assetId && !isUploading) {
+            console.log("[BurpeeAnalyzer] Compression complete, auto-triggering upload...");
+            uploadAndAnalyze(compressedFile).catch((err) => {
+                console.error("[BurpeeAnalyzer] Auto-upload failed:", err);
+            });
+        }
+    }, [compressedFile, assetId, isUploading, uploadAndAnalyze]);
 
     if (!videoSrc) {
         return (
@@ -195,8 +239,11 @@ export default function BurpeeAnalyzer() {
                 {/* Metadata / Result */}
                 <div className="flex-1 min-h-[200px] flex flex-col">
                     {/* Always render CompressionStatus if we have a video file, even before metadata */}
-                    <CompressionStatus />
-                    
+                    <CompressionStatus
+                        uploadProgress={uploadProgress}
+                        isUploading={isUploading}
+                    />
+
                     {metadata ? (
                         <>
                             <Card 
@@ -244,9 +291,9 @@ export default function BurpeeAnalyzer() {
                                     </div>
                                 </div>
 
-                                <Button 
-                                    variant="outline" 
-                                    size="sm" 
+                                <Button
+                                    variant="outline"
+                                    size="sm"
                                     className="w-full mt-4 text-xs h-8 border-white/10 hover:bg-white/5 hover:text-white pointer-events-auto"
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -254,14 +301,20 @@ export default function BurpeeAnalyzer() {
                                     }}
                                 >
                                     <Maximize2 className="w-3 h-3 mr-2" />
-                                    View Full Metadata
+                                    Register Asset
                                 </Button>
                             </Card>
 
-                            <MetadataModal 
+                            <MetadataModal
                                 isOpen={showMetadata}
                                 onClose={() => setShowMetadata(false)}
                                 metadata={metadata}
+                                onSubmit={async () => {
+                                    if (assetId && metadata) {
+                                        await submitToStory(assetId, metadata);
+                                    }
+                                }}
+                                isSubmitting={uploadProgress === 'registering'}
                                 athleteName={user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : "Kinich Athlete"}
                                 athleteWallet={user?.verifiedCredentials?.[0]?.address}
                             />

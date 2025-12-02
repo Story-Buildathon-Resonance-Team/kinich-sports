@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { registerIPAsset } from "@/lib/story/actions";
-import { buildAudioIPMetadata, buildNFTMetadata } from "@/lib/story/metadata";
+import { buildDrillIPMetadata, buildNFTMetadata } from "@/lib/story/metadata";
 import { createClient } from "@/utils/supabase/server";
 import { getDrillById } from "@/lib/drills/constants";
 import { Address } from "viem";
 import { recalculateAthleteScoreSafe } from "@/lib/scoring/calculateProfileScore";
+import type { VideoDrillMetadata } from "@/lib/types/video";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,20 +20,17 @@ export async function POST(request: NextRequest) {
       mediaUrl,
       mimeType,
       licenseFee,
-      questionsCount,
-      verificationMethod,
-      worldIdVerified,
-      cvVideoVerified,
+      metadata,
     } = body;
 
+    // Validation
     if (
       !assetId ||
       !athleteWallet ||
       !athleteName ||
       !drillTypeId ||
       !mediaUrl ||
-      !licenseFee ||
-      !verificationMethod
+      !licenseFee
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -40,58 +38,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (
-      verificationMethod !== "world_id" &&
-      verificationMethod !== "cv_video" &&
-      verificationMethod !== "world_id_and_cv_video"
-    ) {
-      return NextResponse.json(
-        { error: "Invalid verification method" },
-        { status: 400 }
-      );
-    }
+    console.log("[Register Video] Starting registration for asset:", assetId);
 
-    if (!worldIdVerified && !cvVideoVerified) {
-      return NextResponse.json(
-        { error: "At least one verification method must be active" },
-        { status: 400 }
-      );
-    }
-
-    console.log("[Register Audio] Starting registration");
-
+    // Validate drill type
     const drill = getDrillById(drillTypeId);
-    if (!drill || drill.asset_type !== "audio") {
+    if (!drill || drill.asset_type !== "video") {
       return NextResponse.json(
-        { error: "Invalid drill type ID or not an audio drill" },
+        { error: "Invalid drill type ID or not a video drill" },
         { status: 400 }
       );
     }
 
-    const ipMetadata = buildAudioIPMetadata({
+    // Build Story Protocol IP metadata (minimal metadata for blockchain)
+    const ipMetadata = buildDrillIPMetadata({
       athleteName,
       athleteAddress: athleteWallet as Address,
-      drillTypeId,
-      drillName: drill.name,
-      experienceLevel,
+      drillInfo: {
+        drill_type_id: drillTypeId,
+        drill_name: drill.name,
+        experience_level: experienceLevel || "competitive",
+      },
       media: {
         url: mediaUrl,
-        type: "audio",
-        mimeType,
+        type: "video",
+        mimeType: mimeType || "video/mp4",
       },
-      verificationMethod,
-      worldIdVerified,
-      cvVideoVerified,
-      questionsCount,
+      description:
+        metadata?.description ||
+        `${drill.name} - ${
+          metadata?.cv_metrics?.rep_count || 0
+        } reps completed with ${(
+          (metadata?.verification?.human_confidence_score || 0) * 100
+        ).toFixed(0)}% confidence`,
     });
 
+    // Build NFT metadata
     const nftMetadata = buildNFTMetadata({
       title: ipMetadata.title,
-      description: ipMetadata.description || "Audio mental training",
+      description: ipMetadata.description || "Video drill performance",
       imageUrl: undefined,
-      assetType: "audio",
+      assetType: "video",
     });
 
+    // Register on Story Protocol
+    console.log("[Register Video] Calling registerIPAsset");
     const result = await registerIPAsset({
       athleteWallet: athleteWallet as Address,
       athleteName,
@@ -101,15 +91,16 @@ export async function POST(request: NextRequest) {
     });
 
     if (!result.success) {
-      console.error("[Register Audio] Registration failed:", result.error);
+      console.error("[Register Video] Registration failed:", result.error);
       return NextResponse.json(
         { error: result.error || "IP registration failed" },
         { status: 500 }
       );
     }
 
-    console.log("[Register Audio] IP registered:", result.ipId);
+    console.log("[Register Video] IP registered:", result.ipId);
 
+    // Update asset in database with Story Protocol data
     const supabase = await createClient();
     const { error: updateError } = await supabase
       .from("assets")
@@ -117,15 +108,17 @@ export async function POST(request: NextRequest) {
         story_ip_id: result.ipId,
         story_tx_hash: result.txHash,
         ipfs_cid: result.ipfsCid,
+        cv_verified: metadata?.verification?.is_verified || false, // MediaPipe verified
         status: "active",
       })
       .eq("id", assetId);
 
     if (updateError) {
-      console.error("[Register Audio] Database update failed:", updateError);
+      console.error("[Register Video] Database update failed:", updateError);
+      // Don't fail the request - Story registration succeeded
     }
 
-    // Update profile score after audio registration
+    // Recalculate athlete profile score
     const { data: asset } = await supabase
       .from("assets")
       .select("athlete_id")
@@ -136,7 +129,7 @@ export async function POST(request: NextRequest) {
       const scoreResult = await recalculateAthleteScoreSafe(asset.athlete_id);
       if (scoreResult.success) {
         console.log(
-          `Profile score updated after audio registration: ${scoreResult.score}`
+          `[Register Video] Profile score updated: ${scoreResult.score}`
         );
       }
     }
@@ -147,9 +140,10 @@ export async function POST(request: NextRequest) {
       txHash: result.txHash,
       tokenId: result.tokenId?.toString(),
       licenseTermsId: result.licenseTermsIds?.toLocaleString(),
+      explorerUrl: `https://aeneid.explorer.story.foundation/ipa/${result.ipId}`,
     });
   } catch (error) {
-    console.error("[Register Audio] Unexpected error:", error);
+    console.error("[Register Video] Unexpected error:", error);
     return NextResponse.json(
       {
         error: "Internal server error",

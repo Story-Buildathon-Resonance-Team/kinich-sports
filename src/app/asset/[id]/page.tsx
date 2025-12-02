@@ -25,8 +25,8 @@ const DEMO_ASSET_DATA: Record<string, any> = {
     story_tx_hash: null,
     metadata: {
       drill_name: "Burpee Max Effort",
-      video_metadata: { duration_seconds: 60 }
-    }
+      video_metadata: { duration_seconds: 60 },
+    },
   },
   "demo-2": {
     id: "demo-2",
@@ -48,21 +48,21 @@ const DEMO_ASSET_DATA: Record<string, any> = {
         "What drives you to compete?",
         "Describe your training routine",
         "What's your biggest achievement?",
-        "Where do you see yourself in 5 years?"
+        "Where do you see yourself in 5 years?",
       ],
       recorded_at: new Date().toISOString(),
       file_size_bytes: 1800000,
       mime_type: "audio/webm",
       athlete_profile: {
         discipline: "Crossfit",
-        experience_level: "competitive"
+        experience_level: "competitive",
       },
       verification: {
         world_id_verified: false,
-        cv_video_verified: false
-      }
-    }
-  }
+        cv_video_verified: false,
+      },
+    },
+  },
 };
 
 export default function AssetPage() {
@@ -199,7 +199,7 @@ export default function AssetPage() {
               This is a video asset. Video asset display is coming soon.
             </p>
             <button
-              onClick={() => router.push("/arena")}
+              onClick={() => router.push("/dashboard/arena")}
               className='
                 bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
                 border border-[rgba(184,212,240,0.2)]
