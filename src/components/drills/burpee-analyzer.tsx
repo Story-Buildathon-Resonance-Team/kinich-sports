@@ -291,9 +291,9 @@ export default function BurpeeAnalyzer() {
                                     </div>
                                 </div>
 
-                                <Button 
-                                    variant="outline" 
-                                    size="sm" 
+                                <Button
+                                    variant="outline"
+                                    size="sm"
                                     className="w-full mt-4 text-xs h-8 border-white/10 hover:bg-white/5 hover:text-white pointer-events-auto"
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -301,7 +301,7 @@ export default function BurpeeAnalyzer() {
                                     }}
                                 >
                                     <Maximize2 className="w-3 h-3 mr-2" />
-                                    View Full Metadata
+                                    Register Asset
                                 </Button>
                             </Card>
 

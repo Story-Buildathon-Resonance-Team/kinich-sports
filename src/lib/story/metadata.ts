@@ -7,6 +7,12 @@ import { IpMetadata } from "@story-protocol/core-sdk";
 import { Address } from "viem";
 
 /**
+ * Default IPFS images for NFT metadata
+ */
+const DEFAULT_VIDEO_IMAGE_CID = "bafybeig77bodtxvpwixi6ouk7cbo4hwgdioqyo53mf5pufvbdqvnmguipy";
+const DEFAULT_AUDIO_IMAGE_CID = "bafybeicvtq63wkczg3wt7nnv2kelmjdoqh333sxmenhzlilbfsqvw443xy";
+
+/**
  * Creator information for IP metadata
  */
 export interface Creator {
@@ -139,15 +145,26 @@ export function buildNFTMetadata(params: {
   title: string | undefined;
   description: string;
   imageUrl?: string;
+  assetType?: "video" | "audio";
 }): {
   name: string | undefined;
   description: string;
   image: string;
 } {
+  // Determine image URL with fallback to asset type defaults
+  let imageUrl = params.imageUrl;
+
+  if (!imageUrl && params.assetType) {
+    const cid = params.assetType === "video"
+      ? DEFAULT_VIDEO_IMAGE_CID
+      : DEFAULT_AUDIO_IMAGE_CID;
+    imageUrl = `ipfs://${cid}`;
+  }
+
   return {
     name: params.title,
     description: params.description,
-    image: params.imageUrl || "", // Fallback image
+    image: imageUrl || "", // Fallback to empty string if still undefined
   };
 }
 

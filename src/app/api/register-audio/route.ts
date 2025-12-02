@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
       title: ipMetadata.title,
       description: ipMetadata.description || "Audio mental training",
       imageUrl: undefined,
+      assetType: "audio",
     });
 
     const result = await registerIPAsset({

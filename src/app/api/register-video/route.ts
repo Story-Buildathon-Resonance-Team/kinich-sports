@@ -76,7 +76,8 @@ export async function POST(request: NextRequest) {
     const nftMetadata = buildNFTMetadata({
       title: ipMetadata.title,
       description: ipMetadata.description || "Video drill performance",
-      imageUrl: undefined, // Could generate thumbnail from video in future
+      imageUrl: undefined,
+      assetType: "video",
     });
 
     // Register on Story Protocol
