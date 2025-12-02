@@ -20,12 +20,18 @@ interface AnalysisContextType {
   setVideoSrc: (src: string | null) => void;
   startProcessing: () => Promise<void>;
   resetAnalysis: () => void;
-  
+
   // Compression Integration
   compressedFile: File | null;
   isCompressing: boolean;
   compressionProgress: number;
   compressVideo: (file: File) => Promise<void>;
+
+  // Upload Integration
+  assetId: string | null;
+  uploadedVideoUrl: string | null;
+  setAssetId: (id: string | null) => void;
+  setUploadedVideoUrl: (url: string | null) => void;
 }
 
 const AnalysisContext = createContext<AnalysisContextType | undefined>(undefined);
@@ -43,6 +49,10 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const [compressedFile, setCompressedFile] = useState<File | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
+
+  // Upload State
+  const [assetId, setAssetId] = useState<string | null>(null);
+  const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const uiCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -81,6 +91,8 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     setCompressedFile(null);
     setCompressionProgress(0);
     setIsCompressing(false);
+    setAssetId(null);
+    setUploadedVideoUrl(null);
     if (counterRef.current) counterRef.current.reset();
   };
 
@@ -268,7 +280,12 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       compressedFile,
       isCompressing,
       compressionProgress,
-      compressVideo
+      compressVideo,
+      // Upload exports
+      assetId,
+      uploadedVideoUrl,
+      setAssetId,
+      setUploadedVideoUrl
     }}>
       {children}
       <div style={{ display: 'none' }}>
