@@ -1,12 +1,12 @@
 "use client";
 import { createConfig, WagmiProvider } from "wagmi";
 import { http } from "viem";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { ZeroDevSmartWalletConnectors } from "@dynamic-labs/ethereum-aa";
-import { PropsWithChildren, useState, useCallback } from "react";
+import { PropsWithChildren } from "react";
 import { aeneid } from "@story-protocol/core-sdk";
 import { useRouter, usePathname } from "next/navigation";
 import type {
@@ -14,7 +14,6 @@ import type {
   SyncAthleteResponse,
   DynamicMetadata,
 } from "@/lib/types/athlete";
-import { OnboardingModal } from "@/components/onboarding/onboarding-modal";
 
 // setup wagmi
 const config = createConfig({
@@ -24,31 +23,12 @@ const config = createConfig({
     [aeneid.id]: http(),
   },
 });
-const queryClient = new QueryClient();
-
-// Onboarding state for new users
-interface OnboardingState {
-  isOpen: boolean;
-  dynamicUserId: string;
-  walletAddress: string;
-}
+const queryClientInstance = new QueryClient();
 
 function DynamicProviderWrapper({ children }: PropsWithChildren) {
   const router = useRouter();
   const pathname = usePathname();
-
-  // State for onboarding modal
-  const [onboardingState, setOnboardingState] = useState<OnboardingState>({
-    isOpen: false,
-    dynamicUserId: "",
-    walletAddress: "",
-  });
-
-  // Handle onboarding completion
-  const handleOnboardingComplete = useCallback(() => {
-    setOnboardingState({ isOpen: false, dynamicUserId: "", walletAddress: "" });
-    router.push("/dashboard");
-  }, [router]);
+  const queryClient = useQueryClient();
 
   // Use environment variable or fallback for development
   const dynamicEnvId = process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID || "4f755b1f-1989-48ae-a596-864c24894094";
@@ -98,16 +78,6 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
                         result.isNewUser ? "created" : "synced"
                       } successfully`
                     );
-
-                    // Show onboarding modal for new users
-                    if (result.isNewUser && pathname === "/") {
-                      setOnboardingState({
-                        isOpen: true,
-                        dynamicUserId: userId,
-                        walletAddress: primaryWallet.address,
-                      });
-                      return; // Don't redirect yet, wait for onboarding completion
-                    }
                   } else {
                     console.error("Failed to sync athlete:", result.error);
                   }
@@ -116,7 +86,7 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
                 }
               }
 
-              // Only redirect if not showing onboarding
+              // Redirect to dashboard after successful auth
               if (pathname === "/") {
                 router.push("/dashboard");
               }
@@ -151,6 +121,10 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
 
                 if (result.success) {
                   console.log("Profile updated successfully");
+
+                  // Invalidate React Query caches to refresh UI immediately
+                  queryClient.invalidateQueries({ queryKey: ["athlete", userId] });
+                  queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
                 } else {
                   console.error("Failed to update profile:", result.error);
                 }
@@ -167,14 +141,6 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
     >
         {children}
       </DynamicContextProvider>
-
-      {/* Onboarding Modal for new users */}
-      <OnboardingModal
-        isOpen={onboardingState.isOpen}
-        dynamicUserId={onboardingState.dynamicUserId}
-        walletAddress={onboardingState.walletAddress}
-        onComplete={handleOnboardingComplete}
-      />
     </>
   );
 }
@@ -183,7 +149,7 @@ export default function Web3Providers({ children }: PropsWithChildren) {
   return (
     <DynamicProviderWrapper>
       <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={queryClientInstance}>
           <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
         </QueryClientProvider>
       </WagmiProvider>
