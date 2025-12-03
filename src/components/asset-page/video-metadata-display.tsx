@@ -164,7 +164,7 @@ export function VideoMetadataDisplay({
       {/* Metadata Modal */}
       {showMetadataModal && (
         <div
-          className='fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-auto'
+          className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200'
           onClick={() => setShowMetadataModal(false)}
         >
           <div
@@ -172,7 +172,7 @@ export function VideoMetadataDisplay({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className='flex items-center justify-between p-6 border-b border-[rgba(245,247,250,0.06)] flex-shrink-0'>
+            <div className='flex items-center justify-between px-6 py-4 border-b border-white/10 bg-zinc-900/50'>
               <h3 className='text-[18px] font-medium text-[#F5F7FA]'>
                 Full Metadata
               </h3>
@@ -185,10 +185,12 @@ export function VideoMetadataDisplay({
             </div>
 
             {/* Modal Content */}
-            <div className='overflow-y-auto overflow-x-auto p-6 flex-1 min-h-0'>
-              <pre className='text-[12px] text-[rgba(245,247,250,0.8)] font-mono bg-[rgba(0,0,0,0.3)] p-4 rounded-lg whitespace-pre-wrap break-words'>
-                {JSON.stringify(metadata, null, 2)}
-              </pre>
+            <div className='flex-1 overflow-y-auto p-6'>
+              <div className='relative'>
+                <pre className='text-xs md:text-sm font-mono text-gray-300 bg-[#111] p-4 rounded-xl border border-white/5 overflow-x-auto'>
+                  {JSON.stringify(metadata, null, 2)}
+                </pre>
+              </div>
             </div>
           </div>
         </div>
