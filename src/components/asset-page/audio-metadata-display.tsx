@@ -127,7 +127,7 @@ export function AudioMetadataDisplay({
           <h4 className='text-[14px] font-medium text-[rgba(245,247,250,0.9)] mb-3'>
             Verification
           </h4>
-          <div className='flex flex-col flex-wrap gap-2'>
+          <div className='flex flex-col gap-4'>
             {metadata.verification.world_id_verified && (
               <HumanBadge variant='icon-label' size='small' />
             )}
