@@ -147,12 +147,12 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
 
 export default function Web3Providers({ children }: PropsWithChildren) {
   return (
-    <DynamicProviderWrapper>
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClientInstance}>
+    <QueryClientProvider client={queryClientInstance}>
+      <DynamicProviderWrapper>
+        <WagmiProvider config={config}>
           <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </DynamicProviderWrapper>
+        </WagmiProvider>
+      </DynamicProviderWrapper>
+    </QueryClientProvider>
   );
 }
