@@ -164,7 +164,7 @@ export function VideoMetadataDisplay({
       {/* Metadata Modal */}
       {showMetadataModal && (
         <div
-          className='<div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm p-6">'
+          className='fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm p-6'
           onClick={() => setShowMetadataModal(false)}
         >
           <div
