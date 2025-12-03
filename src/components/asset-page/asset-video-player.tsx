@@ -1,0 +1,261 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { Card } from "@/components/custom/card";
+import { Play, Pause, Volume2, Video, Maximize } from "lucide-react";
+
+interface AssetVideoPlayerProps {
+  videoUrl: string;
+  drillName: string;
+}
+
+export function AssetVideoPlayer({
+  videoUrl,
+  drillName,
+}: AssetVideoPlayerProps) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleLoadedMetadata = () => setDuration(video.duration);
+    const handleTimeUpdate = () => setCurrentTime(video.currentTime);
+    const handleEnded = () => setIsPlaying(false);
+    const handleError = () => {
+      setError("Failed to load video. Please check the video URL.");
+      setIsPlaying(false);
+    };
+
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("ended", handleEnded);
+    video.addEventListener("error", handleError);
+
+    return () => {
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("ended", handleEnded);
+      video.removeEventListener("error", handleError);
+    };
+  }, []);
+
+  const togglePlayPause = () => {
+    if (!videoRef.current) return;
+
+    if (isPlaying) {
+      videoRef.current.pause();
+    } else {
+      videoRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = Number(e.target.value);
+    if (videoRef.current) {
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = Number(e.target.value);
+    if (videoRef.current) {
+      videoRef.current.volume = newVolume;
+      setVolume(newVolume);
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (!videoRef.current) return;
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      videoRef.current.requestFullscreen();
+    }
+  };
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <Card variant='elevated' hover={false} className='p-6'>
+      <div className='space-y-6'>
+        {/* Icon Header */}
+        <div className='flex items-center gap-4'>
+          <div className='w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0'>
+            <Video className='w-6 h-6 text-purple-400' />
+          </div>
+          <div>
+            <h3 className='text-[18px] font-medium text-[#F5F7FA]'>
+              {drillName}
+            </h3>
+            <p className='text-[13px] text-[rgba(245,247,250,0.5)]'>
+              Video Drill
+            </p>
+          </div>
+        </div>
+
+        {/* Video Element */}
+        <div className='relative bg-black rounded-xl overflow-hidden'>
+          <video
+            ref={videoRef}
+            src={videoUrl}
+            preload='metadata'
+            className='w-full aspect-video object-contain'
+          />
+          {error && (
+            <div className='absolute inset-0 bg-[rgba(0,0,0,0.8)] flex items-center justify-center'>
+              <p className='text-[14px] text-[rgba(255,107,53,0.9)] text-center px-4'>
+                {error}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Play/Pause Button */}
+        <div className='flex justify-center py-2'>
+          <button
+            onClick={togglePlayPause}
+            disabled={!!error}
+            className='
+              flex items-center justify-center
+              w-20 h-20
+              bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
+              border border-[rgba(184,212,240,0.2)]
+              rounded-full
+              text-[#F5F7FA]
+              shadow-[0_4px_20px_rgba(0,71,171,0.3)]
+              transition-all duration-300
+              hover:-translate-y-1
+              hover:shadow-[0_6px_28px_rgba(0,71,171,0.4)]
+              cursor-pointer
+              disabled:opacity-50
+              disabled:cursor-not-allowed
+              disabled:hover:translate-y-0
+            '
+          >
+            {isPlaying ? (
+              <Pause className='w-8 h-8' />
+            ) : (
+              <Play className='w-8 h-8 ml-1' />
+            )}
+          </button>
+        </div>
+
+        {/* Progress Bar */}
+        <div className='space-y-2'>
+          <input
+            type='range'
+            min='0'
+            max={duration || 0}
+            value={currentTime}
+            onChange={handleSeek}
+            disabled={!!error}
+            className='
+              w-full h-2
+              bg-[rgba(245,247,250,0.1)]
+              rounded-full
+              appearance-none
+              cursor-pointer
+              disabled:cursor-not-allowed
+              disabled:opacity-50
+              [&::-webkit-slider-thumb]:appearance-none
+              [&::-webkit-slider-thumb]:w-4
+              [&::-webkit-slider-thumb]:h-4
+              [&::-webkit-slider-thumb]:rounded-full
+              [&::-webkit-slider-thumb]:bg-[#0047AB]
+              [&::-webkit-slider-thumb]:cursor-pointer
+              [&::-moz-range-thumb]:w-4
+              [&::-moz-range-thumb]:h-4
+              [&::-moz-range-thumb]:rounded-full
+              [&::-moz-range-thumb]:bg-[#0047AB]
+              [&::-moz-range-thumb]:border-0
+            '
+            style={{
+              background: `linear-gradient(to right, rgba(0,71,171,0.8) 0%, rgba(0,71,171,0.8) ${
+                (currentTime / duration) * 100
+              }%, rgba(245,247,250,0.1) ${
+                (currentTime / duration) * 100
+              }%, rgba(245,247,250,0.1) 100%)`,
+            }}
+          />
+
+          {/* Time Display */}
+          <div className='flex justify-between items-center'>
+            <span className='text-[13px] font-mono text-[rgba(245,247,250,0.6)]'>
+              {formatTime(currentTime)}
+            </span>
+            <span className='text-[13px] font-mono text-[rgba(245,247,250,0.6)]'>
+              {formatTime(duration)}
+            </span>
+          </div>
+        </div>
+
+        {/* Controls Row: Volume and Fullscreen */}
+        <div className='flex items-center gap-4'>
+          {/* Volume Control */}
+          <div className='flex items-center gap-3 flex-1'>
+            <Volume2 className='w-4 h-4 text-gray-400' />
+            <input
+              type='range'
+              min='0'
+              max='1'
+              step='0.01'
+              value={volume}
+              onChange={handleVolumeChange}
+              disabled={!!error}
+              className='
+                flex-1 h-1
+                bg-[rgba(245,247,250,0.1)]
+                rounded-full
+                appearance-none
+                cursor-pointer
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+                [&::-webkit-slider-thumb]:appearance-none
+                [&::-webkit-slider-thumb]:w-3
+                [&::-webkit-slider-thumb]:h-3
+                [&::-webkit-slider-thumb]:rounded-full
+                [&::-webkit-slider-thumb]:bg-[rgba(245,247,250,0.6)]
+                [&::-moz-range-thumb]:w-3
+                [&::-moz-range-thumb]:h-3
+                [&::-moz-range-thumb]:rounded-full
+                [&::-moz-range-thumb]:bg-[rgba(245,247,250,0.6)]
+                [&::-moz-range-thumb]:border-0
+              '
+            />
+          </div>
+
+          {/* Fullscreen Button */}
+          <button
+            onClick={toggleFullscreen}
+            disabled={!!error}
+            className='
+              p-2
+              text-gray-400
+              hover:text-[#F5F7FA]
+              transition-colors
+              disabled:opacity-50
+              disabled:cursor-not-allowed
+            '
+            title='Fullscreen'
+          >
+            <Maximize className='w-4 h-4' />
+          </button>
+        </div>
+      </div>
+    </Card>
+  );
+}

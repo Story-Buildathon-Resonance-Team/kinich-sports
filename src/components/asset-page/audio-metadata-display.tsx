@@ -11,20 +11,29 @@ interface AudioMetadataDisplayProps {
   audioUrl?: string;
 }
 
-export function AudioMetadataDisplay({ metadata, audioUrl }: AudioMetadataDisplayProps) {
-  const [calculatedDuration, setCalculatedDuration] = useState<number | null>(null);
+export function AudioMetadataDisplay({
+  metadata,
+  audioUrl,
+}: AudioMetadataDisplayProps) {
+  const [calculatedDuration, setCalculatedDuration] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
-    if ((!metadata.recording_duration_seconds || metadata.recording_duration_seconds === 0) && audioUrl) {
+    if (
+      (!metadata.recording_duration_seconds ||
+        metadata.recording_duration_seconds === 0) &&
+      audioUrl
+    ) {
       // Load audio file to get actual duration
       const audio = new Audio(audioUrl);
-      audio.addEventListener('loadedmetadata', () => {
+      audio.addEventListener("loadedmetadata", () => {
         setCalculatedDuration(audio.duration);
       });
       // Cleanup
       return () => {
         audio.pause();
-        audio.src = '';
+        audio.src = "";
       };
     }
   }, [metadata.recording_duration_seconds, audioUrl]);
@@ -50,7 +59,8 @@ export function AudioMetadataDisplay({ metadata, audioUrl }: AudioMetadataDispla
   };
 
   // Use metadata duration if available, otherwise use calculated duration
-  const displayDuration = metadata.recording_duration_seconds || calculatedDuration || 0;
+  const displayDuration =
+    metadata.recording_duration_seconds || calculatedDuration || 0;
 
   return (
     <Card variant='default' hover={false} className='p-6'>
@@ -69,7 +79,7 @@ export function AudioMetadataDisplay({ metadata, audioUrl }: AudioMetadataDispla
         <div className='grid grid-cols-2 gap-4'>
           <div className='bg-[rgba(0,71,171,0.08)] border border-[rgba(0,71,171,0.15)] rounded-lg p-4'>
             <div className='flex items-center gap-2 mb-2'>
-              <Clock className="w-4 h-4 text-blue-400" />
+              <Clock className='w-4 h-4 text-blue-400' />
               <p className='text-[11px] uppercase tracking-wider text-[rgba(245,247,250,0.5)]'>
                 Duration
               </p>
@@ -81,7 +91,7 @@ export function AudioMetadataDisplay({ metadata, audioUrl }: AudioMetadataDispla
 
           <div className='bg-[rgba(0,71,171,0.08)] border border-[rgba(0,71,171,0.15)] rounded-lg p-4'>
             <div className='flex items-center gap-2 mb-2'>
-              <FileAudio className="w-4 h-4 text-blue-400" />
+              <FileAudio className='w-4 h-4 text-blue-400' />
               <p className='text-[11px] uppercase tracking-wider text-[rgba(245,247,250,0.5)]'>
                 File Size
               </p>
@@ -117,13 +127,13 @@ export function AudioMetadataDisplay({ metadata, audioUrl }: AudioMetadataDispla
           <h4 className='text-[14px] font-medium text-[rgba(245,247,250,0.9)] mb-3'>
             Verification
           </h4>
-          <div className='flex flex-wrap gap-2'>
+          <div className='flex flex-col gap-4'>
             {metadata.verification.world_id_verified && (
               <HumanBadge variant='icon-label' size='small' />
             )}
             {metadata.verification.cv_video_verified && (
               <span className='bg-[rgba(0,71,171,0.15)] text-[rgba(184,212,240,0.9)] border border-[rgba(0,71,171,0.3)] rounded-md px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide flex items-center gap-2'>
-                <Video className="w-3 h-3" />
+                <Video className='w-3 h-3' />
                 Verified Human Through Video Drills
               </span>
             )}
