@@ -6,17 +6,19 @@ export function HeroSection() {
       {/* Hero Content */}
       <div className='max-w-[900px] text-center relative z-10'>
         <h1 className='text-[48px] md:text-[64px] lg:text-[72px] font-light leading-[1.1] mb-8 tracking-tight'>
-          Your training has{" "}
-          <span className='font-semibold text-gradient-logo'>fingerprints</span>
+          Your training is worth{" "}
+          <span className='font-semibold text-gradient-logo'>billions</span>.
+          You're getting zero.
         </h1>
 
         <p className='text-lg md:text-xl leading-relaxed text-[rgba(245,247,250,0.7)] mb-12 font-light max-w-[800px] mx-auto'>
-          Every rep tells a story. Every session builds a legacy. Transform your
-          training data into verified performance assets that the world can see,
-          learn from, and value.
+          The sports data industry is exploding to $14.5B by 2030. AI companies,
+          betting platforms, and analytics firms are making fortunes from
+          performance data. Athletes? Giving their performance data for free
+          while others profit.
         </p>
 
-        <ButtonCobalt size='large'>Enter The Arena</ButtonCobalt>
+        <ButtonCobalt size='large'>Claim What's Yours</ButtonCobalt>
       </div>
     </section>
   );

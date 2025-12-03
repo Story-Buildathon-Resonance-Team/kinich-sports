@@ -14,19 +14,19 @@ export default function HomePage() {
         <div className='max-w-[1200px] mx-auto'>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-12'>
             <StatCard
-              number='74%'
-              label='Untapped Potential'
-              description="Athletes worldwide can't access elite performance tracking technology"
+              number='$14.5B'
+              label='By 2030'
+              description='Sports analytics market growing 20.6% annually—fueled by AI training data, betting platforms, and performance insights from athletes like you'
             />
             <StatCard
-              number='0'
-              label='Ownership'
-              description="Most athletes never own their training data or see compensation when it's used"
+              number='Billions'
+              label='Lost Revenue'
+              description='Organizations profit from athlete data while legal gray areas leave athletes unprotected and uncompensated for their training footage'
             />
             <StatCard
-              number='∞'
-              label='Value Lost'
-              description='Countless hours of training disappear without documentation or recognition'
+              number='98%'
+              label='Getting Nothing'
+              description='Data fragmentation, no ownership rights, no compensation structure. The industry explodes while athletes are left behind'
             />
           </div>
         </div>
@@ -35,23 +35,29 @@ export default function HomePage() {
       <section className='py-[120px] px-6 md:px-16 bg-gradient-to-br from-[#2C2C2E] to-[rgba(0,71,171,0.05)]'>
         <div className='max-w-[800px] mx-auto text-center'>
           <h2 className='text-[40px] md:text-[48px] font-light mb-8 tracking-tight'>
-            The future is{" "}
+            Everyone wants your data.{" "}
             <span className='text-[rgba(255,107,53,0.85)] font-normal'>
-              already here
+              No one's protecting your rights.
             </span>
           </h2>
 
           <p className='text-[18px] leading-relaxed text-[rgba(245,247,250,0.7)] mb-6 font-light'>
-            Elite technology shouldn't belong only to elite athletes. Your
-            dedication, your technique, your mental preparation—these matter.
-            They have value. They deserve permanence.
+            AI companies need licensed training data—they're facing lawsuits and
+            scraping restrictions. Betting platforms are investing billions in
+            performance analytics. Teams are buying into sports tech at record
+            levels.
           </p>
 
           <p className='text-[18px] leading-relaxed text-[rgba(245,247,250,0.7)] font-light'>
-            Kinich turns training sessions into verified performance assets.
-            Your videos become proof. Your audio captures become insight.
-            Everything registered on blockchain, owned by you, valued by the
-            world.
+            But the data ecosystem is broken. Fragmented footage. No legal
+            framework. No compensation for athletes. Just legal gray areas and
+            missed revenue opportunities everywhere you look.
+          </p>
+
+          <p className='text-[18px] leading-relaxed text-[rgba(245,247,250,0.7)] mt-6 font-light'>
+            Kinich fixes this: You upload training sessions, we verify and
+            structure the data, you own it as registered IP. When organizations
+            license it, you get paid. Clean licensing. Clear ownership.
           </p>
         </div>
       </section>
@@ -60,47 +66,37 @@ export default function HomePage() {
         <div className='max-w-[1200px] mx-auto'>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12'>
             <FeatureCard
-              icon='🎯'
-              title='Computer Vision Verification'
-              description='Advanced analysis extracts technique metrics from your training videos—no wearables needed. Cadence, consistency, range of motion, automatically documented.'
-            />
-            <FeatureCard
               icon='🔐'
-              title='Blockchain Ownership'
-              description='Every asset you create is registered as intellectual property on Story Protocol. You own it. Forever. No one can take it from you.'
+              title='You Own Your IP'
+              description="Every training video and audio capsule is registered as your intellectual property on blockchain. Not a platform's data. Not legal gray area. Yours. Permanently."
             />
             <FeatureCard
               icon='💰'
-              title='Earn From Your Work'
-              description='Set your price. When AI companies, gaming studios, or brands license your data, you get paid. Your training becomes your income stream.'
+              title="Get Paid When It's Used"
+              description='Set your license fee. AI companies training motion models, research labs, media companies—when they use your data, you earn.'
+            />
+            <FeatureCard
+              icon='⛓️'
+              title='Blockchain-Native Ownership'
+              description='Every asset registered on Story Protocol with programmable licensing terms. Clear attribution, enforceable rights, automatic royalties. The legal framework the industry desperately needs.'
+            />
+            <FeatureCard
+              icon='🎯'
+              title='Computer Vision Captures Your Technique'
+              description='Our system extracts cadence, consistency, rep count from your videos. No wearables needed. Your technique becomes structured, valuable data.'
             />
             <FeatureCard
               icon='🎙️'
-              title='Mental Performance Capture'
-              description='Your mindset matters as much as your mechanics. Record audio capsules about your journey, strategy, and preparation—the invisible edge that makes champions.'
+              title='Your Mind Matters Too'
+              description='Audio capsules capture your training philosophy, decision-making, and strategic thinking. The mental edge that creates champions—finally documented and valued.'
             />
             <FeatureCard
               icon='🌍'
-              title='Global Marketplace'
-              description='Your training data reaches the world. Game developers building realistic animations. AI researchers training motion models. Coaches studying elite technique.'
-            />
-            <FeatureCard
-              icon='✨'
-              title='Build Your Legacy'
-              description='Long after you stop competing, your training data continues working. Teaching. Inspiring. Generating value. This is how athletes live forever.'
+              title='Everyone Wants What You Create'
+              description='AI companies training models. Media companies building content. Betting platforms analyzing performance. Fans hungry for deeper connection. Sports tech growing to $61.7B by 2030—your training data feeds it all.'
             />
           </div>
         </div>
-      </section>
-
-      <section className='py-[120px] px-6 md:px-16 text-center bg-gradient-to-br from-[#2C2C2E] to-[#1A1A1C]'>
-        <h2 className='text-[48px] md:text-[56px] font-light mb-8 tracking-tight'>
-          Your arena awaits
-        </h2>
-        <p className='text-[18px] text-[rgba(245,247,250,0.6)] mb-12'>
-          Join the athletes who refuse to let their work disappear
-        </p>
-        <ButtonCobalt size='large'>Enter The Arena</ButtonCobalt>
       </section>
     </div>
   );
