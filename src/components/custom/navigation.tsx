@@ -78,12 +78,10 @@ export function Navigation() {
             })}
           </div>
 
-          <div className='flex items-center gap-4 pl-4 border-l border-white/10'>
+          <div className='pl-4 border-l border-white/10'>
             <DynamicWidget
               variant='dropdown'
-              innerButtonComponent={
-                <span className='font-medium'>Connect</span>
-              }
+              innerButtonComponent={<span className='font-medium'>Login</span>}
             />
           </div>
         </div>
