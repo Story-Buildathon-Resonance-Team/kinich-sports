@@ -268,7 +268,7 @@ export function useVideoUpload({
       });
 
       // Redirect to asset page
-      router.push(`/assets/${assetId}`);
+      router.push(`/asset/${assetId}`);
     } catch (err) {
       console.error("[useVideoUpload] Submit to Story failed:", err);
       setState({
