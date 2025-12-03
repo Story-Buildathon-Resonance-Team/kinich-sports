@@ -12,6 +12,7 @@ import { createClient } from "@/utils/supabase/client";
 import gsap from "gsap";
 import Lenis from "lenis";
 import { Loader2, AlertCircle, Video } from "lucide-react";
+import { Navigation } from "@/components/custom/navigation";
 
 // Demo asset mock data
 const DEMO_ASSET_DATA: Record<string, any> = {
@@ -218,8 +219,10 @@ export default function AssetPage() {
   }
 
   return (
-    <div ref={containerRef} className='min-h-screen bg-[#050505]'>
-      <div className='max-w-[1400px] mx-auto px-6 md:px-16 pt-[140px] pb-20'>
+    <>
+      <Navigation />
+      <div ref={containerRef} className='min-h-screen bg-[#050505]'>
+        <div className='max-w-[1400px] mx-auto px-6 md:px-16 pt-[140px] pb-20'>
         {/* Header */}
         <div className='mb-12'>
           <h1 className='text-[40px] md:text-[48px] font-light tracking-tight mb-3'>
@@ -266,7 +269,8 @@ export default function AssetPage() {
             />
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

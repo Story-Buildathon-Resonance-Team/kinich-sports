@@ -7,6 +7,7 @@ import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 import { useState, useEffect } from "react";
 import { Menu, X, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { dashboardNavItems } from "@/config/navigation";
 
 export function Navigation() {
   const { user } = useDynamicContext();
@@ -33,16 +34,10 @@ export function Navigation() {
     return null;
   }
 
-  const navLinks = [
-    { name: "Dashboard", href: "/dashboard" },
-    { name: "Arena", href: "/dashboard/arena" },
-    { name: "Analyze", href: "/dashboard/analyze" },
-  ];
-
   return (
     <nav
       className={cn(
-        "fixed top-0 w-full z-[1000] transition-all duration-300 border-b border-transparent",
+        "fixed top-0 w-full z-[100] transition-all duration-300 border-b border-transparent",
         scrolled
           ? "bg-[#050505]/80 backdrop-blur-xl border-white/5 py-4"
           : "bg-transparent py-6"
@@ -59,12 +54,12 @@ export function Navigation() {
 
         <div className='hidden md:flex items-center gap-8'>
           <div className='flex items-center gap-1 bg-white/5 rounded-full px-1 py-1 border border-white/5 backdrop-blur-md'>
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href;
+            {dashboardNavItems.map((item) => {
+              const isActive = pathname === item.href;
               return (
                 <Link
-                  key={link.href}
-                  href={link.href}
+                  key={item.href}
+                  href={item.href}
                   className={cn(
                     "px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden",
                     isActive
@@ -72,7 +67,7 @@ export function Navigation() {
                       : "text-gray-400 hover:text-white hover:bg-white/5"
                   )}
                 >
-                  {link.name}
+                  {item.name}
                 </Link>
               );
             })}
@@ -80,8 +75,8 @@ export function Navigation() {
 
           <div className='pl-4 border-l border-white/10'>
             <DynamicWidget
-              variant='dropdown'
-              innerButtonComponent={<span className='font-medium'>Login</span>}
+              variant='modal'
+              innerButtonComponent={<span>Login</span>}
             />
           </div>
         </div>
@@ -103,24 +98,33 @@ export function Navigation() {
 
       <div
         className={cn(
-          "fixed inset-0 bg-[#050505] z-[999] pt-24 px-6 transition-transform duration-300 md:hidden",
+          "fixed inset-0 bg-[#050505] z-[90] pt-24 px-6 transition-transform duration-300 md:hidden",
           mobileMenuOpen ? "translate-x-0" : "translate-x-full"
         )}
+        onClick={(e) => {
+          // Close if clicking the backdrop itself, not children
+          if (e.target === e.currentTarget) {
+            setMobileMenuOpen(false);
+          }
+        }}
       >
         {/* DynamicWidget at top of menu */}
         <div className='mb-6 pb-6 border-b border-white/10'>
-          <DynamicWidget variant='dropdown' />
+          <DynamicWidget
+            variant='modal'
+            innerButtonComponent={<span>Login</span>}
+          />
         </div>
 
         <div className='flex flex-col gap-2'>
-          {navLinks.map((link) => (
+          {dashboardNavItems.map((item) => (
             <Link
-              key={link.href}
-              href={link.href}
+              key={item.href}
+              href={item.href}
               onClick={() => setMobileMenuOpen(false)}
               className='flex items-center justify-between py-4 text-lg font-medium text-gray-300 border-b border-white/5 hover:text-white hover:pl-2 transition-all'
             >
-              {link.name}
+              {item.name}
               <ChevronRight className='w-5 h-5 opacity-50' />
             </Link>
           ))}
