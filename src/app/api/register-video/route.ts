@@ -70,6 +70,9 @@ export async function POST(request: NextRequest) {
         } reps completed with ${(
           (metadata?.verification?.human_confidence_score || 0) * 100
         ).toFixed(0)}% confidence`,
+      cvVideoVerified: metadata?.verification?.is_verified || false,
+      humanConfidenceScore: metadata?.verification?.human_confidence_score || 0,
+      repCount: metadata?.cv_metrics?.rep_count || 0,
     });
 
     // Build NFT metadata

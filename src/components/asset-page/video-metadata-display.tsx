@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card } from "@/components/custom/card";
 import { VideoDrillMetadata } from "@/lib/types/video";
 import HumanBadge from "@/components/custom/human-badge";
-import { Video, FileJson, X } from "lucide-react";
+import { Video, FileJson, X, AlertTriangle } from "lucide-react";
 
 interface VideoMetadataDisplayProps {
   metadata: VideoDrillMetadata;
@@ -83,6 +83,43 @@ export function VideoMetadataDisplay({
           </div>
         </div>
 
+        {/* Verification Warning - Low Confidence or Zero Reps */}
+        {(metadata.verification.human_confidence_score < 0.75 || metadata.cv_metrics.rep_count === 0) && (
+          <div className='bg-orange-500/10 border border-orange-500/30 rounded-lg p-4'>
+            <div className='flex items-start gap-3'>
+              <AlertTriangle className='w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5' />
+              <div className='space-y-1'>
+                <p className='text-[13px] font-medium text-orange-300'>
+                  {metadata.cv_metrics.rep_count === 0 && metadata.verification.human_confidence_score >= 0.75
+                    ? "No Reps Detected"
+                    : metadata.verification.human_confidence_score < 0.75 && metadata.cv_metrics.rep_count > 0
+                    ? "Low Human Confidence Detected"
+                    : "Verification Issues Detected"}
+                </p>
+                <p className='text-[12px] text-orange-200/70 leading-relaxed'>
+                  {metadata.cv_metrics.rep_count === 0 && metadata.verification.human_confidence_score >= 0.75 ? (
+                    <>
+                      A human was detected in this video (confidence: {(metadata.verification.human_confidence_score * 100).toFixed(0)}%),
+                      but no valid drill repetitions were recorded. Ensure proper drill form and movement are visible in the video.
+                    </>
+                  ) : metadata.verification.human_confidence_score < 0.75 && metadata.cv_metrics.rep_count > 0 ? (
+                    <>
+                      This video has a human confidence score of {(metadata.verification.human_confidence_score * 100).toFixed(0)}%,
+                      below the 75% threshold. The video may not contain valid human movement.
+                    </>
+                  ) : (
+                    <>
+                      This video has a human confidence score of {(metadata.verification.human_confidence_score * 100).toFixed(0)}%
+                      and no valid reps detected. The video does not meet verification requirements.
+                    </>
+                  )}
+                  {!metadata.verification.is_verified && " This asset is not CV-verified."}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Technical Details */}
         <div className='grid grid-cols-2 gap-4 pt-4 border-t border-[rgba(245,247,250,0.06)]'>
           <div>
@@ -130,7 +167,7 @@ export function VideoMetadataDisplay({
             {worldIdVerified && (
               <HumanBadge variant='icon-label' size='small' />
             )}
-            {metadata.verification.is_verified && (
+            {metadata.verification.is_verified ? (
               <span className='bg-[rgba(0,71,171,0.15)] text-[rgba(184,212,240,0.9)] border border-[rgba(0,71,171,0.3)] rounded-md px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide flex items-center gap-2'>
                 <Video className='w-3 h-3' />
                 Human Confidence Score:{" "}
@@ -138,6 +175,11 @@ export function VideoMetadataDisplay({
                   0
                 )}
                 %
+              </span>
+            ) : (
+              <span className='bg-orange-500/10 text-orange-300 border border-orange-500/30 rounded-md px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide flex items-center gap-2'>
+                <AlertTriangle className='w-3 h-3' />
+                Not CV-Verified - {(metadata.verification.human_confidence_score * 100).toFixed(0)}% Confidence
               </span>
             )}
           </div>

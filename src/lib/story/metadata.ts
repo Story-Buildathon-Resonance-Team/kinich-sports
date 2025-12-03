@@ -49,8 +49,11 @@ export function buildDrillIPMetadata(params: {
   drillInfo: DrillInfo;
   media: MediaInfo;
   description?: string;
+  cvVideoVerified: boolean; // Whether video passed CV verification
+  humanConfidenceScore: number; // Human confidence from MediaPipe (0-1)
+  repCount: number; // Number of reps detected
 }): IpMetadata {
-  const { athleteName, athleteAddress, drillInfo, media, description } = params;
+  const { athleteName, athleteAddress, drillInfo, media, description, cvVideoVerified, humanConfidenceScore, repCount } = params;
 
   // Use drill name from constants as title
   const title = `${drillInfo.drill_name} - ${drillInfo.experience_level} Athlete`;
@@ -75,6 +78,9 @@ export function buildDrillIPMetadata(params: {
       drill_type_id: drillInfo.drill_type_id,
       drill_name: drillInfo.drill_name,
       experience_level: drillInfo.experience_level,
+      cv_video_verified: cvVideoVerified,
+      human_confidence_score: humanConfidenceScore,
+      rep_count: repCount,
     },
   };
 }
