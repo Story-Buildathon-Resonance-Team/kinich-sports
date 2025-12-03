@@ -133,7 +133,11 @@ export function VideoMetadataDisplay({
             {metadata.verification.is_verified && (
               <span className='bg-[rgba(0,71,171,0.15)] text-[rgba(184,212,240,0.9)] border border-[rgba(0,71,171,0.3)] rounded-md px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide flex items-center gap-2'>
                 <Video className='w-3 h-3' />
-                Human Confidence Score: {(metadata.verification.human_confidence_score * 100).toFixed(0)}%
+                Human Confidence Score:{" "}
+                {(metadata.verification.human_confidence_score * 100).toFixed(
+                  0
+                )}
+                %
               </span>
             )}
           </div>
@@ -148,6 +152,7 @@ export function VideoMetadataDisplay({
               text-[13px] text-[rgba(0,71,171,0.9)] hover:text-[rgba(0,71,171,1)]
               font-medium
               transition-colors
+              cursor-pointer
             '
           >
             <FileJson className='w-4 h-4' />
@@ -159,15 +164,15 @@ export function VideoMetadataDisplay({
       {/* Metadata Modal */}
       {showMetadataModal && (
         <div
-          className='fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4'
+          className='fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-auto'
           onClick={() => setShowMetadataModal(false)}
         >
           <div
-            className='bg-[#050505] border border-[rgba(184,212,240,0.2)] rounded-xl max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col'
+            className='bg-[#050505] border border-[rgba(184,212,240,0.2)] rounded-xl max-w-3xl w-full max-h-[85vh] my-auto flex flex-col'
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className='flex items-center justify-between p-6 border-b border-[rgba(245,247,250,0.06)]'>
+            <div className='flex items-center justify-between p-6 border-b border-[rgba(245,247,250,0.06)] flex-shrink-0'>
               <h3 className='text-[18px] font-medium text-[#F5F7FA]'>
                 Full Metadata
               </h3>
@@ -180,8 +185,8 @@ export function VideoMetadataDisplay({
             </div>
 
             {/* Modal Content */}
-            <div className='overflow-auto p-6'>
-              <pre className='text-[12px] text-[rgba(245,247,250,0.8)] font-mono bg-[rgba(0,0,0,0.3)] p-4 rounded-lg overflow-x-auto'>
+            <div className='overflow-y-auto overflow-x-auto p-6 flex-1 min-h-0'>
+              <pre className='text-[12px] text-[rgba(245,247,250,0.8)] font-mono bg-[rgba(0,0,0,0.3)] p-4 rounded-lg whitespace-pre-wrap break-words'>
                 {JSON.stringify(metadata, null, 2)}
               </pre>
             </div>
