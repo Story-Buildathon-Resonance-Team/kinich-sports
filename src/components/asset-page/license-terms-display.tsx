@@ -178,16 +178,18 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
   }
 
   // Render with actual license terms from Story Protocol
-  const { terms, templateName } = licenseData;
+  const { terms } = licenseData;
 
   return (
     <Card variant='default' hover={false} className='p-6'>
       <div className='space-y-4'>
         {/* Header */}
         <div>
-          <h4 className='text-[16px] font-medium text-[#F5F7FA] mb-1'>
-            {templateName || "Commercial Use License"}
-          </h4>
+          {licenseData.licenseTermsId === "2528" && (
+            <h4 className='text-[16px] font-medium text-[#F5F7FA] mb-1'>
+              Commercial Use License
+            </h4>
+          )}
           <p className='text-[13px] text-[rgba(245,247,250,0.6)]'>
             License terms from Story Protocol
           </p>
@@ -287,10 +289,7 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
             License Terms
           </p>
           <a
-            href={
-              terms.uri ||
-              "https://github.com/piplabs/pil-document/blob/v1.4.0/Story%20Foundation%20-%20Programmable%20IP%20License%20-%20V%201.4%20-%2011.13.25.docx.pdf"
-            }
+            href="https://github.com/piplabs/pil-document/blob/v1.4.0/Story%20Foundation%20-%20Programmable%20IP%20License%20-%20V%201.4%20-%2011.13.25.docx.pdf"
             target='_blank'
             rel='noopener noreferrer'
             className='text-[12px] text-[rgba(0,71,171,0.9)] hover:text-[rgba(0,71,171,1)] underline break-all'

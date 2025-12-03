@@ -2,12 +2,18 @@
 
 import { Card } from "@/components/custom/card";
 import { VideoDrillMetadata } from "@/lib/types/video";
+import HumanBadge from "@/components/custom/human-badge";
+import { Video } from "lucide-react";
 
 interface VideoMetadataDisplayProps {
   metadata: VideoDrillMetadata;
+  worldIdVerified: boolean;
 }
 
-export function VideoMetadataDisplay({ metadata }: VideoMetadataDisplayProps) {
+export function VideoMetadataDisplay({
+  metadata,
+  worldIdVerified,
+}: VideoMetadataDisplayProps) {
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -38,7 +44,7 @@ export function VideoMetadataDisplay({ metadata }: VideoMetadataDisplayProps) {
             Drill Metadata
           </h3>
           <p className='text-[13px] text-[rgba(245,247,250,0.5)]'>
-            CV Analysis and Verification
+            MediaPipe Analysis and Verification
           </p>
         </div>
 
@@ -98,12 +104,31 @@ export function VideoMetadataDisplay({ metadata }: VideoMetadataDisplayProps) {
               Format
             </p>
             <p className='text-[13px] font-mono text-[rgba(245,247,250,0.7)]'>
-              {metadata.video_metadata.mime_type ? metadata.video_metadata.mime_type.split("/")[1] : "MP4"}
+              {metadata.video_metadata.mime_type
+                ? metadata.video_metadata.mime_type.split("/")[1]
+                : "MP4"}
             </p>
+          </div>
+        </div>
+
+        {/* Verification Badges */}
+        <div>
+          <h4 className='text-[14px] font-medium text-[rgba(245,247,250,0.9)] mb-3'>
+            Verification
+          </h4>
+          <div className='flex flex-col flex-wrap gap-2'>
+            {worldIdVerified && (
+              <HumanBadge variant='icon-label' size='small' />
+            )}
+            {metadata.verification.is_verified && (
+              <span className='bg-[rgba(0,71,171,0.15)] text-[rgba(184,212,240,0.9)] border border-[rgba(0,71,171,0.3)] rounded-md px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide flex items-center gap-2'>
+                <Video className='w-3 h-3' />
+                Video Human Confidence Verified
+              </span>
+            )}
           </div>
         </div>
       </div>
     </Card>
   );
 }
-

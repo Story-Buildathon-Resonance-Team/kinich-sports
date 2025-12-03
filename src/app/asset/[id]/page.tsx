@@ -3,11 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AssetAudioPlayer } from "@/components/asset-page/asset-audio-player";
+import { AssetVideoPlayer } from "@/components/asset-page/asset-video-player";
 import { AudioMetadataDisplay } from "@/components/asset-page/audio-metadata-display";
+import { VideoMetadataDisplay } from "@/components/asset-page/video-metadata-display";
 import { StoryRegistrationStatus } from "@/components/asset-page/story-registration-status";
 import { LicenseDisplay } from "@/components/asset-page/license-terms-display";
 import { Card } from "@/components/custom/card";
 import { AudioCapsuleMetadata } from "@/lib/types/audio";
+import { VideoDrillMetadata } from "@/lib/types/video";
 import { createClient } from "@/utils/supabase/client";
 import gsap from "gsap";
 import Lenis from "lenis";
@@ -91,7 +94,14 @@ export default function AssetPage() {
 
         const { data, error: fetchError } = await supabase
           .from("assets")
-          .select("*")
+          .select(
+            `
+            *,
+            athletes:athlete_id (
+              world_id_verified
+            )
+          `
+          )
           .eq("id", assetId)
           .single();
 
@@ -183,92 +193,126 @@ export default function AssetPage() {
     );
   }
 
-  const metadata = asset.metadata as AudioCapsuleMetadata;
+  // Type cast based on asset_type
+  const metadata =
+    asset.asset_type === "audio"
+      ? (asset.metadata as AudioCapsuleMetadata)
+      : (asset.metadata as VideoDrillMetadata);
 
-  if (asset.asset_type !== "audio") {
+  // Extract world_id_verified from joined athletes table
+  const worldIdVerified = asset.athletes?.world_id_verified ?? false;
+
+  // Render audio assets
+  if (asset.asset_type === "audio") {
     return (
-      <div className='min-h-screen bg-[#050505]'>
-        <div className='max-w-[600px] mx-auto px-6 pt-[140px]'>
-          <Card variant='default' className='p-8 text-center'>
-            <div className='flex justify-center mb-4'>
-              <Video className='w-12 h-12 text-purple-400' />
+      <>
+        <Navigation />
+        <div ref={containerRef} className='min-h-screen bg-[#050505]'>
+          <div className='max-w-[1400px] mx-auto px-6 md:px-16 pt-[140px] pb-20'>
+            {/* Header */}
+            <div className='mb-12'>
+              <h1 className='text-[40px] md:text-[48px] font-light tracking-tight mb-3'>
+                {metadata.drill_type_id}
+              </h1>
+              <p className='text-[16px] text-[rgba(245,247,250,0.7)]'>
+                Audio Capsule • {metadata.athlete_profile.discipline} •{" "}
+                <span className='capitalize'>
+                  {metadata.athlete_profile.experience_level}
+                </span>
+              </p>
             </div>
-            <h2 className='text-[24px] font-medium text-[#F5F7FA] mb-3'>
-              Video Asset
-            </h2>
-            <p className='text-[15px] text-[rgba(245,247,250,0.7)] mb-6'>
-              This is a video asset. Video asset display is coming soon.
-            </p>
-            <button
-              onClick={() => router.push("/dashboard/arena")}
-              className='
-                bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
-                border border-[rgba(184,212,240,0.2)]
-                text-[#F5F7FA] font-medium
-                rounded-xl px-8 py-3
-                transition-all duration-300
-                hover:-translate-y-0.5
-              '
-            >
-              Back to Arena
-            </button>
-          </Card>
+
+            {/* 2-Column Layout */}
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              {/* Left Column */}
+              <div className='space-y-6'>
+                {/* Audio Player */}
+                <AssetAudioPlayer
+                  audioUrl={asset.asset_url}
+                  challengeName={metadata.drill_type_id}
+                />
+
+                {/* Story Registration Status */}
+                <StoryRegistrationStatus
+                  storyIpId={asset.story_ip_id}
+                  storyTxHash={asset.story_tx_hash}
+                  status={asset.status}
+                />
+              </div>
+
+              {/* Right Column */}
+              <div className='space-y-6'>
+                {/* Metadata */}
+                <AudioMetadataDisplay
+                  metadata={metadata as AudioCapsuleMetadata}
+                  audioUrl={asset.asset_url}
+                />
+
+                {/* License - Pass storyIpId prop */}
+                <LicenseDisplay
+                  licenseFee={Number(asset.license_fee)}
+                  storyIpId={asset.story_ip_id}
+                />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
+  // Render video assets
   return (
     <>
       <Navigation />
       <div ref={containerRef} className='min-h-screen bg-[#050505]'>
         <div className='max-w-[1400px] mx-auto px-6 md:px-16 pt-[140px] pb-20'>
-        {/* Header */}
-        <div className='mb-12'>
-          <h1 className='text-[40px] md:text-[48px] font-light tracking-tight mb-3'>
-            {metadata.challenge_name}
-          </h1>
-          <p className='text-[16px] text-[rgba(245,247,250,0.7)]'>
-            Audio Capsule • {metadata.athlete_profile.discipline} •{" "}
-            <span className='capitalize'>
-              {metadata.athlete_profile.experience_level}
-            </span>
-          </p>
-        </div>
-
-        {/* 2-Column Layout */}
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-          {/* Left Column */}
-          <div className='space-y-6'>
-            {/* Audio Player */}
-            <AssetAudioPlayer
-              audioUrl={asset.asset_url}
-              challengeName={metadata.challenge_name}
-            />
-
-            {/* Story Registration Status */}
-            <StoryRegistrationStatus
-              storyIpId={asset.story_ip_id}
-              storyTxHash={asset.story_tx_hash}
-              status={asset.status}
-            />
+          {/* Header */}
+          <div className='mb-12'>
+            <h1 className='text-[40px] md:text-[48px] font-light tracking-tight mb-3'>
+              {(metadata as VideoDrillMetadata).drill_type_id}
+            </h1>
+            <p className='text-[16px] text-[rgba(245,247,250,0.7)]'>
+              Video Drill • {metadata.athlete_profile.discipline} •{" "}
+              <span className='capitalize'>
+                {metadata.athlete_profile.experience_level}
+              </span>
+            </p>
           </div>
 
-          {/* Right Column */}
-          <div className='space-y-6'>
-            {/* Metadata */}
-            <AudioMetadataDisplay
-              metadata={metadata}
-              audioUrl={asset.asset_url}
-            />
+          {/* 2-Column Layout */}
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+            {/* Left Column */}
+            <div className='space-y-6'>
+              {/* Video Player */}
+              <AssetVideoPlayer
+                videoUrl={asset.asset_url}
+                drillName={(metadata as VideoDrillMetadata).drill_type_id}
+              />
 
-            {/* License - Pass storyIpId prop */}
-            <LicenseDisplay
-              licenseFee={Number(asset.license_fee)}
-              storyIpId={asset.story_ip_id}
-            />
+              {/* Story Registration Status */}
+              <StoryRegistrationStatus
+                storyIpId={asset.story_ip_id}
+                storyTxHash={asset.story_tx_hash}
+                status={asset.status}
+              />
+            </div>
+
+            {/* Right Column */}
+            <div className='space-y-6'>
+              {/* Metadata */}
+              <VideoMetadataDisplay
+                metadata={metadata as VideoDrillMetadata}
+                worldIdVerified={worldIdVerified}
+              />
+
+              {/* License */}
+              <LicenseDisplay
+                licenseFee={Number(asset.license_fee)}
+                storyIpId={asset.story_ip_id}
+              />
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </>
