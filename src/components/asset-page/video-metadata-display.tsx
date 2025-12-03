@@ -164,11 +164,11 @@ export function VideoMetadataDisplay({
       {/* Metadata Modal */}
       {showMetadataModal && (
         <div
-          className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200'
+          className='<div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm p-6">'
           onClick={() => setShowMetadataModal(false)}
         >
           <div
-            className='bg-[#050505] border border-[rgba(184,212,240,0.2)] rounded-xl max-w-3xl w-full max-h-[85vh] my-auto flex flex-col'
+            className='bg-[#050505] border border-[rgba(184,212,240,0.2)] rounded-xl max-w-3xl w-full max-h-[85vh] flex flex-col mx-auto'
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
@@ -186,11 +186,9 @@ export function VideoMetadataDisplay({
 
             {/* Modal Content */}
             <div className='flex-1 overflow-y-auto p-6'>
-              <div className='relative'>
-                <pre className='text-xs md:text-sm font-mono text-gray-300 bg-[#111] p-4 rounded-xl border border-white/5 overflow-x-auto'>
-                  {JSON.stringify(metadata, null, 2)}
-                </pre>
-              </div>
+              <pre className='text-xs md:text-sm font-mono text-gray-300 bg-[#111] p-4 rounded-xl border border-white/5 overflow-x-auto'>
+                {JSON.stringify(metadata, null, 2)}
+              </pre>
             </div>
           </div>
         </div>
