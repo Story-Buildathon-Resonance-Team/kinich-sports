@@ -2,10 +2,12 @@ import { HeroSection } from "@/components/custom/hero-section";
 import { StatCard } from "@/components/custom/stat-card";
 import { FeatureCard } from "@/components/custom/feature-card";
 import { ButtonCobalt } from "@/components/custom/button-cobalt";
+import { Navigation } from "@/components/custom/navigation";
 
 export default function HomePage() {
   return (
     <div className='min-h-screen'>
+      <Navigation />
       <HeroSection />
 
       <section className='py-[120px] px-6 md:px-16 bg-[#2C2C2E]'>

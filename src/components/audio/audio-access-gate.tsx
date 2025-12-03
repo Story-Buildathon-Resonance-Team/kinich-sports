@@ -41,7 +41,7 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
         console.log("[AudioAccessGate] Access check:", data);
       } catch (err) {
         // Ignore abort errors
-        if (err instanceof Error && err.name === 'AbortError') {
+        if (err instanceof Error && err.name === "AbortError") {
           return;
         }
 
@@ -70,7 +70,7 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
     return (
       <div className='min-h-screen bg-[#050505] flex items-center justify-center'>
         <div className='text-center flex flex-col items-center gap-4'>
-          <Loader2 className="w-12 h-12 text-blue-400 animate-spin" />
+          <Loader2 className='w-12 h-12 text-blue-400 animate-spin' />
           <p className='text-[16px] text-[rgba(245,247,250,0.7)]'>
             Verifying access...
           </p>
@@ -86,7 +86,7 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
         <div className='max-w-[600px] mx-auto px-6 pt-[140px]'>
           <div className='bg-[#0a0a0a] border border-orange-500/20 rounded-2xl p-8 text-center'>
             <div className='flex justify-center mb-4'>
-              <AlertCircle className="w-12 h-12 text-orange-400" />
+              <AlertCircle className='w-12 h-12 text-orange-400' />
             </div>
             <h2 className='text-[24px] font-medium text-[#F5F7FA] mb-3'>
               Verification Error
@@ -128,7 +128,7 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
           <div className='text-center'>
             <div className='flex justify-center mb-6'>
               <div className='w-20 h-20 rounded-full bg-blue-500/10 flex items-center justify-center'>
-                <Lock className="w-10 h-10 text-blue-400" />
+                <Lock className='w-10 h-10 text-blue-400' />
               </div>
             </div>
             <h2 className='text-[28px] font-medium text-[#F5F7FA] mb-3'>
@@ -169,6 +169,7 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
                       hover:bg-[rgba(0,71,171,0.1)]
                       hover:border-[rgba(0,71,171,0.3)]
                       hover:text-[#F5F7FA]
+                      cursor-pointer
                     '
                   >
                     Go to Dashboard
@@ -190,7 +191,7 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
             <div className='bg-[#0a0a0a] border border-white/10 rounded-xl p-6'>
               <div className='flex items-start gap-4'>
                 <div className='w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0'>
-                  <Video className="w-6 h-6 text-purple-400" />
+                  <Video className='w-6 h-6 text-purple-400' />
                 </div>
                 <div className='flex-1'>
                   <h3 className='text-[18px] font-medium text-[#F5F7FA] mb-2'>
@@ -200,7 +201,7 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
                     Complete a video drill that passes our verification pipeline
                   </p>
                   <button
-                    onClick={() => router.push("/arena")}
+                    onClick={() => router.push("/dashboard/arena")}
                     className='
                       bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
                       border border-[rgba(184,212,240,0.2)]
@@ -211,6 +212,7 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
                       transition-all duration-300
                       hover:-translate-y-0.5
                       hover:shadow-[0_4px_16px_rgba(0,71,171,0.3)]
+                      cursor-pointer
                     '
                   >
                     View Video Drills

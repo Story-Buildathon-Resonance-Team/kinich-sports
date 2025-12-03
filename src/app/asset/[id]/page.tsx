@@ -164,7 +164,7 @@ export default function AssetPage() {
               {error || "The requested asset could not be found"}
             </p>
             <button
-              onClick={() => router.push("/arena")}
+              onClick={() => router.push("/dasboard/arena")}
               className='
                 bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
                 border border-[rgba(184,212,240,0.2)]
