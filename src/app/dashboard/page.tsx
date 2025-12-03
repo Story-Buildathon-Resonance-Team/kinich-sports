@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useDynamicContext, DynamicWidget } from "@dynamic-labs/sdk-react-core";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { useQuery } from "@tanstack/react-query";
 import {
   FilterTabs,
   AssetCard,
@@ -14,7 +14,6 @@ import type { Athlete, SyncAthleteRequest } from "@/lib/types/athlete";
 import {
   AlertCircle,
   Plus,
-  Shield,
   Activity,
   DollarSign,
   Layers,
@@ -24,8 +23,7 @@ import {
   LineChart,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { DashboardSidebar } from "@/components/dashboard/sidebar";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
 const PerformanceChart = dynamic(
@@ -163,7 +161,6 @@ export default function AthleteDashboard() {
   const { user, primaryWallet, sdkHasLoaded } = useDynamicContext();
   const [activeFilter, setActiveFilter] = useState<FilterOption>("all");
   const [chartType, setChartType] = useState<"area" | "bar">("area");
-  const pathname = usePathname();
   const router = useRouter();
 
   // Use React Query for data fetching
@@ -219,24 +216,21 @@ export default function AthleteDashboard() {
   // Show loading state while SDK is loading, user is not yet resolved, or query is loading
   if (!sdkHasLoaded || !user || isLoading) {
     return (
-      <div className='min-h-screen bg-[#050505] flex'>
-        <DashboardSidebar currentPath={pathname} />
-        <div className='flex-1 lg:ml-64 p-8 pt-12'>
-          <div className='max-w-6xl mx-auto space-y-8'>
-            <div className='flex justify-between'>
-              <Skeleton className='h-12 w-1/3 rounded-lg' />
-              <Skeleton className='h-12 w-32 rounded-lg' />
-            </div>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-              <Skeleton className='h-32 w-full rounded-xl' />
-              <Skeleton className='h-32 w-full rounded-xl' />
-              <Skeleton className='h-32 w-full rounded-xl' />
-            </div>
-            <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Skeleton key={i} className='h-[320px] w-full rounded-2xl' />
-              ))}
-            </div>
+      <div className='flex-1 p-8 pt-12'>
+        <div className='max-w-6xl mx-auto space-y-8'>
+          <div className='flex justify-between'>
+            <Skeleton className='h-12 w-1/3 rounded-lg' />
+            <Skeleton className='h-12 w-32 rounded-lg' />
+          </div>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+            <Skeleton className='h-32 w-full rounded-xl' />
+            <Skeleton className='h-32 w-full rounded-xl' />
+            <Skeleton className='h-32 w-full rounded-xl' />
+          </div>
+          <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton key={i} className='h-[320px] w-full rounded-2xl' />
+            ))}
           </div>
         </div>
       </div>
@@ -245,26 +239,23 @@ export default function AthleteDashboard() {
 
   if (error || !dashboardData) {
     return (
-      <div className='min-h-screen bg-[#050505] flex'>
-        <DashboardSidebar currentPath={pathname} />
-        <div className='flex-1 lg:ml-64 flex items-center justify-center p-8'>
-          <div className='text-center max-w-md p-8 glass-panel rounded-2xl'>
-            <AlertCircle className='w-12 h-12 text-red-500 mx-auto mb-4' />
-            <h3 className='text-xl font-bold text-white mb-2'>
-              Unable to load dashboard
-            </h3>
-            <p className='text-gray-400 mb-6 text-sm'>
-              {error instanceof Error
-                ? error.message
-                : "We encountered an issue loading your athlete data."}
-            </p>
-            <button
-              onClick={() => refetch()}
-              className='px-6 py-2.5 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition-colors'
-            >
-              Retry Connection
-            </button>
-          </div>
+      <div className='flex-1 flex items-center justify-center p-8'>
+        <div className='text-center max-w-md p-8 glass-panel rounded-2xl'>
+          <AlertCircle className='w-12 h-12 text-red-500 mx-auto mb-4' />
+          <h3 className='text-xl font-bold text-white mb-2'>
+            Unable to load dashboard
+          </h3>
+          <p className='text-gray-400 mb-6 text-sm'>
+            {error instanceof Error
+              ? error.message
+              : "We encountered an issue loading your athlete data."}
+          </p>
+          <button
+            onClick={() => refetch()}
+            className='px-6 py-2.5 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition-colors'
+          >
+            Retry Connection
+          </button>
         </div>
       </div>
     );
@@ -327,222 +318,209 @@ export default function AthleteDashboard() {
   };
 
   return (
-    <>
-      <header className='sticky top-0 z-40 flex items-center justify-between px-8 py-6 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 lg:hidden'>
-        <Link href='/' className='text-xl font-bold text-white'>
-          KINICH
-        </Link>
-        <DynamicWidget variant='dropdown' />
-      </header>
+    <div className='p-6 lg:p-8 w-full max-w-[1600px] mx-auto animate-fade-in-up'>
+      {/* Profile Header Section */}
+      <ProfileHeaderSection
+        athlete={athleteProfile}
+        onVerificationSuccess={() => refetch()}
+      />
 
-      <div className='p-6 lg:p-8 w-full max-w-[1600px] mx-auto animate-fade-in-up'>
-        {/* Profile Header Section */}
-        <ProfileHeaderSection
-          athlete={athleteProfile}
-          onVerificationSuccess={() => refetch()}
-        />
-
-        {/* Stats Grid */}
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8'>
-          <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-blue-500/30 transition-colors group'>
-            <div className='flex justify-between items-start mb-4'>
-              <div className='p-3 rounded-xl bg-blue-500/10 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors'>
-                <DollarSign className='w-6 h-6' />
-              </div>
-              <span className='text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full flex items-center gap-1'>
-                <TrendingUp className='w-3 h-3' /> +12.5%
-              </span>
+      {/* Stats Grid */}
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8'>
+        <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-blue-500/30 transition-colors group'>
+          <div className='flex justify-between items-start mb-4'>
+            <div className='p-3 rounded-xl bg-blue-500/10 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors'>
+              <DollarSign className='w-6 h-6' />
             </div>
-            <div className='text-3xl font-bold text-white mb-1 tracking-tight'>
-              {stats.totalRoyalties.toLocaleString()}{" "}
-              <span className='text-lg text-gray-500 font-normal'>IP</span>
-            </div>
-            <div className='text-sm text-gray-500'>Total IP Value</div>
+            <span className='text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full flex items-center gap-1'>
+              <TrendingUp className='w-3 h-3' /> +12.5%
+            </span>
           </div>
-
-          <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-purple-500/30 transition-colors group'>
-            <div className='flex justify-between items-start mb-4'>
-              <div className='p-3 rounded-xl bg-purple-500/10 text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors'>
-                <Activity className='w-6 h-6' />
-              </div>
-            </div>
-            <ProfileScoreDisplay
-              score={stats.profileScore}
-              worldIdVerified={athlete.world_id_verified}
-              audioCount={audioCount}
-            />
-            <div className='text-sm text-gray-500 mt-1'>Profile Score</div>
+          <div className='text-3xl font-bold text-white mb-1 tracking-tight'>
+            {stats.totalRoyalties.toLocaleString()}{" "}
+            <span className='text-lg text-gray-500 font-normal'>IP</span>
           </div>
-
-          <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-orange-500/30 transition-colors group'>
-            <div className='flex justify-between items-start mb-4'>
-              <div className='p-3 rounded-xl bg-orange-500/10 text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors'>
-                <Layers className='w-6 h-6' />
-              </div>
-            </div>
-            <div className='text-3xl font-bold text-white mb-1 tracking-tight'>
-              {stats.totalAssets}
-            </div>
-            <div className='text-sm text-gray-500'>Total Assets</div>
-          </div>
-
-          <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-pink-500/30 transition-colors group'>
-            <div className='flex justify-between items-start mb-4'>
-              <div className='p-3 rounded-xl bg-pink-500/10 text-pink-400 group-hover:bg-pink-500 group-hover:text-white transition-colors'>
-                <Trophy className='w-6 h-6' />
-              </div>
-              <span className='text-xs font-medium text-white bg-white/10 px-2 py-1 rounded-full'>
-                {athleteProfile.level}
-              </span>
-            </div>
-            <div className='text-3xl font-bold text-white mb-1 tracking-tight'>
-              #42
-            </div>
-            <div className='text-sm text-gray-500'>Global Rank</div>
-          </div>
+          <div className='text-sm text-gray-500'>Total IP Value</div>
         </div>
 
-        {/* Main Chart Section */}
-        <div className='bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 mb-10'>
-          <div className='flex justify-between items-center mb-8'>
-            <div>
-              <h3 className='text-xl font-bold text-white mb-1'>
-                Performance Analytics
-              </h3>
-              <p className='text-sm text-gray-500'>
-                Your asset growth and engagement over time
-              </p>
-            </div>
-            <div className='flex items-center gap-4'>
-              {/* Chart Type Toggle */}
-              <div className='flex bg-black rounded-lg p-1 border border-white/10'>
-                <button
-                  onClick={() => setChartType("area")}
-                  className={`p-1.5 rounded-md transition-all ${
-                    chartType === "area"
-                      ? "bg-white/10 text-white"
-                      : "text-gray-500 hover:text-white"
-                  }`}
-                  title='Line Chart'
-                >
-                  <LineChart className='w-4 h-4' />
-                </button>
-                <button
-                  onClick={() => setChartType("bar")}
-                  className={`p-1.5 rounded-md transition-all ${
-                    chartType === "bar"
-                      ? "bg-white/10 text-white"
-                      : "text-gray-500 hover:text-white"
-                  }`}
-                  title='Bar Chart'
-                >
-                  <BarChart3 className='w-4 h-4' />
-                </button>
-              </div>
-
-              {/* Time Period Toggle */}
-              <div className='flex overflow-x-auto bg-black rounded-lg p-1 border border-white/10'>
-                {["1D", "1W", "1M", "1Y", "ALL"].map((period) => (
-                  <button
-                    key={period}
-                    className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all flex-shrink-0 ${
-                      period === "1M"
-                        ? "bg-white text-black shadow-sm"
-                        : "text-gray-500 hover:text-white"
-                    }`}
-                  >
-                    {period}
-                  </button>
-                ))}
-              </div>
+        <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-purple-500/30 transition-colors group'>
+          <div className='flex justify-between items-start mb-4'>
+            <div className='p-3 rounded-xl bg-purple-500/10 text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors'>
+              <Activity className='w-6 h-6' />
             </div>
           </div>
-
-          <div className='h-[350px] w-full'>
-            <PerformanceChart data={performanceData} type={chartType} />
-          </div>
+          <ProfileScoreDisplay
+            score={stats.profileScore}
+            worldIdVerified={athlete.world_id_verified}
+            audioCount={audioCount}
+          />
+          <div className='text-sm text-gray-500 mt-1'>Profile Score</div>
         </div>
 
-        <section>
-          {/* ... (Portfolio Header and Assets Grid remain same) ... */}
-          <div className='flex flex-col md:flex-row justify-between items-end gap-6 mb-8'>
-            <div>
-              <h2 className='text-2xl font-bold text-white mb-1'>Portfolio</h2>
-              <p className='text-sm text-gray-500'>
-                Manage your intellectual property assets.
-              </p>
+        <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-orange-500/30 transition-colors group'>
+          <div className='flex justify-between items-start mb-4'>
+            <div className='p-3 rounded-xl bg-orange-500/10 text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors'>
+              <Layers className='w-6 h-6' />
             </div>
-            <div className='flex items-center gap-4'>
-              <FilterTabs
-                onFilterChange={(filter) => setActiveFilter(filter)}
-              />
-              <Link
-                href='/dashboard/arena'
-                className='inline-flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)]'
+          </div>
+          <div className='text-3xl font-bold text-white mb-1 tracking-tight'>
+            {stats.totalAssets}
+          </div>
+          <div className='text-sm text-gray-500'>Total Assets</div>
+        </div>
+
+        <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-pink-500/30 transition-colors group'>
+          <div className='flex justify-between items-start mb-4'>
+            <div className='p-3 rounded-xl bg-pink-500/10 text-pink-400 group-hover:bg-pink-500 group-hover:text-white transition-colors'>
+              <Trophy className='w-6 h-6' />
+            </div>
+            <span className='text-xs font-medium text-white bg-white/10 px-2 py-1 rounded-full'>
+              {athleteProfile.level}
+            </span>
+          </div>
+          <div className='text-3xl font-bold text-white mb-1 tracking-tight'>
+            #42
+          </div>
+          <div className='text-sm text-gray-500'>Global Rank</div>
+        </div>
+      </div>
+
+      {/* Main Chart Section */}
+      <div className='bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 mb-10'>
+        <div className='flex justify-between items-center mb-8'>
+          <div>
+            <h3 className='text-xl font-bold text-white mb-1'>
+              Performance Analytics
+            </h3>
+            <p className='text-sm text-gray-500'>
+              Your asset growth and engagement over time
+            </p>
+          </div>
+          <div className='flex items-center gap-4'>
+            {/* Chart Type Toggle */}
+            <div className='flex bg-black rounded-lg p-1 border border-white/10'>
+              <button
+                onClick={() => setChartType("area")}
+                className={`p-1.5 rounded-md transition-all ${
+                  chartType === "area"
+                    ? "bg-white/10 text-white"
+                    : "text-gray-500 hover:text-white"
+                }`}
+                title='Line Chart'
               >
-                <Plus className='w-4 h-4' />
-                Add New
-              </Link>
+                <LineChart className='w-4 h-4' />
+              </button>
+              <button
+                onClick={() => setChartType("bar")}
+                className={`p-1.5 rounded-md transition-all ${
+                  chartType === "bar"
+                    ? "bg-white/10 text-white"
+                    : "text-gray-500 hover:text-white"
+                }`}
+                title='Bar Chart'
+              >
+                <BarChart3 className='w-4 h-4' />
+              </button>
             </div>
-          </div>
 
-          {isDemoMode && (
-            <div className='mb-8 bg-blue-900/10 border border-blue-500/20 rounded-xl p-4 flex items-center gap-4 animate-fade-in-up'>
-              <div className='w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400'>
-                <AlertCircle className='w-5 h-5' />
-              </div>
-              <div>
-                <p className='text-sm text-white font-medium'>
-                  Demo Mode Active
-                </p>
-                <p className='text-xs text-gray-400'>
-                  Upload your first performance data to unlock full potential.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {filteredAssets.length > 0 ? (
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
-              {filteredAssets.map((asset) => (
-                <div
-                  key={asset.id}
-                  className='relative animate-fade-in-up'
-                  style={{ animationDelay: "100ms" }}
+            {/* Time Period Toggle */}
+            <div className='flex overflow-x-auto bg-black rounded-lg p-1 border border-white/10'>
+              {["1D", "1W", "1M", "1Y", "ALL"].map((period) => (
+                <button
+                  key={period}
+                  className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all flex-shrink-0 ${
+                    period === "1M"
+                      ? "bg-white text-black shadow-sm"
+                      : "text-gray-500 hover:text-white"
+                  }`}
                 >
-                  <AssetCard
-                    type={asset.type}
-                    title={asset.title}
-                    price={asset.price}
-                    duration={asset.duration}
-                    onClick={() => router.push(`/asset/${asset.id}`)}
-                  />
-                  {"isDemo" in asset && asset.isDemo && (
-                    <div className='absolute top-3 right-3 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-lg'>
-                      Demo
-                    </div>
-                  )}
-                </div>
+                  {period}
+                </button>
               ))}
             </div>
-          ) : (
-            <div>
-              <p className='text-lg text-white font-medium mb-2'>
-                No assets found
-              </p>
-              <p className='text-sm text-gray-500 mb-6'>
-                Start building your portfolio by recording your first drill.
-              </p>
-              <Link
-                href='/dashboard/arena'
-                className='text-sm text-blue-400 hover:text-blue-300 font-medium'
-              >
-                Go to Arena →
-              </Link>
-            </div>
-          )}
-        </section>
+          </div>
+        </div>
+
+        <div className='h-[350px] w-full'>
+          <PerformanceChart data={performanceData} type={chartType} />
+        </div>
       </div>
-    </>
+
+      <section>
+        {/* ... (Portfolio Header and Assets Grid remain same) ... */}
+        <div className='flex flex-col md:flex-row justify-between items-end gap-6 mb-8'>
+          <div>
+            <h2 className='text-2xl font-bold text-white mb-1'>Portfolio</h2>
+            <p className='text-sm text-gray-500'>
+              Manage your intellectual property assets.
+            </p>
+          </div>
+          <div className='flex items-center gap-4'>
+            <FilterTabs onFilterChange={(filter) => setActiveFilter(filter)} />
+            <Link
+              href='/dashboard/arena'
+              className='inline-flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)]'
+            >
+              <Plus className='w-4 h-4' />
+              Add New
+            </Link>
+          </div>
+        </div>
+
+        {isDemoMode && (
+          <div className='mb-8 bg-blue-900/10 border border-blue-500/20 rounded-xl p-4 flex items-center gap-4 animate-fade-in-up'>
+            <div className='w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400'>
+              <AlertCircle className='w-5 h-5' />
+            </div>
+            <div>
+              <p className='text-sm text-white font-medium'>Demo Mode Active</p>
+              <p className='text-xs text-gray-400'>
+                Upload your first performance data to unlock full potential.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {filteredAssets.length > 0 ? (
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
+            {filteredAssets.map((asset) => (
+              <div
+                key={asset.id}
+                className='relative animate-fade-in-up'
+                style={{ animationDelay: "100ms" }}
+              >
+                <AssetCard
+                  type={asset.type}
+                  title={asset.title}
+                  price={asset.price}
+                  duration={asset.duration}
+                  onClick={() => router.push(`/asset/${asset.id}`)}
+                />
+                {"isDemo" in asset && asset.isDemo && (
+                  <div className='absolute top-3 right-3 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-lg'>
+                    Demo
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div>
+            <p className='text-lg text-white font-medium mb-2'>
+              No assets found
+            </p>
+            <p className='text-sm text-gray-500 mb-6'>
+              Start building your portfolio by recording your first drill.
+            </p>
+            <Link
+              href='/dashboard/arena'
+              className='text-sm text-blue-400 hover:text-blue-300 font-medium'
+            >
+              Go to Arena →
+            </Link>
+          </div>
+        )}
+      </section>
+    </div>
   );
 }
