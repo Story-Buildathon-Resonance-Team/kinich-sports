@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { Card } from "@/components/custom/card";
 import { VideoDrillMetadata } from "@/lib/types/video";
 import HumanBadge from "@/components/custom/human-badge";
-import { Video } from "lucide-react";
+import { Video, FileJson, X } from "lucide-react";
 
 interface VideoMetadataDisplayProps {
   metadata: VideoDrillMetadata;
@@ -14,6 +15,7 @@ export function VideoMetadataDisplay({
   metadata,
   worldIdVerified,
 }: VideoMetadataDisplayProps) {
+  const [showMetadataModal, setShowMetadataModal] = useState(false);
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -53,10 +55,10 @@ export function VideoMetadataDisplay({
           <h4 className='text-[14px] font-medium text-[rgba(245,247,250,0.9)] mb-3'>
             Performance Metrics
           </h4>
-          <div className='grid grid-cols-2 gap-4'>
+          <div className='grid grid-cols-3 gap-4'>
             <div>
               <p className='text-[11px] uppercase tracking-wider text-[rgba(245,247,250,0.5)] mb-1'>
-                Reps Completed
+                Reps
               </p>
               <p className='text-[24px] font-bold text-[#00C2FF]'>
                 {metadata.cv_metrics.rep_count}
@@ -64,10 +66,18 @@ export function VideoMetadataDisplay({
             </div>
             <div>
               <p className='text-[11px] uppercase tracking-wider text-[rgba(245,247,250,0.5)] mb-1'>
-                Form Score
+                Consistency
               </p>
               <p className='text-[24px] font-bold text-[#00C2FF]'>
-                {(metadata.cv_metrics.form_score_avg * 10).toFixed(1)}/10
+                {(metadata.cv_metrics.consistency_score * 100).toFixed(0)}%
+              </p>
+            </div>
+            <div>
+              <p className='text-[11px] uppercase tracking-wider text-[rgba(245,247,250,0.5)] mb-1'>
+                Cadence
+              </p>
+              <p className='text-[24px] font-bold text-[#00C2FF]'>
+                {metadata.cv_metrics.cadence_avg.toFixed(1)}
               </p>
             </div>
           </div>
@@ -123,12 +133,61 @@ export function VideoMetadataDisplay({
             {metadata.verification.is_verified && (
               <span className='bg-[rgba(0,71,171,0.15)] text-[rgba(184,212,240,0.9)] border border-[rgba(0,71,171,0.3)] rounded-md px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide flex items-center gap-2'>
                 <Video className='w-3 h-3' />
-                Video Human Confidence Verified
+                Human Confidence Score: {(metadata.verification.human_confidence_score * 100).toFixed(0)}%
               </span>
             )}
           </div>
         </div>
+
+        {/* View Full Metadata Button */}
+        <div className='pt-4 border-t border-[rgba(245,247,250,0.06)]'>
+          <button
+            onClick={() => setShowMetadataModal(true)}
+            className='
+              flex items-center gap-2
+              text-[13px] text-[rgba(0,71,171,0.9)] hover:text-[rgba(0,71,171,1)]
+              font-medium
+              transition-colors
+            '
+          >
+            <FileJson className='w-4 h-4' />
+            View Full Metadata
+          </button>
+        </div>
       </div>
+
+      {/* Metadata Modal */}
+      {showMetadataModal && (
+        <div
+          className='fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4'
+          onClick={() => setShowMetadataModal(false)}
+        >
+          <div
+            className='bg-[#050505] border border-[rgba(184,212,240,0.2)] rounded-xl max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col'
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className='flex items-center justify-between p-6 border-b border-[rgba(245,247,250,0.06)]'>
+              <h3 className='text-[18px] font-medium text-[#F5F7FA]'>
+                Full Metadata
+              </h3>
+              <button
+                onClick={() => setShowMetadataModal(false)}
+                className='text-[rgba(245,247,250,0.6)] hover:text-[#F5F7FA] transition-colors'
+              >
+                <X className='w-5 h-5' />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className='overflow-auto p-6'>
+              <pre className='text-[12px] text-[rgba(245,247,250,0.8)] font-mono bg-[rgba(0,0,0,0.3)] p-4 rounded-lg overflow-x-auto'>
+                {JSON.stringify(metadata, null, 2)}
+              </pre>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
