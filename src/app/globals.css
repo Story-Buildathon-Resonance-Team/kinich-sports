@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@theme {
+:root {
     /* COLOR SYSTEM - REFINED DARK MODE */
     --color-background: #050505;
     /* Deepest black */
@@ -41,6 +41,88 @@
     --transition-normal: 400ms;
     --transition-slow: 600ms;
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+/* @theme */
+
+:root {
+    /* COLOR SYSTEM - REFINED DARK MODE */
+    --color-background: #050505;
+    /* Deepest black */
+    --color-surface: #0a0a0a;
+    /* Slightly lighter for cards */
+    --color-surface-highlight: #121212;
+    /* Hover states */
+    --color-graphite: #2c2c2e;
+    --color-graphite-dark: #1a1a1c;
+    --color-graphite-mid: #1a1a2e;
+    --color-ice: #f5f7fa;
+    --color-ice-muted: #a1a1aa;
+    /* Muted text */
+    --color-cobalt: #0047ab;
+    --color-cobalt-glow: rgba(0, 71, 171, 0.5);
+    --color-kinetic-orange: #ff6b35;
+    --color-kinetic-glow: rgba(255, 107, 53, 0.5);
+    --color-border: rgba(255, 255, 255, 0.08);
+    /* FONT FAMILIES */
+    --font-family-body: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-family-mono: "JetBrains Mono", "SF Mono", Consolas, Monaco, monospace;
+    /* SPACING */
+    --spacing-space-xs: 4px;
+    --spacing-space-sm: 8px;
+    --spacing-space-md: 16px;
+    --spacing-space-lg: 24px;
+    --spacing-space-xl: 32px;
+    --spacing-space-2xl: 48px;
+    --spacing-space-3xl: 64px;
+    --spacing-space-4xl: 80px;
+    --spacing-space-5xl: 120px;
+    /* BORDER RADIUS */
+    --radius-radius-sm: 8px;
+    --radius-radius-md: 12px;
+    --radius-radius-lg: 16px;
+    --radius-radius-xl: 24px;
+    /* TRANSITION DURATION */
+    --transition-fast: 200ms;
+    --transition-normal: 400ms;
+    --transition-slow: 600ms;
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@theme {
+    --color-background: var(--color-background);
+    --color-surface: var(--color-surface);
+    --color-surface-highlight: var(--color-surface-highlight);
+    --color-graphite: var(--color-graphite);
+    --color-graphite-dark: var(--color-graphite-dark);
+    --color-graphite-mid: var(--color-graphite-mid);
+    --color-ice: var(--color-ice);
+    --color-ice-muted: var(--color-ice-muted);
+    --color-cobalt: var(--color-cobalt);
+    --color-cobalt-glow: var(--color-cobalt-glow);
+    --color-kinetic-orange: var(--color-kinetic-orange);
+    --color-kinetic-glow: var(--color-kinetic-glow);
+    --color-border: var(--color-border);
+    --font-body: var(--font-family-body);
+    --font-mono: var(--font-family-mono);
+    --spacing-xs: var(--spacing-space-xs);
+    --spacing-sm: var(--spacing-space-sm);
+    --spacing-md: var(--spacing-space-md);
+    --spacing-lg: var(--spacing-space-lg);
+    --spacing-xl: var(--spacing-space-xl);
+    --spacing-2xl: var(--spacing-space-2xl);
+    --spacing-3xl: var(--spacing-space-3xl);
+    --spacing-4xl: var(--spacing-space-4xl);
+    --spacing-5xl: var(--spacing-space-5xl);
+    --radius-sm: var(--radius-radius-sm);
+    --radius-md: var(--radius-radius-md);
+    --radius-lg: var(--radius-radius-lg);
+    --radius-xl: var(--radius-radius-xl);
+    --animate-fast: var(--transition-fast);
+    --animate-normal: var(--transition-normal);
+    --animate-slow: var(--transition-slow);
+    --ease-expo: var(--ease-out-expo);
 }
 
 @layer base {
