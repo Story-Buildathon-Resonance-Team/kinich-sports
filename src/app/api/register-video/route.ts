@@ -11,10 +11,10 @@ export async function POST(request: NextRequest) {
   try {
     const text = await request.text();
     if (!text) {
-        return NextResponse.json(
-            { error: "Empty request body" },
-            { status: 400 }
-        );
+      return NextResponse.json(
+        { error: "Empty request body" },
+        { status: 400 }
+      );
     }
     const body = JSON.parse(text);
 
@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
       metadata,
     } = body;
 
-    // Validation
     if (
       !assetId ||
       !athleteWallet ||
@@ -47,7 +46,6 @@ export async function POST(request: NextRequest) {
 
     console.log("[Register Video] Starting registration for asset:", assetId);
 
-    // Validate drill type
     const drill = getDrillById(drillTypeId);
     if (!drill || drill.asset_type !== "video") {
       return NextResponse.json(
@@ -56,7 +54,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Build Story Protocol IP metadata (minimal metadata for blockchain)
     const ipMetadata = buildDrillIPMetadata({
       athleteName,
       athleteAddress: athleteWallet as Address,
@@ -72,8 +69,7 @@ export async function POST(request: NextRequest) {
       },
       description:
         metadata?.description ||
-        `${drill.name} - ${
-          metadata?.cv_metrics?.rep_count || 0
+        `${drill.name} - ${metadata?.cv_metrics?.rep_count || 0
         } reps completed with ${(
           (metadata?.verification?.human_confidence_score || 0) * 100
         ).toFixed(0)}% confidence`,
@@ -82,7 +78,6 @@ export async function POST(request: NextRequest) {
       repCount: metadata?.cv_metrics?.rep_count || 0,
     });
 
-    // Build NFT metadata
     const nftMetadata = buildNFTMetadata({
       title: ipMetadata.title,
       description: ipMetadata.description || "Video drill performance",
@@ -90,7 +85,6 @@ export async function POST(request: NextRequest) {
       assetType: "video",
     });
 
-    // Register on Story Protocol
     console.log("[Register Video] Calling registerIPAsset");
     const result = await registerIPAsset({
       athleteWallet: athleteWallet as Address,
@@ -110,7 +104,6 @@ export async function POST(request: NextRequest) {
 
     console.log("[Register Video] IP registered:", result.ipId);
 
-    // Update asset in database with Story Protocol data
     const supabase = await createClient();
     const { error: updateError } = await supabase
       .from("assets")
@@ -118,17 +111,15 @@ export async function POST(request: NextRequest) {
         story_ip_id: result.ipId,
         story_tx_hash: result.txHash,
         ipfs_cid: result.ipfsCid,
-        cv_verified: metadata?.verification?.is_verified || false, // MediaPipe verified
+        cv_verified: metadata?.verification?.is_verified || false,
         status: "active",
       })
       .eq("id", assetId);
 
     if (updateError) {
       console.error("[Register Video] Database update failed:", updateError);
-      // Don't fail the request - Story registration succeeded
     }
 
-    // Recalculate athlete profile score
     const { data: asset } = await supabase
       .from("assets")
       .select("athlete_id")

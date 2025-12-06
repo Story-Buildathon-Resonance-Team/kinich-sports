@@ -29,46 +29,38 @@ export default function ArenaPage() {
   };
 
   return (
-    <div className='p-8 pt-12 max-w-[1200px] mx-auto animate-fade-in-up'>
-      <div className='mb-12'>
-        <h1 className='text-4xl font-bold tracking-tight text-white mb-3'>
-          Training Arena
-        </h1>
-        <p className='text-lg text-gray-400 max-w-2xl'>
-          Select a protocol to begin. Your performance will be verified,
-          analyzed, and minted as an IP asset.
-        </p>
+    <div className='p-6 lg:p-8 w-full animate-fade-in-up'>
+      <div className='flex justify-end mb-6'>
+        <div className='flex gap-2 p-1 bg-white/5 rounded-lg border border-white/5'>
+          <button
+            onClick={() => setActiveMode("video")}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+              activeMode === "video"
+                ? "bg-blue-500/10 text-blue-400 shadow-sm"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            )}
+          >
+            <Activity className='w-4 h-4' />
+            Physical
+          </button>
+
+          <button
+            onClick={() => setActiveMode("audio")}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+              activeMode === "audio"
+                ? "bg-purple-500/10 text-purple-400 shadow-sm"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            )}
+          >
+            <Mic className='w-4 h-4' />
+            Identity
+          </button>
+        </div>
       </div>
 
-      <div className='flex gap-4 mb-10'>
-        <button
-          onClick={() => setActiveMode("video")}
-          className={cn(
-            "flex items-center gap-3 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 border cursor-pointer",
-            activeMode === "video"
-              ? "bg-blue-500/10 border-blue-500/30 text-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.1)]"
-              : "bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
-          )}
-        >
-          <Activity className='w-4 h-4' />
-          Physical Protocols
-        </button>
-
-        <button
-          onClick={() => setActiveMode("audio")}
-          className={cn(
-            "flex items-center gap-3 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 border cursor-pointer",
-            activeMode === "audio"
-              ? "bg-purple-500/10 border-purple-500/30 text-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.1)]"
-              : "bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
-          )}
-        >
-          <Mic className='w-4 h-4' />
-          Identity Capsules
-        </button>
-      </div>
-
-      <div className='grid grid-cols-1 gap-6'>
+      <div className='grid grid-cols-1 gap-4'>
         {activeDrills.map((drill) => (
           <ProtocolCard
             key={drill.drill_type_id}

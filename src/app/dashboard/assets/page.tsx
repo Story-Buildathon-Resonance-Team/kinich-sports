@@ -5,9 +5,10 @@ import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, Video, Mic, Play, ChevronRight, Clock, Calendar, SlidersHorizontal } from "lucide-react";
+import { AlertCircle, Video, Mic, Play, Clock, SlidersHorizontal, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import FilterTabs from "@/components/dashboard/filter-tabs"; // Import our newly memoized FilterTabs
+import AssetCard from "@/components/dashboard/asset-card";
 
 interface Asset {
     id: string;
@@ -72,10 +73,10 @@ export default function AssetsPage() {
             <div className="p-6 lg:p-8 max-w-[1600px] mx-auto space-y-8">
                 <div className="flex justify-between items-end">
                     <div className="space-y-2">
-                         <Skeleton className="h-8 w-48 rounded-lg bg-white/5" />
-                         <Skeleton className="h-4 w-64 rounded-lg bg-white/5" />
+                        <Skeleton className="h-8 w-48 rounded-lg bg-white/5" />
+                        <Skeleton className="h-4 w-64 rounded-lg bg-white/5" />
                     </div>
-                     <Skeleton className="h-10 w-48 rounded-lg bg-white/5" />
+                    <Skeleton className="h-10 w-48 rounded-lg bg-white/5" />
                 </div>
                 <div className="space-y-3">
                     {[1, 2, 3, 4, 5].map((i) => (
@@ -103,7 +104,7 @@ export default function AssetsPage() {
     const formatDuration = (seconds?: number): string => {
         if (!seconds) return "0:00";
         const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
+        const secs = Math.floor(seconds % 60);
         return `${mins}:${secs.toString().padStart(2, "0")}`;
     };
 
@@ -116,13 +117,9 @@ export default function AssetsPage() {
     };
 
     return (
-        <div className="p-6 lg:p-8 max-w-[1600px] mx-auto animate-fade-in-up">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Your Assets</h1>
-                    <p className="text-gray-400 mt-1">Manage your registered IP performance data</p>
-                </div>
-                 <FilterTabs 
+        <div className="p-6 lg:p-8 w-full animate-fade-in-up">
+            <div className="flex justify-end mb-6">
+                <FilterTabs
                     defaultFilter="all"
                     onFilterChange={(filter) => setActiveFilter(filter)}
                 />
@@ -135,8 +132,8 @@ export default function AssetsPage() {
                     </div>
                     <p className="text-white font-medium mb-1">No assets found</p>
                     <p className="text-gray-400 mb-6 text-sm max-w-md mx-auto">
-                        {assets && assets.length > 0 
-                            ? `No ${activeFilter} assets found in your portfolio.` 
+                        {assets && assets.length > 0
+                            ? `No ${activeFilter} assets found in your portfolio.`
                             : "Start building your portfolio by recording your first drill."}
                     </p>
                     {(assets && assets.length === 0) && (
@@ -156,76 +153,93 @@ export default function AssetsPage() {
                         const isVideo = asset.asset_type === "video";
 
                         // Extract duration
-                        let duration = 0;
+                        let duration = "0:00";
                         if (metadata.video_metadata?.duration_seconds) {
-                            duration = metadata.video_metadata.duration_seconds;
+                            duration = formatDuration(metadata.video_metadata.duration_seconds);
                         } else if (metadata.recording_duration_seconds) {
-                            duration = metadata.recording_duration_seconds;
+                            duration = formatDuration(metadata.recording_duration_seconds);
                         } else if (metadata.duration_seconds) {
-                            duration = metadata.duration_seconds;
+                            duration = formatDuration(metadata.duration_seconds);
                         }
 
                         return (
                             <div
                                 key={asset.id}
                                 onClick={() => router.push(`/dashboard/assets/${asset.id}`)}
-                                className="group relative flex items-center gap-4 p-4 bg-[#0a0a0a] hover:bg-[#111] border border-white/5 hover:border-white/10 rounded-xl transition-all duration-200 cursor-pointer overflow-hidden"
+                                className="group relative grid grid-cols-[auto_1.5fr_1fr_1fr_auto] gap-6 p-4 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl transition-all duration-200 cursor-pointer items-center"
                             >
-                                {/* Asset Icon/Thumbnail */}
+                                {/* Col 1: Icon */}
                                 <div className={cn(
-                                    "w-16 h-16 rounded-lg flex items-center justify-center flex-shrink-0",
-                                    isVideo ? "bg-blue-900/20 text-blue-400" : "bg-purple-900/20 text-purple-400"
+                                    "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 relative overflow-hidden",
+                                    isVideo ? "bg-blue-900/20" : "bg-purple-900/20"
                                 )}>
-                                    {isVideo ? <Video className="w-8 h-8" /> : <Mic className="w-8 h-8" />}
+                                    {isVideo ? (
+                                        <Video className="w-5 h-5 text-blue-400" />
+                                    ) : (
+                                        <Mic className="w-5 h-5 text-purple-400" />
+                                    )}
+
+                                    {/* Hover Play Overlay */}
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <Play className="w-5 h-5 text-white fill-current" />
+                                    </div>
                                 </div>
 
-                                {/* Content */}
-                                <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-
-                                    {/* Title & Type */}
-                                    <div className="md:col-span-5">
-                                        <h3 className="text-white font-medium text-lg truncate pr-4 group-hover:text-blue-400 transition-colors">
+                                {/* Col 2: Title & Type */}
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-3 mb-1.5">
+                                        <h3 className="text-white font-medium text-sm truncate group-hover:text-blue-400 transition-colors">
                                             {title}
                                         </h3>
-                                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                                            <span className="uppercase tracking-wider font-bold text-[10px]">
-                                                {asset.asset_type}
-                                            </span>
-                                            <span>•</span>
-                                            <span className="capitalize">{metadata.athlete_profile?.experience_level || "Competitive"}</span>
+                                        <div className={cn(
+                                            "px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border",
+                                            isVideo ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                                        )}>
+                                            {isVideo ? "VIS" : "AUD"}
                                         </div>
                                     </div>
+                                    <p className="text-xs text-gray-500 truncate">
+                                        ID: <span className="font-mono opacity-70">{asset.id.slice(0, 8)}</span>
+                                    </p>
+                                </div>
 
-                                    {/* Metrics */}
-                                    <div className="md:col-span-3 flex items-center gap-6 text-sm text-gray-400">
-                                        <div className="flex items-center gap-1.5">
-                                            <Clock className="w-4 h-4" />
-                                            <span>{formatDuration(duration)}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <Calendar className="w-4 h-4" />
+                                {/* Col 3: Experience & Tag */}
+                                <div className="hidden md:block">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-xs text-gray-400 uppercase tracking-wider font-medium">Level</span>
+                                        <span className="text-sm text-white capitalize">{metadata.athlete_profile?.experience_level || "Competitive"}</span>
+                                    </div>
+                                </div>
+
+                                {/* Col 4: Date & Duration */}
+                                <div className="hidden sm:block">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-2 text-xs text-gray-400">
+                                            <Calendar className="w-3 h-3" />
                                             <span>{formatDate(asset.created_at)}</span>
                                         </div>
+                                        <div className="flex items-center gap-2 text-xs text-gray-400">
+                                            <Clock className="w-3 h-3" />
+                                            <span>{duration}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Col 5: Price & Status */}
+                                <div className="flex items-center gap-4 justify-end">
+                                    <div className="text-right">
+                                        <div className="text-sm font-bold text-white font-mono">
+                                            {asset.license_fee} <span className="text-xs text-gray-500 font-normal">$IP</span>
+                                        </div>
                                     </div>
 
-                                    {/* Price & Status */}
-                                    <div className="md:col-span-4 flex items-center justify-end gap-4">
-                                        <div className="px-3 py-1 rounded-full bg-white/5 border border-white/5 text-xs font-mono text-white">
-                                            {asset.license_fee} $IP
-                                        </div>
-
-                                        <div className={cn(
-                                            "px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border",
-                                            asset.status === 'active' || asset.status === 'registered'
-                                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                                : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-                                        )}>
-                                            {asset.status === 'registered' ? 'Active' : asset.status}
-                                        </div>
-
-                                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-white/10 group-hover:text-white transition-colors">
-                                            <ChevronRight className="w-4 h-4" />
-                                        </div>
+                                    <div className={cn(
+                                        "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border",
+                                        asset.status === 'active' || asset.status === 'registered'
+                                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                            : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+                                    )}>
+                                        {asset.status === 'registered' ? 'Active' : asset.status}
                                     </div>
                                 </div>
                             </div>

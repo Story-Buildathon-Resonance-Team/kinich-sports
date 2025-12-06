@@ -3,11 +3,9 @@
 import { useState } from "react";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useQuery } from "@tanstack/react-query";
-import {
-  FilterTabs,
-  AssetCard,
-  ProfileScoreDisplay,
-} from "@/components/dashboard";
+import FilterTabs from "@/components/dashboard/filter-tabs";
+import AssetCard from "@/components/dashboard/asset-card";
+import ProfileScoreDisplay from "@/components/dashboard/profile-score-display";
 import ProfileHeaderSection from "@/components/dashboard/profile-header-section";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Athlete, SyncAthleteRequest } from "@/lib/types/athlete";
@@ -163,7 +161,6 @@ export default function AthleteDashboard() {
   const [chartType, setChartType] = useState<"area" | "bar">("area");
   const router = useRouter();
 
-  // Use React Query for data fetching
   const {
     data: dashboardData,
     isLoading,
@@ -213,7 +210,6 @@ export default function AthleteDashboard() {
     };
   };
 
-  // Show loading state while SDK is loading, user is not yet resolved, or query is loading
   if (!sdkHasLoaded || !user || isLoading) {
     return (
       <div className='flex-1 p-8 pt-12'>
@@ -401,22 +397,20 @@ export default function AthleteDashboard() {
             <div className='flex bg-black rounded-lg p-1 border border-white/10'>
               <button
                 onClick={() => setChartType("area")}
-                className={`p-1.5 rounded-md transition-all ${
-                  chartType === "area"
-                    ? "bg-white/10 text-white"
-                    : "text-gray-500 hover:text-white"
-                }`}
+                className={`p-1.5 rounded-md transition-all ${chartType === "area"
+                  ? "bg-white/10 text-white"
+                  : "text-gray-500 hover:text-white"
+                  }`}
                 title='Line Chart'
               >
                 <LineChart className='w-4 h-4' />
               </button>
               <button
                 onClick={() => setChartType("bar")}
-                className={`p-1.5 rounded-md transition-all ${
-                  chartType === "bar"
-                    ? "bg-white/10 text-white"
-                    : "text-gray-500 hover:text-white"
-                }`}
+                className={`p-1.5 rounded-md transition-all ${chartType === "bar"
+                  ? "bg-white/10 text-white"
+                  : "text-gray-500 hover:text-white"
+                  }`}
                 title='Bar Chart'
               >
                 <BarChart3 className='w-4 h-4' />
@@ -428,11 +422,10 @@ export default function AthleteDashboard() {
               {["1D", "1W", "1M", "1Y", "ALL"].map((period) => (
                 <button
                   key={period}
-                  className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all flex-shrink-0 ${
-                    period === "1M"
-                      ? "bg-white text-black shadow-sm"
-                      : "text-gray-500 hover:text-white"
-                  }`}
+                  className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all flex-shrink-0 ${period === "1M"
+                    ? "bg-white text-black shadow-sm"
+                    : "text-gray-500 hover:text-white"
+                    }`}
                 >
                   {period}
                 </button>

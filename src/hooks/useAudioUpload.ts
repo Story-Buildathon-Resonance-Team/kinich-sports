@@ -14,11 +14,11 @@ interface UploadState {
   isUploading: boolean;
   error: string | null;
   progress:
-    | "idle"
-    | "uploading"
-    | "creating-record"
-    | "registering"
-    | "complete";
+  | "idle"
+  | "uploading"
+  | "creating-record"
+  | "registering"
+  | "complete";
 }
 
 export function useAudioUpload({
@@ -89,6 +89,24 @@ export function useAudioUpload({
 
       console.log("[useAudioUpload] Metadata:", metadata);
 
+      // Explicitly determine verification method
+      let verificationMethod: "world_id" | "cv_video" | "world_id_and_cv_video" = "world_id";
+      const isWorldIdVerified = athleteProfile.world_id_verified || false;
+      const isCvVideoVerified = false; // Currently audio upload doesn't support CV verification
+
+      if (isWorldIdVerified && isCvVideoVerified) {
+        verificationMethod = "world_id_and_cv_video";
+      } else if (isWorldIdVerified) {
+        verificationMethod = "world_id";
+      } else if (isCvVideoVerified) {
+        verificationMethod = "cv_video";
+      } else {
+        // Fallback for when no verification is present (shouldn't happen in production due to gating)
+        // But for dev/testing, we default to world_id or handle gracefully
+        console.warn("[useAudioUpload] No verification present, defaulting to world_id for registration attempt");
+        verificationMethod = "world_id";
+      }
+
       setState({
         isUploading: true,
         error: null,
@@ -138,9 +156,9 @@ export function useAudioUpload({
           mimeType: audioBlob.type,
           licenseFee: 15.0,
           questionsCount: challenge.questions.length,
-          verificationMethod: metadata.verification.verification_method,
-          worldIdVerified: metadata.verification.world_id_verified,
-          cvVideoVerified: metadata.verification.cv_video_verified,
+          verificationMethod: verificationMethod,
+          worldIdVerified: isWorldIdVerified,
+          cvVideoVerified: isCvVideoVerified,
         }),
       });
 

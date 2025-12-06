@@ -150,7 +150,6 @@ export default function AssetDetailPage() {
 
   return (
     <div ref={containerRef} className='p-6 lg:p-8 max-w-[1600px] mx-auto min-h-screen'>
-      {/* Navigation Bar */}
       <div className="flex items-center justify-between mb-8">
         <button 
           onClick={() => router.push("/dashboard/assets")}
@@ -171,10 +170,8 @@ export default function AssetDetailPage() {
       </div>
 
       <div className='grid grid-cols-1 xl:grid-cols-12 gap-8'>
-        {/* Main Content Area - Left/Top */}
         <div className='xl:col-span-8 space-y-6'>
           
-          {/* Media Player Card */}
           <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-2xl">
              {asset.asset_type === "audio" ? (
               <div className="p-8">
@@ -191,7 +188,6 @@ export default function AssetDetailPage() {
             )}
           </div>
 
-          {/* Quick Stats Row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
              <div className="bg-[#0a0a0a] border border-white/5 rounded-xl p-4">
                 <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Discipline</p>
@@ -216,7 +212,6 @@ export default function AssetDetailPage() {
              </div>
           </div>
 
-          {/* Detailed Metadata Section */}
           <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
              <div className="px-6 py-4 border-b border-white/5 bg-white/[0.02]">
                <h3 className="font-medium text-white">Analysis Data</h3>
@@ -237,23 +232,19 @@ export default function AssetDetailPage() {
           </div>
         </div>
 
-        {/* Sidebar - Right */}
         <div className='xl:col-span-4 space-y-6'>
           
-          {/* Story Protocol Status Card */}
           <StoryRegistrationStatus
             storyIpId={asset.story_ip_id}
             storyTxHash={asset.story_tx_hash}
             status={asset.status}
           />
 
-          {/* Licensing Card */}
           <LicenseDisplay
             licenseFee={Number(asset.license_fee)}
             storyIpId={asset.story_ip_id}
           />
 
-          {/* Share / Embed Card (Placeholder) */}
           <div className="bg-gradient-to-br from-blue-900/10 to-purple-900/10 border border-white/10 rounded-2xl p-6">
              <h4 className="text-white font-medium mb-2">Monetization</h4>
              <p className="text-sm text-gray-400 mb-4">

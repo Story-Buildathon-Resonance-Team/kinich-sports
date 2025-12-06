@@ -14,13 +14,13 @@ interface UploadState {
   isUploading: boolean;
   error: string | null;
   progress:
-    | "idle"
-    | "uploading"
-    | "creating-record"
-    | "analyzing"
-    | "updating-metadata"
-    | "registering"
-    | "complete";
+  | "idle"
+  | "uploading"
+  | "creating-record"
+  | "analyzing"
+  | "updating-metadata"
+  | "registering"
+  | "complete";
 }
 
 export function useVideoUpload({
@@ -38,9 +38,6 @@ export function useVideoUpload({
 
   const isReady = Boolean(athleteId && athleteProfile);
 
-  /**
-   * Phase 1: Upload compressed video to Supabase, create asset record, trigger analysis
-   */
   const uploadAndAnalyze = async (compressedFile: File): Promise<string> => {
     if (!isReady || !athleteId) {
       throw new Error(
@@ -49,7 +46,6 @@ export function useVideoUpload({
     }
 
     try {
-      // Step 1: Generate signed upload URL
       setState({
         isUploading: true,
         error: null,
@@ -78,7 +74,6 @@ export function useVideoUpload({
 
       const { signedUrl, filePath } = await urlResponse.json();
 
-      // Step 2: Upload directly to Supabase Storage (bypasses Vercel)
       console.log(
         "[useVideoUpload] Uploading compressed video directly to Supabase..."
       );
@@ -95,13 +90,12 @@ export function useVideoUpload({
         throw new Error(`Direct upload failed: ${uploadResponse.statusText}`);
       }
 
-      // Step 3: Create asset record via API
       setState({
         isUploading: true,
         error: null,
         progress: "creating-record",
       });
-      
+
       console.log("[useVideoUpload] Creating asset record...");
 
       const recordResponse = await fetch("/api/create-asset-record", {
@@ -132,7 +126,6 @@ export function useVideoUpload({
       setUploadedVideoUrl(publicUrl);
       setAssetId(asset.id);
 
-      // Step 4: Trigger video analysis
       setState({
         isUploading: true,
         error: null,
@@ -145,7 +138,7 @@ export function useVideoUpload({
       setState({
         isUploading: false,
         error: null,
-        progress: "idle", // Ready for submission after analysis
+        progress: "idle",
       });
 
       return asset.id;
@@ -160,9 +153,6 @@ export function useVideoUpload({
     }
   };
 
-  /**
-   * Phase 2: Update asset metadata, register on Story Protocol
-   */
   const submitToStory = async (
     assetId: string,
     metadata: VideoDrillMetadata
@@ -172,7 +162,6 @@ export function useVideoUpload({
     }
 
     try {
-      // Step 1: Update asset metadata in Supabase
       setState({
         isUploading: true,
         error: null,
@@ -191,7 +180,6 @@ export function useVideoUpload({
         throw new Error(`Metadata update failed: ${updateError.message}`);
       }
 
-      // Step 2: Register on Story Protocol
       setState({
         isUploading: true,
         error: null,
@@ -200,7 +188,6 @@ export function useVideoUpload({
 
       console.log("[useVideoUpload] Registering on Story Protocol...");
 
-      // Get asset URL from Supabase
       const { data: asset } = await supabase
         .from("assets")
         .select("asset_url")
@@ -217,9 +204,9 @@ export function useVideoUpload({
           drillTypeId,
           experienceLevel: athleteProfile.competitive_level || "competitive",
           mediaUrl: asset?.asset_url,
-          mimeType: "video/mp4", // Default or inferred
+          mimeType: "video/mp4",
           licenseFee: 15.0,
-          metadata, // Full drill metadata for description generation
+          metadata,
         }),
       });
 
@@ -242,7 +229,6 @@ export function useVideoUpload({
         progress: "complete",
       });
 
-      // Redirect to asset page
       router.push(`/dashboard/assets/${assetId}`);
     } catch (err) {
       console.error("[useVideoUpload] Submit to Story failed:", err);

@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import { dashboardNavItems } from "@/config/navigation";
 import React from "react";
 
-// Sidebar Navigation Component
 function DashboardSidebar() {
   const { user } = useDynamicContext();
   const [isDesktop, setIsDesktop] = useState(false);
@@ -25,32 +24,32 @@ function DashboardSidebar() {
   }, []);
 
   const navLinks = useMemo(() => {
-      return dashboardNavItems.map((item) => {
-          const isActive = currentPath === item.href;
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-4 px-8 py-3 transition-all duration-200 group",
-                isActive
-                  ? "text-white font-bold text-lg"
-                  : "text-gray-500 hover:text-white font-medium text-base"
-              )}
-            >
-              <Icon
-                className={cn(
-                  "w-5 h-5 transition-colors",
-                  isActive
-                    ? "text-white"
-                    : "text-gray-500 group-hover:text-white"
-                )}
-              />
-              <span>{item.name}</span>
-            </Link>
-          );
-        });
+    return dashboardNavItems.map((item) => {
+      const isActive = currentPath === item.href;
+      const Icon = item.icon;
+      return (
+        <Link
+          key={item.href}
+          href={item.href}
+          className={cn(
+            "flex items-center gap-4 px-8 py-3 transition-all duration-200 group",
+            isActive
+              ? "text-white font-bold text-lg"
+              : "text-gray-500 hover:text-white font-medium text-base"
+          )}
+        >
+          <Icon
+            className={cn(
+              "w-5 h-5 transition-colors",
+              isActive
+                ? "text-white"
+                : "text-gray-500 group-hover:text-white"
+            )}
+          />
+          <span>{item.name}</span>
+        </Link>
+      );
+    });
   }, [currentPath]);
 
   return (

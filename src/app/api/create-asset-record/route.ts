@@ -8,7 +8,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { athleteId, drillTypeId, filePath, fileSize, mimeType } = body;
 
-    // Validation
     if (!athleteId || !drillTypeId || !filePath || !fileSize || !mimeType) {
       return NextResponse.json(
         { error: "Missing required fields (athleteId, drillTypeId, filePath, fileSize, mimeType)" },
@@ -25,12 +24,10 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServiceClient();
 
-    // Get public URL for the uploaded file
     const { data: { publicUrl } } = supabase.storage
       .from("kinich-assets")
       .getPublicUrl(filePath);
 
-    // Create the asset record in the database
     const { data: asset, error: insertError } = await supabase
       .from("assets")
       .insert({
@@ -38,7 +35,7 @@ export async function POST(request: NextRequest) {
         asset_type: "video",
         drill_type_id: drillTypeId,
         asset_url: publicUrl,
-        license_fee: 15.0, // Default fee
+        license_fee: 15.0,
         metadata: {
           video_metadata: {
             file_size_bytes: fileSize,
