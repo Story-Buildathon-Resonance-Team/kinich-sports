@@ -25,8 +25,8 @@ export function DashboardMobileHeader() {
     <>
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-[80] flex items-center justify-between px-6 py-4 transition-all duration-300 border-b border-transparent lg:hidden",
-          scrolled
+          "fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 py-4 transition-all duration-300 border-b border-transparent lg:hidden",
+          scrolled || mobileMenuOpen
             ? "bg-[#050505]/80 backdrop-blur-xl border-white/5"
             : "bg-[#050505]/80 backdrop-blur-xl border-white/5"
         )}
