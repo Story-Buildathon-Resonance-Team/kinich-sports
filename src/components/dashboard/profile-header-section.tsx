@@ -37,7 +37,7 @@ function ProfileHeaderSection({
 
         {/* Verification Card - Right Side (only show if not verified) */}
         {!athlete.world_id_verified && (
-          <div className='flex-1 lg:max-w-md'>
+          <div className='flex-1 lg:max-w-lg'>
             <VerificationCard
               athleteId={athlete.id}
               isWorldIdVerified={athlete.world_id_verified}

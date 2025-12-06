@@ -70,7 +70,7 @@ export default function AssetsPage() {
 
     if (!sdkHasLoaded || !user || isLoading) {
         return (
-            <div className="p-6 lg:p-8 max-w-[1600px] mx-auto space-y-8">
+            <div className="p-6 lg:p-8 w-full space-y-8">
                 <div className="flex justify-between items-end">
                     <div className="space-y-2">
                         <Skeleton className="h-8 w-48 rounded-lg bg-white/5" />

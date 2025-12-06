@@ -3,15 +3,12 @@
 import { useState } from "react";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useQuery } from "@tanstack/react-query";
-import FilterTabs from "@/components/dashboard/filter-tabs";
-import AssetCard from "@/components/dashboard/asset-card";
 import ProfileScoreDisplay from "@/components/dashboard/profile-score-display";
 import ProfileHeaderSection from "@/components/dashboard/profile-header-section";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Athlete, SyncAthleteRequest } from "@/lib/types/athlete";
 import {
   AlertCircle,
-  Plus,
   Activity,
   DollarSign,
   Layers,
@@ -20,8 +17,6 @@ import {
   BarChart3,
   LineChart,
 } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
 const PerformanceChart = dynamic(
@@ -57,35 +52,14 @@ interface DashboardData {
   assets: Asset[];
 }
 
-type FilterOption = "all" | "video" | "audio";
-
-const DEMO_ASSETS = [
-  {
-    id: "demo-1",
-    type: "video" as const,
-    title: "Demo: Burpee Max Effort",
-    price: 15,
-    duration: "1:00",
-    isDemo: true,
-  },
-  {
-    id: "demo-2",
-    type: "audio" as const,
-    title: "Demo: Identity Capsule - Origin Story",
-    price: 12,
-    duration: "3:45",
-    isDemo: true,
-  },
-];
-
-const performanceData = [
-  { name: "Mon", value: 4000 },
-  { name: "Tue", value: 3000 },
-  { name: "Wed", value: 5000 },
-  { name: "Thu", value: 2780 },
-  { name: "Fri", value: 1890 },
-  { name: "Sat", value: 6390 },
-  { name: "Sun", value: 8490 },
+const DEMO_PERFORMANCE_DATA = [
+  { name: "Mon", value: 0 },
+  { name: "Tue", value: 0 },
+  { name: "Wed", value: 0 },
+  { name: "Thu", value: 0 },
+  { name: "Fri", value: 0 },
+  { name: "Sat", value: 0 },
+  { name: "Sun", value: 0 },
 ];
 
 // Fetcher function for React Query
@@ -157,9 +131,7 @@ async function fetchDashboardDataApi(
 
 export default function AthleteDashboard() {
   const { user, primaryWallet, sdkHasLoaded } = useDynamicContext();
-  const [activeFilter, setActiveFilter] = useState<FilterOption>("all");
   const [chartType, setChartType] = useState<"area" | "bar">("area");
-  const router = useRouter();
 
   const {
     data: dashboardData,
@@ -181,34 +153,49 @@ export default function AthleteDashboard() {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  const formatDuration = (seconds?: number): string => {
-    if (!seconds) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
+  const generateChartData = (assets: Asset[]) => {
+    if (!assets || assets.length === 0) return [];
 
-  const transformAssetForCard = (asset: Asset) => {
-    const metadata = asset.metadata || {};
-    const title = metadata.drill_name || metadata.title || asset.drill_type_id;
-    let duration = "0:00";
-    if (metadata.video_metadata?.duration_seconds) {
-      duration = formatDuration(metadata.video_metadata.duration_seconds);
-    } else if (metadata.recording_duration_seconds) {
-      duration = formatDuration(metadata.recording_duration_seconds);
-    } else if (metadata.duration_seconds) {
-      duration = formatDuration(metadata.duration_seconds);
+    // Sort assets by date ascending
+    const sortedAssets = [...assets].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+
+    let cumulativeValue = 0;
+    const dataMap = new Map<string, number>();
+
+    sortedAssets.forEach((asset) => {
+      const date = new Date(asset.created_at).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+      cumulativeValue += Number(asset.license_fee) || 0;
+      dataMap.set(date, cumulativeValue);
+    });
+
+    // Convert map to array
+    const chartData = Array.from(dataMap.entries()).map(([name, value]) => ({
+      name,
+      value,
+    }));
+
+    // If only one data point, add a "start" point to make a line
+    if (chartData.length === 1) {
+        const firstDate = new Date(sortedAssets[0].created_at);
+        firstDate.setDate(firstDate.getDate() - 1);
+        chartData.unshift({
+            name: firstDate.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+            value: 0
+        });
     }
 
-    return {
-      id: asset.id,
-      type: asset.asset_type,
-      title,
-      price: asset.license_fee,
-      duration,
-      isDemo: false,
-    };
+    return chartData;
   };
+
+  // Calculate real chart data
+  const chartData = dashboardData?.assets && dashboardData.assets.length > 0
+    ? generateChartData(dashboardData.assets)
+    : DEMO_PERFORMANCE_DATA; // Fallback to minimal data if no assets
 
   if (!sdkHasLoaded || !user || isLoading) {
     return (
@@ -258,18 +245,6 @@ export default function AthleteDashboard() {
   }
 
   const { athlete, stats, assets } = dashboardData;
-
-  const isDemoMode = assets.length < 2;
-  const realAssets = assets.map(transformAssetForCard);
-  const demoAssetsToShow = isDemoMode
-    ? DEMO_ASSETS.slice(0, 2 - assets.length)
-    : [];
-  const allAssets = [...realAssets, ...demoAssetsToShow];
-
-  const filteredAssets =
-    activeFilter === "all"
-      ? allAssets
-      : allAssets.filter((asset) => asset.type === activeFilter);
 
   const audioCount = assets.filter(
     (asset) => asset.asset_type === "audio"
@@ -435,85 +410,9 @@ export default function AthleteDashboard() {
         </div>
 
         <div className='h-[350px] w-full'>
-          <PerformanceChart data={performanceData} type={chartType} />
+          <PerformanceChart data={chartData} type={chartType} />
         </div>
       </div>
-
-      <section>
-        {/* ... (Portfolio Header and Assets Grid remain same) ... */}
-        <div className='flex flex-col md:flex-row justify-between items-end gap-6 mb-8'>
-          <div>
-            <h2 className='text-2xl font-bold text-white mb-1'>Portfolio</h2>
-            <p className='text-sm text-gray-500'>
-              Manage your intellectual property assets.
-            </p>
-          </div>
-          <div className='flex items-center gap-4'>
-            <FilterTabs onFilterChange={(filter) => setActiveFilter(filter)} />
-            <Link
-              href='/dashboard/arena'
-              className='inline-flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)]'
-            >
-              <Plus className='w-4 h-4' />
-              Add New
-            </Link>
-          </div>
-        </div>
-
-        {isDemoMode && (
-          <div className='mb-8 bg-blue-900/10 border border-blue-500/20 rounded-xl p-4 flex items-center gap-4 animate-fade-in-up'>
-            <div className='w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400'>
-              <AlertCircle className='w-5 h-5' />
-            </div>
-            <div>
-              <p className='text-sm text-white font-medium'>Demo Mode Active</p>
-              <p className='text-xs text-gray-400'>
-                Upload your first performance data to unlock full potential.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {filteredAssets.length > 0 ? (
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
-            {filteredAssets.map((asset) => (
-              <div
-                key={asset.id}
-                className='relative animate-fade-in-up'
-                style={{ animationDelay: "100ms" }}
-              >
-                <AssetCard
-                  type={asset.type}
-                  title={asset.title}
-                  price={asset.price}
-                  duration={asset.duration}
-                  onClick={() => router.push(`/dashboard/assets/${asset.id}`)}
-                />
-                {"isDemo" in asset && asset.isDemo && (
-                  <div className='absolute top-3 right-3 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-lg'>
-                    Demo
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div>
-            <p className='text-lg text-white font-medium mb-2'>
-              No assets found
-            </p>
-            <p className='text-sm text-gray-500 mb-6'>
-              Start building your portfolio by recording your first drill.
-            </p>
-            <Link
-              href='/dashboard/arena'
-              className='text-sm text-blue-400 hover:text-blue-300 font-medium'
-            >
-              Go to Arena →
-            </Link>
-          </div>
-        )}
-      </section>
     </div>
   );
 }
