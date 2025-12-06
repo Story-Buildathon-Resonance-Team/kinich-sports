@@ -4,17 +4,15 @@ import Link from "next/link";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { dashboardNavItems } from "@/config/navigation";
 
-interface DashboardSidebarProps {
-  currentPath: string;
-}
-
 // Sidebar Navigation Component
-export function DashboardSidebar({ currentPath }: DashboardSidebarProps) {
+export function DashboardSidebar() {
   const { user } = useDynamicContext();
   const [isDesktop, setIsDesktop] = useState(false);
+  const currentPath = usePathname();
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 1024px)");

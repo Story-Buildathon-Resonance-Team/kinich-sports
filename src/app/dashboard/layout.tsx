@@ -12,32 +12,14 @@ export default function DashboardLayout({
 }) {
   return (
     <AnalysisProvider>
-      {/* Sidebar is now provided at the layout level, but wait...
-          DashboardSidebar has 'currentPath' prop.
-          However, we can't easily get pathname in server component layout or client component layout without hook.
-          Let's make a client wrapper for the sidebar if needed, or just use the usePathname inside DashboardSidebar.
-          Actually DashboardSidebar takes currentPath as prop. I should refactor it to use usePathname internally.
-       */}
-       {/* Refactoring Sidebar to use usePathname internally is better. */}
-      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+      <div className="min-h-screen bg-[#050505] flex">
+        <DashboardSidebar />
+        <div className="flex-1 lg:ml-64 min-h-screen flex flex-col overflow-x-hidden pt-16 lg:pt-0">
+          <DashboardMobileHeader />
+          {children}
+        </div>
+      </div>
       <Toaster position="bottom-right" theme="dark" />
     </AnalysisProvider>
   );
 }
-
-import { usePathname } from "next/navigation";
-
-function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-
-    return (
-        <div className="min-h-screen bg-[#050505] flex">
-            <DashboardSidebar currentPath={pathname} />
-            <div className="flex-1 lg:ml-64 min-h-screen flex flex-col overflow-x-hidden pt-16 lg:pt-0">
-                <DashboardMobileHeader />
-                {children}
-            </div>
-        </div>
-    );
-}
-

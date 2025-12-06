@@ -9,7 +9,14 @@ import type { VideoDrillMetadata } from "@/lib/types/video";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const text = await request.text();
+    if (!text) {
+        return NextResponse.json(
+            { error: "Empty request body" },
+            { status: 400 }
+        );
+    }
+    const body = JSON.parse(text);
 
     const {
       assetId,

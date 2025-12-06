@@ -96,7 +96,15 @@ export default function AssetPage() {
           .from("assets")
           .select(
             `
-            *,
+            id,
+            asset_type,
+            asset_url,
+            license_fee,
+            status,
+            story_ip_id,
+            story_tx_hash,
+            metadata,
+            athlete_id,
             athletes:athlete_id (
               world_id_verified
             )

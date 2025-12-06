@@ -61,26 +61,8 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const counterRef = useRef<BurpeeCounter | null>(null);
   const requestRef = useRef<number>(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const landmarker = await getPoseLandmarker();
-        landmarkerRef.current = landmarker;
-        counterRef.current = new BurpeeCounter();
-        console.log("MediaPipe Pose Landmarker loaded (Background Context)");
-      } catch (error) {
-        console.error("Failed to load MediaPipe:", error);
-        toast.error("Failed to load AI models");
-      }
-    }
-    load();
-
-    return () => {
-      if (requestRef.current) {
-        cancelAnimationFrame(requestRef.current);
-      }
-    };
-  }, []);
+  // Removed useEffect for auto-loading on mount
+  // Models will be loaded when startProcessing is called
 
   const resetAnalysis = () => {
     setMetadata(null);
@@ -99,14 +81,14 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const compressVideo = async (file: File) => {
     setIsCompressing(true);
     setCompressionProgress(0);
-    
+
     try {
       // Start compression in background
       console.log("Starting background video compression...");
       const result = await NativeCompressionService.compressVideo(file, (p) => {
         setCompressionProgress(p);
       });
-      
+
       console.log("Compression complete:", result.name, result.size);
       setCompressedFile(result);
       toast.success("Video Compressed & Ready for Upload", {
@@ -187,9 +169,26 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   };
 
   const startProcessing = async () => {
-    if (!videoRef.current || !landmarkerRef.current) return;
+    if (!videoRef.current) return;
 
     setIsProcessing(true);
+
+    // Lazy load MediaPipe models only when needed
+    if (!landmarkerRef.current) {
+      try {
+        console.log("Lazy loading MediaPipe Pose Landmarker...");
+        const landmarker = await getPoseLandmarker();
+        landmarkerRef.current = landmarker;
+        counterRef.current = new BurpeeCounter();
+        console.log("MediaPipe Pose Landmarker loaded successfully");
+      } catch (error) {
+        console.error("Failed to load MediaPipe:", error);
+        toast.error("Failed to load AI models");
+        setIsProcessing(false);
+        return;
+      }
+    }
+
     const video = videoRef.current;
 
     if (video.videoWidth === 0) {
@@ -262,6 +261,14 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
     requestRef.current = requestAnimationFrame(processFrame);
   };
+
+  useEffect(() => {
+    return () => {
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
+    };
+  }, []);
 
   return (
     <AnalysisContext.Provider value={{
