@@ -10,11 +10,18 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
  */
 export function createServiceClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
+  // Support both variable names for the service role key
+  const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl || !supabaseSecretKey) {
+  if (!supabaseUrl) {
     throw new Error(
-      "Missing Supabase credentials: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY"
+      "Missing Supabase URL: NEXT_PUBLIC_SUPABASE_URL"
+    );
+  }
+
+  if (!supabaseSecretKey) {
+    throw new Error(
+      "Missing Supabase Service Key: SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY"
     );
   }
 

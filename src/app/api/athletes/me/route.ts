@@ -15,10 +15,10 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Fetch athlete data
+    // Fetch athlete data first
     const { data: athlete, error: athleteError } = await supabase
       .from("athletes")
-      .select("*")
+      .select("id, dynamic_user_id, name, discipline, competitive_level, profile_score, world_id_verified, world_id_verified_at")
       .eq("dynamic_user_id", dynamicUserId)
       .single();
 
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     // Fetch asset count
     const { count: assetCount, error: countError } = await supabase
       .from("assets")
-      .select("*", { count: "exact", head: true })
+      .select("id", { count: "exact", head: true }) // Fetch only ID for count
       .eq("athlete_id", athlete.id)
       .eq("status", "active");
 

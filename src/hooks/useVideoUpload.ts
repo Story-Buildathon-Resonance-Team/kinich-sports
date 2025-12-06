@@ -95,7 +95,13 @@ export function useVideoUpload({
         throw new Error(`Direct upload failed: ${uploadResponse.statusText}`);
       }
 
-      // Step 3: Create asset record
+      // Step 3: Create asset record via API
+      setState({
+        isUploading: true,
+        error: null,
+        progress: "creating-record",
+      });
+      
       console.log("[useVideoUpload] Creating asset record...");
 
       const recordResponse = await fetch("/api/create-asset-record", {
@@ -117,47 +123,16 @@ export function useVideoUpload({
         );
       }
 
-      const uploadResult = await recordResponse.json();
+      const { asset, publicUrl } = await recordResponse.json();
       console.log(
-        "[useVideoUpload] Upload successful:",
-        uploadResult.publicUrl
+        "[useVideoUpload] Upload successful. Asset created:",
+        asset.id
       );
 
-      const publicUrl = uploadResult.publicUrl;
       setUploadedVideoUrl(publicUrl);
-
-      // Step 4: Create database asset record (status: pending, empty metadata)
-      setState({
-        isUploading: true,
-        error: null,
-        progress: "creating-record",
-      });
-
-      console.log("[useVideoUpload] Creating database asset record...");
-
-      const supabase = createClient();
-      const { data: asset, error: assetError } = await supabase
-        .from("assets")
-        .insert({
-          athlete_id: athleteId,
-          asset_type: "video",
-          drill_type_id: drillTypeId,
-          asset_url: publicUrl,
-          license_fee: 15.0, // Default fee
-          metadata: {}, // Empty metadata - will be populated after analysis
-          status: "pending",
-        })
-        .select()
-        .single();
-
-      if (assetError || !asset) {
-        throw new Error(`Database insert failed: ${assetError?.message}`);
-      }
-
-      console.log("[useVideoUpload] Asset created:", asset.id);
       setAssetId(asset.id);
 
-      // Step 5: Trigger video analysis
+      // Step 4: Trigger video analysis
       setState({
         isUploading: true,
         error: null,
@@ -242,7 +217,7 @@ export function useVideoUpload({
           drillTypeId,
           experienceLevel: athleteProfile.competitive_level || "competitive",
           mediaUrl: asset?.asset_url,
-          mimeType: "video/mp4",
+          mimeType: "video/mp4", // Default or inferred
           licenseFee: 15.0,
           metadata, // Full drill metadata for description generation
         }),
