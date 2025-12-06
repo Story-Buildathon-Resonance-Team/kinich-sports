@@ -111,7 +111,10 @@ export default function AssetDetailPage() {
   if (error || !asset) {
     return (
       <div className='min-h-[calc(100vh-100px)] p-8'>
-        <Card variant='default' className='p-8 text-center max-w-[600px] mx-auto mt-20'>
+        <Card
+          variant='default'
+          className='p-8 text-center max-w-[600px] mx-auto mt-20'
+        >
           <div className='flex justify-center mb-4'>
             <AlertCircle className='w-12 h-12 text-orange-400' />
           </div>
@@ -139,42 +142,52 @@ export default function AssetDetailPage() {
       : (asset.metadata as VideoDrillMetadata);
 
   const worldIdVerified = asset.athletes?.world_id_verified ?? false;
-  const drillName = asset.asset_type === "audio" 
-    ? (metadata as AudioCapsuleMetadata).drill_type_id 
-    : (metadata as VideoDrillMetadata).drill_type_id;
+  const drillName =
+    asset.asset_type === "audio"
+      ? (metadata as AudioCapsuleMetadata).drill_type_id
+      : (metadata as VideoDrillMetadata).drill_type_id;
 
   // Colors based on asset type
-  const accentColor = asset.asset_type === "video" ? "border-blue-500/30" : "border-purple-500/30";
-  const iconBg = asset.asset_type === "video" ? "bg-blue-500/10" : "bg-purple-500/10";
-  const iconText = asset.asset_type === "video" ? "text-blue-400" : "text-purple-400";
+  const accentColor =
+    asset.asset_type === "video"
+      ? "border-blue-500/30"
+      : "border-purple-500/30";
+  const iconBg =
+    asset.asset_type === "video" ? "bg-blue-500/10" : "bg-purple-500/10";
+  const iconText =
+    asset.asset_type === "video" ? "text-blue-400" : "text-purple-400";
 
   return (
-    <div ref={containerRef} className='p-6 lg:p-8 max-w-[1600px] mx-auto min-h-screen'>
-      <div className="flex items-center justify-between mb-8">
-        <button 
+    <div
+      ref={containerRef}
+      className='p-6 lg:p-8 max-w-[1600px] mx-auto min-h-screen'
+    >
+      <div className='flex items-center justify-between mb-8'>
+        <button
           onClick={() => router.push("/dashboard/assets")}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group px-4 py-2 rounded-lg hover:bg-white/5"
+          className='flex items-center gap-2 text-gray-400 hover:text-white transition-colors group px-4 py-2 rounded-lg hover:bg-white/5'
         >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm font-medium">Back to Assets</span>
+          <ArrowLeft className='w-4 h-4 group-hover:-translate-x-1 transition-transform' />
+          <span className='text-sm font-medium'>Back to Assets</span>
         </button>
 
-        <div className="flex items-center gap-3">
-           <span className={`px-3 py-1 rounded-full text-xs font-mono border ${accentColor} ${iconBg} ${iconText}`}>
-             {asset.asset_type.toUpperCase()}
-           </span>
-           <button className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-             <Share2 className="w-4 h-4" />
-           </button>
+        <div className='flex items-center gap-3'>
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-mono border ${accentColor} ${iconBg} ${iconText}`}
+          >
+            {asset.asset_type.toUpperCase()}
+          </span>
+          <button className='p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors'>
+            <Share2 className='w-4 h-4' />
+          </button>
         </div>
       </div>
 
       <div className='grid grid-cols-1 xl:grid-cols-12 gap-8'>
         <div className='xl:col-span-8 space-y-6'>
-          
-          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-2xl">
-             {asset.asset_type === "audio" ? (
-              <div className="p-8">
+          <div className='relative overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-2xl'>
+            {asset.asset_type === "audio" ? (
+              <div className='p-8'>
                 <AssetAudioPlayer
                   audioUrl={asset.asset_url}
                   challengeName={drillName}
@@ -188,52 +201,63 @@ export default function AssetDetailPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-             <div className="bg-[#0a0a0a] border border-white/5 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Discipline</p>
-                <p className="text-white font-medium">{metadata.athlete_profile.discipline}</p>
-             </div>
-             <div className="bg-[#0a0a0a] border border-white/5 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Level</p>
-                <p className="text-white font-medium capitalize">{metadata.athlete_profile.experience_level}</p>
-             </div>
-             <div className="bg-[#0a0a0a] border border-white/5 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Processed</p>
-                <p className="text-white font-medium">
-                  {new Date(asset.created_at || Date.now()).toLocaleDateString()}
-                </p>
-             </div>
-             <div className="bg-[#0a0a0a] border border-white/5 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Status</p>
-                <p className="text-emerald-400 font-medium capitalize flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  {asset.status}
-                </p>
-             </div>
+          <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+            <div className='bg-[#0a0a0a] border border-white/5 rounded-xl p-4'>
+              <p className='text-xs text-gray-500 uppercase tracking-wider mb-1'>
+                Discipline
+              </p>
+              <p className='text-white font-medium'>
+                {metadata.athlete_profile.discipline}
+              </p>
+            </div>
+            <div className='bg-[#0a0a0a] border border-white/5 rounded-xl p-4'>
+              <p className='text-xs text-gray-500 uppercase tracking-wider mb-1'>
+                Level
+              </p>
+              <p className='text-white font-medium capitalize'>
+                {metadata.athlete_profile.experience_level}
+              </p>
+            </div>
+            <div className='bg-[#0a0a0a] border border-white/5 rounded-xl p-4'>
+              <p className='text-xs text-gray-500 uppercase tracking-wider mb-1'>
+                Processed
+              </p>
+              <p className='text-white font-medium'>
+                {new Date(asset.created_at || Date.now()).toLocaleDateString()}
+              </p>
+            </div>
+            <div className='bg-[#0a0a0a] border border-white/5 rounded-xl p-4'>
+              <p className='text-xs text-gray-500 uppercase tracking-wider mb-1'>
+                Status
+              </p>
+              <p className='text-emerald-400 font-medium capitalize flex items-center gap-2'>
+                <span className='w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse'></span>
+                {asset.status}
+              </p>
+            </div>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
-             <div className="px-6 py-4 border-b border-white/5 bg-white/[0.02]">
-               <h3 className="font-medium text-white">Analysis Data</h3>
-             </div>
-             <div className="p-6">
-                {asset.asset_type === "audio" ? (
-                  <AudioMetadataDisplay
-                    metadata={metadata as AudioCapsuleMetadata}
-                    audioUrl={asset.asset_url}
-                  />
-                ) : (
-                  <VideoMetadataDisplay
-                    metadata={metadata as VideoDrillMetadata}
-                    worldIdVerified={worldIdVerified}
-                  />
-                )}
-             </div>
+          <div className='bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden'>
+            <div className='px-6 py-4 border-b border-white/5 bg-white/[0.02]'>
+              <h3 className='font-medium text-white'>Analysis Data</h3>
+            </div>
+            <div className='p-6'>
+              {asset.asset_type === "audio" ? (
+                <AudioMetadataDisplay
+                  metadata={metadata as AudioCapsuleMetadata}
+                  audioUrl={asset.asset_url}
+                />
+              ) : (
+                <VideoMetadataDisplay
+                  metadata={metadata as VideoDrillMetadata}
+                  worldIdVerified={worldIdVerified}
+                />
+              )}
+            </div>
           </div>
         </div>
 
         <div className='xl:col-span-4 space-y-6'>
-          
           <StoryRegistrationStatus
             storyIpId={asset.story_ip_id}
             storyTxHash={asset.story_tx_hash}
@@ -244,17 +268,6 @@ export default function AssetDetailPage() {
             licenseFee={Number(asset.license_fee)}
             storyIpId={asset.story_ip_id}
           />
-
-          <div className="bg-gradient-to-br from-blue-900/10 to-purple-900/10 border border-white/10 rounded-2xl p-6">
-             <h4 className="text-white font-medium mb-2">Monetization</h4>
-             <p className="text-sm text-gray-400 mb-4">
-               This asset is registered on Story Protocol. Set your terms to start earning royalties.
-             </p>
-             <button className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm font-medium text-white transition-colors">
-               Manage Terms
-             </button>
-          </div>
-
         </div>
       </div>
     </div>
