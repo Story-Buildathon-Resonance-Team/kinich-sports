@@ -494,7 +494,7 @@ export default function AthleteDashboard() {
                   title={asset.title}
                   price={asset.price}
                   duration={asset.duration}
-                  onClick={() => router.push(`/asset/${asset.id}`)}
+                  onClick={() => router.push(`/dashboard/assets/${asset.id}`)}
                 />
                 {"isDemo" in asset && asset.isDemo && (
                   <div className='absolute top-3 right-3 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-lg'>
