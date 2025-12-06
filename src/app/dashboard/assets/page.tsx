@@ -5,8 +5,9 @@ import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, Video, Mic, Play, ChevronRight, Clock, Calendar } from "lucide-react";
+import { AlertCircle, Video, Mic, Play, ChevronRight, Clock, Calendar, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
+import FilterTabs from "@/components/dashboard/filter-tabs"; // Import our newly memoized FilterTabs
 
 interface Asset {
     id: string;
@@ -46,6 +47,7 @@ async function fetchAssetsApi(userId: string): Promise<Asset[]> {
 export default function AssetsPage() {
     const { user, sdkHasLoaded } = useDynamicContext();
     const router = useRouter();
+    const [activeFilter, setActiveFilter] = useState<"all" | "video" | "audio">("all");
 
     const {
         data: assets,
@@ -60,15 +62,26 @@ export default function AssetsPage() {
         enabled: !!user?.userId,
     });
 
+    const filteredAssets = assets?.filter(asset => {
+        if (activeFilter === "all") return true;
+        return asset.asset_type === activeFilter;
+    });
+
     if (!sdkHasLoaded || !user || isLoading) {
         return (
-            <div className="p-8 space-y-4 max-w-5xl mx-auto">
-                <div className="flex justify-between items-center mb-8">
-                    <Skeleton className="h-10 w-48 rounded-lg bg-white/5" />
+            <div className="p-6 lg:p-8 max-w-[1600px] mx-auto space-y-8">
+                <div className="flex justify-between items-end">
+                    <div className="space-y-2">
+                         <Skeleton className="h-8 w-48 rounded-lg bg-white/5" />
+                         <Skeleton className="h-4 w-64 rounded-lg bg-white/5" />
+                    </div>
+                     <Skeleton className="h-10 w-48 rounded-lg bg-white/5" />
                 </div>
-                {[1, 2, 3, 4].map((i) => (
-                    <Skeleton key={i} className="h-24 w-full rounded-xl bg-white/5" />
-                ))}
+                <div className="space-y-3">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <Skeleton key={i} className="h-24 w-full rounded-xl bg-white/5" />
+                    ))}
+                </div>
             </div>
         );
     }
@@ -104,26 +117,40 @@ export default function AssetsPage() {
 
     return (
         <div className="p-6 lg:p-8 max-w-[1600px] mx-auto animate-fade-in-up">
-            <div className="flex justify-between items-end mb-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-white tracking-tight">Your Assets</h1>
                     <p className="text-gray-400 mt-1">Manage your registered IP performance data</p>
                 </div>
+                 <FilterTabs 
+                    defaultFilter="all"
+                    onFilterChange={(filter) => setActiveFilter(filter)}
+                />
             </div>
 
-            {!assets || assets.length === 0 ? (
+            {!filteredAssets || filteredAssets.length === 0 ? (
                 <div className="text-center py-20 border border-dashed border-white/10 rounded-2xl bg-white/5">
-                    <p className="text-gray-400 mb-4">No assets found in your portfolio.</p>
-                    <button
-                        onClick={() => router.push("/dashboard/arena")}
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors"
-                    >
-                        Go to Arena
-                    </button>
+                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-500">
+                        <SlidersHorizontal className="w-8 h-8" />
+                    </div>
+                    <p className="text-white font-medium mb-1">No assets found</p>
+                    <p className="text-gray-400 mb-6 text-sm max-w-md mx-auto">
+                        {assets && assets.length > 0 
+                            ? `No ${activeFilter} assets found in your portfolio.` 
+                            : "Start building your portfolio by recording your first drill."}
+                    </p>
+                    {(assets && assets.length === 0) && (
+                        <button
+                            onClick={() => router.push("/dashboard/arena")}
+                            className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors"
+                        >
+                            Go to Arena
+                        </button>
+                    )}
                 </div>
             ) : (
                 <div className="flex flex-col gap-3">
-                    {assets.map((asset) => {
+                    {filteredAssets.map((asset) => {
                         const metadata = asset.metadata || {};
                         const title = metadata.drill_name || metadata.challenge_name || metadata.title || asset.drill_type_id;
                         const isVideo = asset.asset_type === "video";

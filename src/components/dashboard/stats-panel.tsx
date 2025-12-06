@@ -1,3 +1,5 @@
+import React from "react";
+
 interface StatItemProps {
   label: string;
   value: string | number;
@@ -25,7 +27,7 @@ function StatItem({ label, value, unit, barPercentage }: StatItemProps) {
 
       {barPercentage !== undefined && (
         <div className='w-full h-1.5 bg-white/5 rounded-full mt-3 overflow-hidden'>
-          <div
+        <div
             className='h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-1000 ease-out group-hover:shadow-[0_0_10px_rgba(59,130,246,0.5)]'
             style={{ width: `${barPercentage}%` }}
           />
@@ -39,7 +41,7 @@ interface StatsPanelProps {
   stats: StatItemProps[];
 }
 
-export function StatsPanel({ stats }: StatsPanelProps) {
+function StatsPanel({ stats }: StatsPanelProps) {
   return (
     <div className="space-y-6 border-t border-white/5 pt-6">
       {stats.map((stat, index) => (
@@ -48,3 +50,5 @@ export function StatsPanel({ stats }: StatsPanelProps) {
     </div>
   );
 }
+
+export default React.memo(StatsPanel);

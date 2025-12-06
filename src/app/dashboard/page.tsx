@@ -7,8 +7,8 @@ import {
   FilterTabs,
   AssetCard,
   ProfileScoreDisplay,
-  ProfileHeaderSection,
 } from "@/components/dashboard";
+import ProfileHeaderSection from "@/components/dashboard/profile-header-section";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Athlete, SyncAthleteRequest } from "@/lib/types/athlete";
 import {

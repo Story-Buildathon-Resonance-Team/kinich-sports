@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import React from "react";
 
 type FilterOption = "all" | "video" | "audio";
 
@@ -9,7 +10,7 @@ interface FilterTabsProps {
   onFilterChange?: (filter: FilterOption) => void;
 }
 
-export function FilterTabs({
+function FilterTabs({
   defaultFilter = "all",
   onFilterChange,
 }: FilterTabsProps) {
@@ -51,3 +52,5 @@ export function FilterTabs({
     </div>
   );
 }
+
+export default React.memo(FilterTabs);

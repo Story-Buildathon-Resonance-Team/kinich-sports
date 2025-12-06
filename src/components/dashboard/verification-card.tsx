@@ -2,6 +2,7 @@
 
 import { Card } from "../custom/card";
 import WorldIdVerify from "../custom/world-id-verify";
+import React from "react";
 
 interface VerificationCardProps {
   athleteId: string;
@@ -10,7 +11,7 @@ interface VerificationCardProps {
   onVerificationSuccess?: () => void;
 }
 
-export function VerificationCard({
+function VerificationCard({
   athleteId,
   isWorldIdVerified,
   verifiedAt,
@@ -37,3 +38,5 @@ export function VerificationCard({
     </Card>
   );
 }
+
+export default React.memo(VerificationCard);
