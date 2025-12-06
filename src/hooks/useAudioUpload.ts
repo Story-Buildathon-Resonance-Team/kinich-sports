@@ -163,7 +163,7 @@ export function useAudioUpload({
         progress: "complete",
       });
 
-      router.push(`/asset/${asset.id}`);
+      router.push(`/dashboard/assets/${asset.id}`);
     } catch (err) {
       console.error("[useAudioUpload] Upload failed:", err);
       setState({
