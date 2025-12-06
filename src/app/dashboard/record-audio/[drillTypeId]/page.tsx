@@ -39,9 +39,9 @@ export default function AudioSubmissionPage() {
     athleteId: athleteId || null,
     athleteProfile: athleteProfile
       ? {
-        ...athleteProfile,
-        wallet_address: user?.verifiedCredentials?.[0]?.address,
-      }
+          ...athleteProfile,
+          wallet_address: user?.verifiedCredentials?.[0]?.address,
+        }
       : null,
   });
 
@@ -172,7 +172,7 @@ export default function AudioSubmissionPage() {
               {loadingError}
             </p>
             <button
-              onClick={() => router.push("/arena")}
+              onClick={() => router.push("/dashboard/arena")}
               className='
                 bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
                 border border-[rgba(184,212,240,0.2)]
@@ -204,7 +204,7 @@ export default function AudioSubmissionPage() {
               performance as IP.
             </p>
             <button
-              onClick={() => router.push("/arena")}
+              onClick={() => router.push("/dashboard/arena")}
               className='
                 mt-6
                 bg-transparent
