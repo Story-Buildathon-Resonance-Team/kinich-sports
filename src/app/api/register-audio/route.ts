@@ -8,7 +8,14 @@ import { recalculateAthleteScoreSafe } from "@/lib/scoring/calculateProfileScore
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const text = await request.text();
+    if (!text) {
+      return NextResponse.json(
+        { error: "Empty request body" },
+        { status: 400 }
+      );
+    }
+    const body = JSON.parse(text);
 
     const {
       assetId,
@@ -34,6 +41,15 @@ export async function POST(request: NextRequest) {
       !licenseFee ||
       !verificationMethod
     ) {
+      console.error("[Register Audio] Missing fields:", {
+        assetId: !!assetId,
+        athleteWallet: !!athleteWallet,
+        athleteName: !!athleteName,
+        drillTypeId: !!drillTypeId,
+        mediaUrl: !!mediaUrl,
+        licenseFee: !!licenseFee,
+        verificationMethod: !!verificationMethod
+      });
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }

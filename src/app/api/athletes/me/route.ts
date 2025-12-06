@@ -37,6 +37,18 @@ export async function GET(request: NextRequest) {
       console.error("Error fetching asset count:", countError);
     }
 
+    // Fetch verified video count
+    const { count: verifiedVideoCount, error: videoError } = await supabase
+      .from("assets")
+      .select("id", { count: "exact", head: true })
+      .eq("athlete_id", athlete.id)
+      .eq("asset_type", "video")
+      .eq("cv_verified", true);
+
+    if (videoError) {
+      console.error("Error fetching verified video count:", videoError);
+    }
+
     // Calculate stats
     const stats = {
       profileScore: athlete.profile_score || 0, // Real score from database
@@ -45,7 +57,10 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json({
-      athlete,
+      athlete: {
+        ...athlete,
+        has_verified_video: (verifiedVideoCount || 0) > 0,
+      },
       stats,
     });
   } catch (error) {

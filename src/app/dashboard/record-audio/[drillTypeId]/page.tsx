@@ -37,7 +37,12 @@ export default function AudioSubmissionPage() {
   const uploadHook = useAudioUpload({
     challenge: challenge || null,
     athleteId: athleteId || null,
-    athleteProfile: athleteProfile || null,
+    athleteProfile: athleteProfile
+      ? {
+        ...athleteProfile,
+        wallet_address: user?.verifiedCredentials?.[0]?.address,
+      }
+      : null,
   });
 
   useEffect(() => {

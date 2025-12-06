@@ -108,8 +108,8 @@ export async function GET(request: NextRequest) {
 
     const data: StoryAPIResponse = await response.json();
 
-    // Check if IP asset exists
     if (!data.data || data.data.length === 0) {
+      console.log(`[Story API] IP asset not found: ${ipId}`);
       return NextResponse.json(
         { error: "IP asset not found" },
         { status: 404 }
