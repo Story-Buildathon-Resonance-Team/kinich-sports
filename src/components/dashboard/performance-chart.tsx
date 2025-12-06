@@ -1,5 +1,4 @@
-"use client";
-
+import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 interface PerformanceChartProps {
@@ -7,12 +6,12 @@ interface PerformanceChartProps {
     type: "area" | "bar";
 }
 
-export default function PerformanceChart({ data, type }: PerformanceChartProps) {
+function PerformanceChart({ data, type }: PerformanceChartProps) {
     return (
         <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
                 {type === 'area' ? (
-                    <AreaChart data={data}>
+                    <AreaChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                         <defs>
                             <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
@@ -49,10 +48,11 @@ export default function PerformanceChart({ data, type }: PerformanceChartProps) 
                             strokeWidth={3}
                             fillOpacity={1}
                             fill="url(#colorValue)"
+                            animationDuration={1000}
                         />
                     </AreaChart>
                 ) : (
-                    <BarChart data={data}>
+                    <BarChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
                         <XAxis
                             dataKey="name"
@@ -81,6 +81,7 @@ export default function PerformanceChart({ data, type }: PerformanceChartProps) 
                             fill="#3b82f6"
                             radius={[4, 4, 0, 0]}
                             maxBarSize={50}
+                            animationDuration={1000}
                         />
                     </BarChart>
                 )}
@@ -88,4 +89,6 @@ export default function PerformanceChart({ data, type }: PerformanceChartProps) 
         </div>
     );
 }
+
+export default React.memo(PerformanceChart);
 

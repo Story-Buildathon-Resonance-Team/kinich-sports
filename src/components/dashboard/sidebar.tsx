@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { dashboardNavItems } from "@/config/navigation";
+import React from "react";
 
 // Sidebar Navigation Component
-export function DashboardSidebar() {
+function DashboardSidebar() {
   const { user } = useDynamicContext();
   const [isDesktop, setIsDesktop] = useState(false);
   const currentPath = usePathname();
@@ -23,20 +24,8 @@ export function DashboardSidebar() {
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
-  return (
-    <aside className='fixed left-0 top-0 h-full w-64 bg-[#080808] border-r border-white/10 flex flex-col z-50 hidden lg:flex shadow-2xl'>
-      <div className='p-8 mb-4'>
-        <Link
-          href='/'
-          className='text-2xl font-bold tracking-tight text-white flex items-center gap-2 group'
-        >
-          <span className='text-white font-mono tracking-wider'>KINICH</span>
-          <div className='h-2 w-2 rounded-full bg-blue-600 group-hover:bg-orange-500 transition-colors duration-300' />
-        </Link>
-      </div>
-
-      <nav className='flex-1 space-y-2 mt-8'>
-        {dashboardNavItems.map((item) => {
+  const navLinks = useMemo(() => {
+      return dashboardNavItems.map((item) => {
           const isActive = currentPath === item.href;
           const Icon = item.icon;
           return (
@@ -61,7 +50,23 @@ export function DashboardSidebar() {
               <span>{item.name}</span>
             </Link>
           );
-        })}
+        });
+  }, [currentPath]);
+
+  return (
+    <aside className='fixed left-0 top-0 h-full w-64 bg-[#080808] border-r border-white/10 flex flex-col z-50 hidden lg:flex shadow-2xl'>
+      <div className='p-8 mb-4'>
+        <Link
+          href='/'
+          className='text-2xl font-bold tracking-tight text-white flex items-center gap-2 group'
+        >
+          <span className='text-white font-mono tracking-wider'>KINICH</span>
+          <div className='h-2 w-2 rounded-full bg-blue-600 group-hover:bg-orange-500 transition-colors duration-300' />
+        </Link>
+      </div>
+
+      <nav className='flex-1 space-y-2 mt-8'>
+        {navLinks}
       </nav>
 
       <div className='px-8 pt-8 pb-16 mt-auto space-y-4 border-t border-white/5 bg-[#080808]'>
@@ -75,3 +80,6 @@ export function DashboardSidebar() {
     </aside>
   );
 }
+
+export const Sidebar = React.memo(DashboardSidebar);
+export { DashboardSidebar };

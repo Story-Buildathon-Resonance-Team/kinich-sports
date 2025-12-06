@@ -1,6 +1,6 @@
-import { HeroSection } from "@/components/custom/hero-section";
-import { StatCard } from "@/components/custom/stat-card";
-import { FeatureCard } from "@/components/custom/feature-card";
+import HeroSection from "@/components/custom/hero-section";
+import StatCard from "@/components/custom/stat-card";
+import FeatureCard from "@/components/custom/feature-card";
 import { ButtonCobalt } from "@/components/custom/button-cobalt";
 import { Navigation } from "@/components/custom/navigation";
 

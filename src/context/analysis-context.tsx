@@ -270,8 +270,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  return (
-    <AnalysisContext.Provider value={{
+  const contextValue = {
       setCanvasRef,
       isProcessing,
       progress,
@@ -293,7 +292,10 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       uploadedVideoUrl,
       setAssetId,
       setUploadedVideoUrl
-    }}>
+    };
+
+  return (
+    <AnalysisContext.Provider value={contextValue}>
       {children}
       <div style={{ display: 'none' }}>
         {videoSrc && (
