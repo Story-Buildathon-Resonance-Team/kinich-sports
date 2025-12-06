@@ -44,8 +44,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("[Register Video] Starting registration for asset:", assetId);
-
     const drill = getDrillById(drillTypeId);
     if (!drill || drill.asset_type !== "video") {
       return NextResponse.json(
@@ -85,7 +83,6 @@ export async function POST(request: NextRequest) {
       assetType: "video",
     });
 
-    console.log("[Register Video] Calling registerIPAsset");
     const result = await registerIPAsset({
       athleteWallet: athleteWallet as Address,
       athleteName,
@@ -101,8 +98,6 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    console.log("[Register Video] IP registered:", result.ipId);
 
     const supabase = await createClient();
     const { error: updateError } = await supabase
@@ -129,9 +124,7 @@ export async function POST(request: NextRequest) {
     if (asset) {
       const scoreResult = await recalculateAthleteScoreSafe(asset.athlete_id);
       if (scoreResult.success) {
-        console.log(
-          `[Register Video] Profile score updated: ${scoreResult.score}`
-        );
+        // Score updated silently
       }
     }
 

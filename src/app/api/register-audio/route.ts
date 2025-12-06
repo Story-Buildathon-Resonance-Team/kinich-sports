@@ -74,8 +74,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("[Register Audio] Starting registration");
-
     const drill = getDrillById(drillTypeId);
     if (!drill || drill.asset_type !== "audio") {
       return NextResponse.json(
@@ -124,8 +122,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("[Register Audio] IP registered:", result.ipId);
-
     const supabase = await createClient();
     const { error: updateError } = await supabase
       .from("assets")
@@ -151,9 +147,7 @@ export async function POST(request: NextRequest) {
     if (asset) {
       const scoreResult = await recalculateAthleteScoreSafe(asset.athlete_id);
       if (scoreResult.success) {
-        console.log(
-          `Profile score updated after audio registration: ${scoreResult.score}`
-        );
+        // Score updated silently
       }
     }
 

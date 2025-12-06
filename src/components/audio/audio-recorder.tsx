@@ -53,8 +53,6 @@ export function AudioRecorder({
 
       audioContextRef.current = audioContext;
       analyserRef.current = analyser;
-
-      console.log("[AudioRecorder] Microphone access granted");
     } catch (error) {
       console.error("[AudioRecorder] Permission denied:", error);
       const errorMessage =
@@ -113,10 +111,6 @@ export function AudioRecorder({
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: mimeType });
         onRecordingComplete(blob, recordingTime);
-        console.log("[AudioRecorder] Recording complete:", {
-          size: blob.size,
-          duration: recordingTime,
-        });
       };
 
       mediaRecorder.start();
@@ -135,8 +129,6 @@ export function AudioRecorder({
       }, 1000);
 
       animateWaveform();
-
-      console.log("[AudioRecorder] Recording started");
     } catch (error) {
       console.error("[AudioRecorder] Start recording failed:", error);
       onError?.("Failed to start recording. Please try again.");
@@ -158,8 +150,6 @@ export function AudioRecorder({
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
       }
-
-      console.log("[AudioRecorder] Recording stopped");
     }
   };
 

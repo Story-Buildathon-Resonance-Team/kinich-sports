@@ -52,8 +52,6 @@ export function useVideoUpload({
         progress: "uploading",
       });
 
-      console.log("[useVideoUpload] Generating signed upload URL...");
-
       const urlResponse = await fetch("/api/generate-upload-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -74,10 +72,6 @@ export function useVideoUpload({
 
       const { signedUrl, filePath } = await urlResponse.json();
 
-      console.log(
-        "[useVideoUpload] Uploading compressed video directly to Supabase..."
-      );
-
       const uploadResponse = await fetch(signedUrl, {
         method: "PUT",
         body: compressedFile,
@@ -95,8 +89,6 @@ export function useVideoUpload({
         error: null,
         progress: "creating-record",
       });
-
-      console.log("[useVideoUpload] Creating asset record...");
 
       const recordResponse = await fetch("/api/create-asset-record", {
         method: "POST",
@@ -118,10 +110,6 @@ export function useVideoUpload({
       }
 
       const { asset, publicUrl } = await recordResponse.json();
-      console.log(
-        "[useVideoUpload] Upload successful. Asset created:",
-        asset.id
-      );
 
       setUploadedVideoUrl(publicUrl);
       setAssetId(asset.id);
@@ -132,7 +120,6 @@ export function useVideoUpload({
         progress: "analyzing",
       });
 
-      console.log("[useVideoUpload] Starting video analysis...");
       await startProcessing();
 
       setState({
@@ -168,8 +155,6 @@ export function useVideoUpload({
         progress: "updating-metadata",
       });
 
-      console.log("[useVideoUpload] Updating asset metadata...");
-
       const supabase = createClient();
       const { error: updateError } = await supabase
         .from("assets")
@@ -185,8 +170,6 @@ export function useVideoUpload({
         error: null,
         progress: "registering",
       });
-
-      console.log("[useVideoUpload] Registering on Story Protocol...");
 
       const { data: asset } = await supabase
         .from("assets")
@@ -218,10 +201,6 @@ export function useVideoUpload({
       }
 
       const registerData = await registerResponse.json();
-      console.log(
-        "[useVideoUpload] Story registration complete:",
-        registerData
-      );
 
       setState({
         isUploading: false,

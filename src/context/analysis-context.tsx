@@ -78,12 +78,10 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     setCompressionProgress(0);
 
     try {
-      console.log("Starting background video compression...");
       const result = await NativeCompressionService.compressVideo(file, (p) => {
         setCompressionProgress(p);
       });
 
-      console.log("Compression complete:", result.name, result.size);
       setCompressedFile(result);
       toast.success("Video Compressed & Ready for Upload", {
         description: `Size reduced to ${(result.size / 1024 / 1024).toFixed(2)} MB`
@@ -166,11 +164,9 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
     if (!landmarkerRef.current) {
       try {
-        console.log("Lazy loading MediaPipe Pose Landmarker...");
         const landmarker = await getPoseLandmarker();
         landmarkerRef.current = landmarker;
         counterRef.current = new BurpeeCounter();
-        console.log("MediaPipe Pose Landmarker loaded successfully");
       } catch (error) {
         console.error("Failed to load MediaPipe:", error);
         toast.error("Failed to load AI models");

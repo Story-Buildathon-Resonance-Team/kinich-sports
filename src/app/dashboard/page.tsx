@@ -13,7 +13,6 @@ import {
   DollarSign,
   Layers,
   Trophy,
-  TrendingUp,
   BarChart3,
   LineChart,
 } from "lucide-react";
@@ -181,12 +180,12 @@ export default function AthleteDashboard() {
 
     // If only one data point, add a "start" point to make a line
     if (chartData.length === 1) {
-        const firstDate = new Date(sortedAssets[0].created_at);
-        firstDate.setDate(firstDate.getDate() - 1);
-        chartData.unshift({
-            name: firstDate.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-            value: 0
-        });
+      const firstDate = new Date(sortedAssets[0].created_at);
+      firstDate.setDate(firstDate.getDate() - 1);
+      chartData.unshift({
+        name: firstDate.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        value: 0
+      });
     }
 
     return chartData;
@@ -303,9 +302,6 @@ export default function AthleteDashboard() {
             <div className='p-3 rounded-xl bg-blue-500/10 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors'>
               <DollarSign className='w-6 h-6' />
             </div>
-            <span className='text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full flex items-center gap-1'>
-              <TrendingUp className='w-3 h-3' /> +12.5%
-            </span>
           </div>
           <div className='text-3xl font-bold text-white mb-1 tracking-tight'>
             {stats.totalRoyalties.toLocaleString()}{" "}

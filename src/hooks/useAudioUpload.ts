@@ -54,8 +54,6 @@ export function useAudioUpload({
         progress: "uploading",
       });
 
-      console.log("[useAudioUpload] Uploading to server...");
-
       const uploadFormData = new FormData();
       uploadFormData.append("file", audioBlob, "recording.webm");
       uploadFormData.append("athleteId", athleteId);
@@ -72,11 +70,8 @@ export function useAudioUpload({
       }
 
       const uploadResult = await uploadResponse.json();
-      console.log("[useAudioUpload] Upload successful:", uploadResult);
 
       const publicUrl = uploadResult.publicUrl;
-
-      console.log("[useAudioUpload] Public URL:", publicUrl);
 
       const metadata = buildAudioCapsuleMetadata({
         drillTypeId: challenge.drill_type_id,
@@ -90,8 +85,6 @@ export function useAudioUpload({
         fileSizeBytes: audioBlob.size,
         mimeType: audioBlob.type,
       });
-
-      console.log("[useAudioUpload] Metadata:", metadata);
 
       // Explicitly determine verification method
       let verificationMethod: "world_id" | "cv_video" | "world_id_and_cv_video" = "world_id";
@@ -151,15 +144,11 @@ export function useAudioUpload({
         throw new Error(`Database insert failed: ${assetError?.message}`);
       }
 
-      console.log("[useAudioUpload] Asset created:", asset.id);
-
       setState({
         isUploading: true,
         error: null,
         progress: "registering",
       });
-
-      console.log("[useAudioUpload] Registering on Story Protocol...");
 
       const registerResponse = await fetch("/api/register-audio", {
         method: "POST",
@@ -188,10 +177,6 @@ export function useAudioUpload({
       }
 
       const registerData = await registerResponse.json();
-      console.log(
-        "[useAudioUpload] Story registration complete:",
-        registerData
-      );
 
       setState({
         isUploading: false,

@@ -67,8 +67,6 @@ export default function WorldIdVerify({
 
   // Called when user closes the modal (after success screen)
   const onSuccess = () => {
-    console.log("World ID verification completed successfully");
-
     if (onVerificationSuccess) {
       onVerificationSuccess();
     }
