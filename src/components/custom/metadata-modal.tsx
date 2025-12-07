@@ -96,7 +96,7 @@ export function MetadataModal({
         </div>
 
         {/* Content */}
-        <div className='flex-1 p-6'>
+        <div className='flex-1 p-6 overflow-y-auto scroll-smooth'>
           <div className='relative'>
             <pre className='text-xs md:text-sm font-mono text-gray-300 bg-[#111] p-4 rounded-xl border border-white/5 overflow-auto max-h-[400px]'>
               {JSON.stringify(metadata, null, 2)}
