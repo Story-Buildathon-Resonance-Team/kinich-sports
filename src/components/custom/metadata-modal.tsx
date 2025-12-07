@@ -98,7 +98,7 @@ export function MetadataModal({
         {/* Content */}
         <div className='flex-1 overflow-y-auto p-6'>
           <div className='relative'>
-            <pre className='text-xs md:text-sm font-mono text-gray-300 bg-[#111] p-4 rounded-xl border border-white/5 overflow-x-auto'>
+            <pre className='text-xs md:text-sm font-mono text-gray-300 bg-[#111] p-4 rounded-xl border border-white/5 overflow-x-auto max-h-[400px] overflow-y-auto'>
               {JSON.stringify(metadata, null, 2)}
             </pre>
             <button
