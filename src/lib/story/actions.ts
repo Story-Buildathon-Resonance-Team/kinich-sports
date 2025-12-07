@@ -11,7 +11,7 @@
  */
 
 import { getStoryClient } from "./client";
-import { SPG_NFT_CONTRACT, ACTIVE_NETWORK } from "./config";
+import { SPG_NFT_CONTRACT } from "./config";
 import { uploadJSONToIPFS, generateMetadataHash } from "./ipfs";
 import {
   IpMetadata,
@@ -93,23 +93,15 @@ export async function registerIPAsset(
     const client = getStoryClient();
     const { athleteWallet, ipMetadata, nftMetadata, licenseFee } = params;
 
-    console.log("[Story] Starting IP registration");
-    console.log("[Story] Athlete:", athleteWallet);
-    console.log("[Story] License fee:", licenseFee, "$IP");
-
     // Upload IP metadata to IPFS
     const ipMetadataCID = await uploadJSONToIPFS(ipMetadata);
     const ipMetadataHash = generateMetadataHash(ipMetadata);
     const ipMetadataURI = `https://ipfs.io/ipfs/${ipMetadataCID}`;
 
-    console.log("[Story] IP metadata:", ipMetadataURI);
-
     // Upload NFT metadata to IPFS
     const nftMetadataCID = await uploadJSONToIPFS(nftMetadata);
     const nftMetadataHash = generateMetadataHash(nftMetadata);
     const nftMetadataURI = `https://ipfs.io/ipfs/${nftMetadataCID}`;
-
-    console.log("[Story] NFT metadata:", nftMetadataURI);
 
     // Get platform wallet for royalty split
     const platformWallet = process.env.PLATFORM_WALLET_ADDRESS as Address;
@@ -159,13 +151,6 @@ export async function registerIPAsset(
       },
     });
 
-    console.log("[Story] IP registered");
-    console.log("[Story] IP ID:", response.ipId);
-    console.log("[Story] TX:", response.txHash);
-    console.log(
-      `[Story] Explorer: ${ACTIVE_NETWORK.protocolExplorer}/ipa/${response.ipId}`
-    );
-
     return {
       success: true,
       ipId: response.ipId as Address,
@@ -195,17 +180,11 @@ export async function getClaimableRevenue(
   try {
     const client = getStoryClient();
 
-    console.log("[Story] Checking claimable revenue");
-    console.log("[Story] IP ID:", ipId);
-    console.log("[Story] Claimer:", claimerWallet);
-
     const claimableRevenue = await client.royalty.claimableRevenue({
       ipId: ipId,
       claimer: claimerWallet,
       token: WIP_TOKEN_ADDRESS,
     });
-
-    console.log("[Story] Claimable:", claimableRevenue, "$IP");
 
     return {
       success: true,
@@ -219,7 +198,6 @@ export async function getClaimableRevenue(
     };
   }
 }
-
 // /**
 //  * Claim all revenue for an IP Asset
 //  *
@@ -265,3 +243,4 @@ export async function getClaimableRevenue(
 //     };
 //   }
 // }
+

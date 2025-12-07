@@ -32,20 +32,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("[Upload Audio] File received:", {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      athleteId,
-      drillTypeId,
-    });
-
     const supabase = createServiceClient();
 
     const timestamp = Date.now();
     const filePath = `audio/${athleteId}/${timestamp}-${drillTypeId}.webm`;
-
-    console.log("[Upload Audio] Uploading to storage:", filePath);
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -65,13 +55,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("[Upload Audio] Upload successful:", uploadData);
-
     const {
       data: { publicUrl },
     } = supabase.storage.from("kinich-assets").getPublicUrl(filePath);
-
-    console.log("[Upload Audio] Public URL generated:", publicUrl);
 
     return NextResponse.json({
       success: true,

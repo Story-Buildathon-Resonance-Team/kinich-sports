@@ -46,10 +46,6 @@ export function getStoryClient(): StoryClient {
   // Initialize client
   storyClient = StoryClient.newClient(config);
 
-  console.log("[Story Client] Initialized successfully");
-  console.log("[Story Client] Network:", ACTIVE_NETWORK.rpcProviderUrl);
-  console.log("[Story Client] Platform wallet:", account.address);
-
   return storyClient;
 }
 

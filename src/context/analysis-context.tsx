@@ -45,12 +45,10 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const [feedback, setFeedback] = useState<string>("");
   const [metadata, setMetadata] = useState<VideoDrillMetadata | null>(null);
 
-  // Compression State
   const [compressedFile, setCompressedFile] = useState<File | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
 
-  // Upload State
   const [assetId, setAssetId] = useState<string | null>(null);
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
 
@@ -60,27 +58,6 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const landmarkerRef = useRef<PoseLandmarker | null>(null);
   const counterRef = useRef<BurpeeCounter | null>(null);
   const requestRef = useRef<number>(null);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const landmarker = await getPoseLandmarker();
-        landmarkerRef.current = landmarker;
-        counterRef.current = new BurpeeCounter();
-        console.log("MediaPipe Pose Landmarker loaded (Background Context)");
-      } catch (error) {
-        console.error("Failed to load MediaPipe:", error);
-        toast.error("Failed to load AI models");
-      }
-    }
-    load();
-
-    return () => {
-      if (requestRef.current) {
-        cancelAnimationFrame(requestRef.current);
-      }
-    };
-  }, []);
 
   const resetAnalysis = () => {
     setMetadata(null);
@@ -99,15 +76,12 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const compressVideo = async (file: File) => {
     setIsCompressing(true);
     setCompressionProgress(0);
-    
+
     try {
-      // Start compression in background
-      console.log("Starting background video compression...");
       const result = await NativeCompressionService.compressVideo(file, (p) => {
         setCompressionProgress(p);
       });
-      
-      console.log("Compression complete:", result.name, result.size);
+
       setCompressedFile(result);
       toast.success("Video Compressed & Ready for Upload", {
         description: `Size reduced to ${(result.size / 1024 / 1024).toFixed(2)} MB`
@@ -129,12 +103,10 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
     const results = counterRef.current.getResult();
 
-    // Construct robust metadata for Story Protocol verification
     const meta: VideoDrillMetadata = {
-      // Standard IPFS/NFT Fields
       name: "Burpee Drill Assessment",
       description: `Automated analysis of Burpee drill. ${results.reps} reps performed with ${(results.humanConfidence * 100).toFixed(0)}% confidence.`,
-      image: "ipfs://placeholder", // TODO: Generate thumbnail
+      image: "ipfs://placeholder",
       properties: {
         drill_type: "Burpee",
         reps: results.reps,
@@ -146,7 +118,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       asset_type: "video_drill",
       drill_type_id: "EXPL_BURPEE_001",
       athlete_profile: {
-        discipline: "Fitness", // To be populated dynamically later
+        discipline: "Fitness",
         experience_level: "Intermediate"
       },
       context: {
@@ -156,9 +128,8 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       },
       video_metadata: {
         resolution: `${videoRef.current.videoWidth}x${videoRef.current.videoHeight}`,
-        framerate: 30, // Assumed
+        framerate: 30,
         duration_seconds: videoRef.current.duration || results.duration,
-        // Add compression metadata if available
         file_size_bytes: compressedFile?.size,
         mime_type: compressedFile?.type
       },
@@ -187,9 +158,23 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   };
 
   const startProcessing = async () => {
-    if (!videoRef.current || !landmarkerRef.current) return;
+    if (!videoRef.current) return;
 
     setIsProcessing(true);
+
+    if (!landmarkerRef.current) {
+      try {
+        const landmarker = await getPoseLandmarker();
+        landmarkerRef.current = landmarker;
+        counterRef.current = new BurpeeCounter();
+      } catch (error) {
+        console.error("Failed to load MediaPipe:", error);
+        toast.error("Failed to load AI models");
+        setIsProcessing(false);
+        return;
+      }
+    }
+
     const video = videoRef.current;
 
     if (video.videoWidth === 0) {
@@ -263,30 +248,38 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     requestRef.current = requestAnimationFrame(processFrame);
   };
 
+  useEffect(() => {
+    return () => {
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
+    };
+  }, []);
+
+  const contextValue = {
+    setCanvasRef,
+    isProcessing,
+    progress,
+    reps,
+    status,
+    feedback,
+    metadata,
+    videoSrc,
+    setVideoSrc,
+    startProcessing,
+    resetAnalysis,
+    compressedFile,
+    isCompressing,
+    compressionProgress,
+    compressVideo,
+    assetId,
+    uploadedVideoUrl,
+    setAssetId,
+    setUploadedVideoUrl
+  };
+
   return (
-    <AnalysisContext.Provider value={{
-      setCanvasRef,
-      isProcessing,
-      progress,
-      reps,
-      status,
-      feedback,
-      metadata,
-      videoSrc,
-      setVideoSrc,
-      startProcessing,
-      resetAnalysis,
-      // Compression exports
-      compressedFile,
-      isCompressing,
-      compressionProgress,
-      compressVideo,
-      // Upload exports
-      assetId,
-      uploadedVideoUrl,
-      setAssetId,
-      setUploadedVideoUrl
-    }}>
+    <AnalysisContext.Provider value={contextValue}>
       {children}
       <div style={{ display: 'none' }}>
         {videoSrc && (

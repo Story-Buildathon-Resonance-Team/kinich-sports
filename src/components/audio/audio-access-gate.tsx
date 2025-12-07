@@ -37,8 +37,6 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
 
         const data: AudioAccessResponse = await response.json();
         setAccessStatus(data);
-
-        console.log("[AudioAccessGate] Access check:", data);
       } catch (err) {
         // Ignore abort errors
         if (err instanceof Error && err.name === "AbortError") {

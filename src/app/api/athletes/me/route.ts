@@ -15,10 +15,10 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Fetch athlete data
+    // Fetch athlete data first
     const { data: athlete, error: athleteError } = await supabase
       .from("athletes")
-      .select("*")
+      .select("id, dynamic_user_id, name, discipline, competitive_level, profile_score, world_id_verified, world_id_verified_at")
       .eq("dynamic_user_id", dynamicUserId)
       .single();
 
@@ -29,12 +29,24 @@ export async function GET(request: NextRequest) {
     // Fetch asset count
     const { count: assetCount, error: countError } = await supabase
       .from("assets")
-      .select("*", { count: "exact", head: true })
+      .select("id", { count: "exact", head: true }) // Fetch only ID for count
       .eq("athlete_id", athlete.id)
       .eq("status", "active");
 
     if (countError) {
       console.error("Error fetching asset count:", countError);
+    }
+
+    // Fetch verified video count
+    const { count: verifiedVideoCount, error: videoError } = await supabase
+      .from("assets")
+      .select("id", { count: "exact", head: true })
+      .eq("athlete_id", athlete.id)
+      .eq("asset_type", "video")
+      .eq("cv_verified", true);
+
+    if (videoError) {
+      console.error("Error fetching verified video count:", videoError);
     }
 
     // Calculate stats
@@ -45,7 +57,10 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json({
-      athlete,
+      athlete: {
+        ...athlete,
+        has_verified_video: (verifiedVideoCount || 0) > 0,
+      },
       stats,
     });
   } catch (error) {

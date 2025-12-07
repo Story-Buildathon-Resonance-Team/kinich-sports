@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card } from "@/components/custom/card";
-import { CircleCheckBig, Ban, Loader2 } from "lucide-react";
+import { CircleCheckBig, Ban, Loader2, Scale, Coins, ShieldCheck } from "lucide-react";
 
 interface LicenseDisplayProps {
   licenseFee: number; // In $IP
@@ -30,9 +30,7 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
 
   useEffect(() => {
     const fetchLicenseTerms = async () => {
-      if (!storyIpId) {
-        return;
-      }
+      if (!storyIpId) return;
 
       try {
         setLoading(true);
@@ -43,7 +41,20 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
         );
 
         if (!response.ok) {
-          const errorData = await response.json();
+          let errorData;
+          try {
+            errorData = await response.json();
+          } catch (e) {
+            console.warn("[LicenseDisplay] Failed to parse error response:", e);
+            errorData = { error: "Failed to fetch license terms (Invalid JSON)" };
+          }
+
+          // Handle "IP asset not found" gracefully
+          if (response.status === 404 && errorData.error === "IP asset not found") {
+            console.warn("[LicenseDisplay] IP asset not yet indexed or found");
+            setLoading(false);
+            return;
+          }
           throw new Error(errorData.error || "Failed to fetch license terms");
         }
 
@@ -64,240 +75,101 @@ export function LicenseDisplay({ licenseFee, storyIpId }: LicenseDisplayProps) {
 
   if (loading) {
     return (
-      <Card variant='default' hover={false} className='p-6'>
-        <div className='space-y-4'>
-          <div>
-            <h4 className='text-[16px] font-medium text-[#F5F7FA] mb-1'>
-              Commercial Use License
-            </h4>
-            <p className='text-[13px] text-[rgba(245,247,250,0.6)]'>
-              Loading license terms...
-            </p>
-          </div>
-          <div className='flex items-center justify-center py-8'>
-            <Loader2 className='w-8 h-8 text-blue-400 animate-spin' />
-          </div>
+      <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 flex items-center justify-center min-h-[200px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-3" />
+          <p className="text-sm text-gray-500">Loading license terms...</p>
         </div>
-      </Card>
+      </div>
     );
   }
 
-  if (error || !licenseData) {
-    return (
-      <Card variant='default' hover={false} className='p-6'>
-        <div className='space-y-4'>
-          {/* Header */}
-          <div>
-            <h4 className='text-[16px] font-medium text-[#F5F7FA] mb-1'>
-              Commercial Use License
-            </h4>
-            <p className='text-[13px] text-[rgba(245,247,250,0.6)]'>
-              One-time fee for commercial use rights
-            </p>
-          </div>
-
-          {/* License Fee */}
-          <div className='bg-gradient-to-br from-[rgba(0,71,171,0.12)] to-[rgba(0,71,171,0.05)] border-2 border-[rgba(0,71,171,0.2)] rounded-2xl p-4'>
-            <div className='flex items-baseline gap-3 mb-2'>
-              <span className='text-[24px] font-mono font-light text-[#F5F7FA] tracking-tight'>
-                {licenseFee}
-              </span>
-              <span className='text-[14px] font-mono text-blue-400 font-medium'>
-                $IP
-              </span>
-            </div>
-            <p className='text-[13px] text-[rgba(245,247,250,0.5)]'>
-              License fee (testnet)
-            </p>
-          </div>
-
-          {/* Static fallback terms */}
-          <div className='space-y-2 pt-3 border-t border-[rgba(245,247,250,0.06)]'>
-            <div className='flex items-start gap-3'>
-              <CircleCheckBig className='w-4 h-4 text-[rgba(0,71,171,0.8)] mt-0.5 flex-shrink-0' />
-              <div>
-                <p className='text-[13px] text-[rgba(245,247,250,0.9)] font-medium mb-0.5'>
-                  Commercial Use
-                </p>
-                <p className='text-[12px] text-[rgba(245,247,250,0.6)]'>
-                  Use in commercial AI training, products, and services
-                </p>
-              </div>
-            </div>
-
-            <div className='flex items-start gap-3'>
-              <CircleCheckBig className='w-4 h-4 text-[rgba(0,71,171,0.8)] mt-0.5 flex-shrink-0' />
-              <div>
-                <p className='text-[13px] text-[rgba(245,247,250,0.9)] font-medium mb-0.5'>
-                  One-Time Fee
-                </p>
-                <p className='text-[12px] text-[rgba(245,247,250,0.6)]'>
-                  No recurring payments or royalties
-                </p>
-              </div>
-            </div>
-
-            <div className='flex items-start gap-3'>
-              <Ban className='w-4 h-4 text-[rgba(245,247,250,0.4)] mt-0.5 flex-shrink-0' />
-              <div>
-                <p className='text-[13px] text-[rgba(245,247,250,0.9)] font-medium mb-0.5'>
-                  No Derivatives
-                </p>
-                <p className='text-[12px] text-[rgba(245,247,250,0.6)]'>
-                  Cannot create derivative works from this asset
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Error message if applicable */}
-          {error && (
-            <p className='text-[12px] text-[rgba(255,107,53,0.8)] mt-2'>
-              Unable to load license terms from Story Protocol. Showing default
-              terms.
-            </p>
-          )}
-
-          {/* License URI */}
-          <div className='pt-3 border-t border-[rgba(245,247,250,0.06)]'>
-            <p className='text-[11px] uppercase tracking-wider text-[rgba(245,247,250,0.5)] mb-2'>
-              License Terms
-            </p>
-            <a
-              href='https://github.com/piplabs/pil-document/blob/v1.4.0/Story%20Foundation%20-%20Programmable%20IP%20License%20-%20V%201.4%20-%2011.13.25.docx.pdf'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-[12px] text-[rgba(0,71,171,0.9)] hover:text-[rgba(0,71,171,1)] underline break-all'
-            >
-              Read Full Terms
-            </a>
-          </div>
-        </div>
-      </Card>
-    );
-  }
-
-  // Render with actual license terms from Story Protocol
-  const { terms } = licenseData;
+  // Use actual terms or fallback defaults for display
+  const terms = licenseData?.terms || {
+    commercialUse: true,
+    derivativesAllowed: false,
+    commercialRevShare: 0,
+    commercialAttribution: true,
+    uri: ""
+  };
 
   return (
-    <Card variant='default' hover={false} className='p-6'>
-      <div className='space-y-4'>
-        {/* Header */}
-        <div>
-          {licenseData.licenseTermsId === "2528" && (
-            <h4 className='text-[16px] font-medium text-[#F5F7FA] mb-1'>
-              Commercial Use License
-            </h4>
-          )}
-          <p className='text-[13px] text-[rgba(245,247,250,0.6)]'>
-            License terms from Story Protocol
-          </p>
-        </div>
+    <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 relative overflow-hidden group">
+      {/* Decorative Gradient */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 blur-2xl rounded-full -mr-10 -mt-10 pointer-events-none" />
 
-        {/* License Fee */}
-        <div className='bg-gradient-to-br from-[rgba(0,71,171,0.12)] to-[rgba(0,71,171,0.05)] border-2 border-[rgba(0,71,171,0.2)] rounded-2xl p-4'>
-          <div className='flex items-baseline gap-3 mb-2'>
-            <span className='text-[24px] font-mono font-light text-[#F5F7FA] tracking-tight'>
-              {licenseFee}
-            </span>
-            <span className='text-[14px] font-mono text-blue-400 font-medium'>
-              $IP
-            </span>
-          </div>
-          <p className='text-[13px] text-[rgba(245,247,250,0.5)]'>
-            License fee (testnet)
-          </p>
-        </div>
-
-        {/* License Terms from Story Protocol */}
-        <div className='space-y-2 pt-3 border-t border-[rgba(245,247,250,0.06)]'>
-          {/* Commercial Use */}
-          <div className='flex items-start gap-3'>
-            {terms.commercialUse ? (
-              <CircleCheckBig className='w-4 h-4 text-[rgba(0,71,171,0.8)] mt-0.5 flex-shrink-0' />
-            ) : (
-              <Ban className='w-4 h-4 text-[rgba(245,247,250,0.4)] mt-0.5 flex-shrink-0' />
-            )}
-            <div>
-              <p className='text-[13px] text-[rgba(245,247,250,0.9)] font-medium mb-0.5'>
-                Commercial Use
-              </p>
-              <p className='text-[12px] text-[rgba(245,247,250,0.6)]'>
-                {terms.commercialUse
-                  ? "Allowed for commercial AI training, products, and services"
-                  : "Not allowed for commercial use"}
-              </p>
-            </div>
-          </div>
-
-          {/* Derivatives Allowed */}
-          <div className='flex items-start gap-3'>
-            {terms.derivativesAllowed ? (
-              <CircleCheckBig className='w-4 h-4 text-[rgba(0,71,171,0.8)] mt-0.5 flex-shrink-0' />
-            ) : (
-              <Ban className='w-4 h-4 text-[rgba(245,247,250,0.4)] mt-0.5 flex-shrink-0' />
-            )}
-            <div>
-              <p className='text-[13px] text-[rgba(245,247,250,0.9)] font-medium mb-0.5'>
-                Derivatives
-              </p>
-              <p className='text-[12px] text-[rgba(245,247,250,0.6)]'>
-                {terms.derivativesAllowed
-                  ? "Can create derivative works from this asset"
-                  : "Cannot create derivative works from this asset"}
-              </p>
-            </div>
-          </div>
-
-          {/* Revenue Share / Payment Terms */}
-          <div className='flex items-start gap-3'>
-            <CircleCheckBig className='w-4 h-4 text-[rgba(0,71,171,0.8)] mt-0.5 flex-shrink-0' />
-            <div>
-              <p className='text-[13px] text-[rgba(245,247,250,0.9)] font-medium mb-0.5'>
-                {terms.commercialRevShare > 0
-                  ? "Revenue Share"
-                  : "One-Time Fee"}
-              </p>
-              <p className='text-[12px] text-[rgba(245,247,250,0.6)]'>
-                {terms.commercialRevShare > 0
-                  ? `${terms.commercialRevShare}% of revenue goes to IP owner`
-                  : "No recurring payments or royalties"}
-              </p>
-            </div>
-          </div>
-
-          {/* Attribution (if required) */}
-          {terms.commercialAttribution && (
-            <div className='flex items-start gap-3'>
-              <CircleCheckBig className='w-4 h-4 text-[rgba(0,71,171,0.8)] mt-0.5 flex-shrink-0' />
-              <div>
-                <p className='text-[13px] text-[rgba(245,247,250,0.9)] font-medium mb-0.5'>
-                  Attribution Required
-                </p>
-                <p className='text-[12px] text-[rgba(245,247,250,0.6)]'>
-                  Must provide attribution to original creator
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* License URI */}
-        <div className='pt-3 border-t border-[rgba(245,247,250,0.06)]'>
-          <p className='text-[11px] uppercase tracking-wider text-[rgba(245,247,250,0.5)] mb-2'>
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <Scale className="w-5 h-5 text-blue-400" />
             License Terms
-          </p>
+          </h3>
+          <span className="text-xs font-mono text-gray-500 bg-white/5 px-2 py-1 rounded border border-white/5">
+            PIL v1.4
+          </span>
+        </div>
+
+        {/* Fee Card */}
+        <div className="bg-gradient-to-r from-blue-900/20 to-blue-800/10 border border-blue-500/20 rounded-xl p-4 mb-6 flex items-center justify-between">
+          <div>
+            <p className="text-xs text-blue-300 font-medium uppercase tracking-wider mb-1">Minting Fee</p>
+            <p className="text-2xl font-bold text-white flex items-baseline gap-1">
+              {licenseFee} <span className="text-sm font-normal text-blue-400">$IP</span>
+            </p>
+          </div>
+          <div className="h-10 w-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+            <Coins className="w-5 h-5 text-blue-400" />
+          </div>
+        </div>
+
+        {/* Terms Grid */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Commercial Use */}
+          <div className={`p-3 rounded-lg border ${terms.commercialUse ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
+            <div className="flex items-center gap-2 mb-1">
+              {terms.commercialUse ? <CircleCheckBig className="w-4 h-4 text-emerald-400" /> : <Ban className="w-4 h-4 text-red-400" />}
+              <span className={`text-sm font-medium ${terms.commercialUse ? 'text-emerald-400' : 'text-red-400'}`}>Commercial</span>
+            </div>
+            <p className="text-xs text-gray-400 leading-tight">
+              {terms.commercialUse ? "Allowed for products & services" : "Personal use only"}
+            </p>
+          </div>
+
+          {/* Derivatives */}
+          <div className={`p-3 rounded-lg border ${terms.derivativesAllowed ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-orange-500/5 border-orange-500/20'}`}>
+            <div className="flex items-center gap-2 mb-1">
+              {terms.derivativesAllowed ? <CircleCheckBig className="w-4 h-4 text-emerald-400" /> : <Ban className="w-4 h-4 text-orange-400" />}
+              <span className={`text-sm font-medium ${terms.derivativesAllowed ? 'text-emerald-400' : 'text-orange-400'}`}>Remixing</span>
+            </div>
+            <p className="text-xs text-gray-400 leading-tight">
+              {terms.derivativesAllowed ? "Creation of derivatives allowed" : "No derivatives allowed"}
+            </p>
+          </div>
+
+          {/* Rev Share */}
+          <div className="p-3 rounded-lg border bg-white/5 border-white/5 col-span-2 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="w-4 h-4 text-gray-400" />
+              <span className="text-sm text-gray-300">Revenue Share</span>
+            </div>
+            <span className="text-sm font-mono text-white">
+              {terms.commercialRevShare > 0 ? `${terms.commercialRevShare}%` : "0%"}
+            </span>
+          </div>
+        </div>
+
+        {/* Footer Link */}
+        <div className="mt-6 pt-4 border-t border-white/5 text-center">
           <a
             href="https://github.com/piplabs/pil-document/blob/v1.4.0/Story%20Foundation%20-%20Programmable%20IP%20License%20-%20V%201.4%20-%2011.13.25.docx.pdf"
-            target='_blank'
-            rel='noopener noreferrer'
-            className='text-[12px] text-[rgba(0,71,171,0.9)] hover:text-[rgba(0,71,171,1)] underline break-all'
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-gray-500 hover:text-white transition-colors"
           >
-            Read Full Terms
+            View Full License Agreement ↗
           </a>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

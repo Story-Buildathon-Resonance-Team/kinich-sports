@@ -17,16 +17,6 @@ export async function POST(request: NextRequest) {
       competitiveLevel,
     } = body;
 
-    // Log incoming request for debugging
-    console.log("[sync-athlete] Request:", {
-      dynamicUserId,
-      walletAddress: walletAddress?.slice(0, 10) + "...",
-      firstName,
-      lastName,
-      sport,
-      competitiveLevel,
-    });
-
     // Validate required fields
     if (!dynamicUserId || !walletAddress) {
       console.error("[sync-athlete] Missing required fields");
@@ -80,7 +70,6 @@ export async function POST(request: NextRequest) {
 
     if (existingAthlete) {
       // User exists - update ONLY the fields that are provided
-      console.log("[sync-athlete] Existing athlete found, updating...");
 
       // Build update object dynamically to avoid setting undefined values
       const updateData: any = {
@@ -101,8 +90,6 @@ export async function POST(request: NextRequest) {
       if (normalizedCompetitiveLevel !== null) {
         updateData.competitive_level = normalizedCompetitiveLevel;
       }
-
-      console.log("[sync-athlete] Update data (normalized):", updateData);
 
       // Perform update
       const { data: updatedAthletes, error: updateError } = await supabase
@@ -139,7 +126,6 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      console.log("[sync-athlete] Athlete updated successfully");
       return NextResponse.json({
         success: true,
         athlete: updatedAthletes[0],
@@ -147,7 +133,6 @@ export async function POST(request: NextRequest) {
       } as SyncAthleteResponse);
     } else {
       // New user - insert athlete record
-      console.log("[sync-athlete] New athlete, inserting...");
 
       const insertData = {
         dynamic_user_id: dynamicUserId,
@@ -156,8 +141,6 @@ export async function POST(request: NextRequest) {
         discipline: normalizedSport,
         competitive_level: normalizedCompetitiveLevel,
       };
-
-      console.log("[sync-athlete] Insert data (normalized):", insertData);
 
       const { data: newAthletes, error: insertError } = await supabase
         .from("athletes")
@@ -191,7 +174,6 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      console.log("[sync-athlete] Athlete created successfully");
       return NextResponse.json({
         success: true,
         athlete: newAthletes[0],

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/custom/card";
-import { Play, Pause, Volume2, Video, Maximize } from "lucide-react";
+import { Play, Pause, Volume2, Video, Maximize, Settings } from "lucide-react";
 
 interface AssetVideoPlayerProps {
   videoUrl: string;
@@ -65,14 +65,6 @@ export function AssetVideoPlayer({
     }
   };
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = Number(e.target.value);
-    if (videoRef.current) {
-      videoRef.current.volume = newVolume;
-      setVolume(newVolume);
-    }
-  };
-
   const toggleFullscreen = () => {
     if (!videoRef.current) return;
 
@@ -90,172 +82,71 @@ export function AssetVideoPlayer({
   };
 
   return (
-    <Card variant='elevated' hover={false} className='p-6'>
-      <div className='space-y-6'>
-        {/* Icon Header */}
-        <div className='flex items-center gap-4'>
-          <div className='w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0'>
-            <Video className='w-6 h-6 text-purple-400' />
+    <div className="relative bg-black rounded-xl overflow-hidden group">
+        <video
+          ref={videoRef}
+          src={videoUrl}
+          preload='metadata'
+          className='w-full aspect-video object-contain bg-zinc-900'
+          onClick={togglePlayPause}
+        />
+        
+        {error && (
+          <div className='absolute inset-0 bg-black/80 flex items-center justify-center z-20'>
+            <p className='text-sm text-red-400 px-4 text-center'>{error}</p>
           </div>
-          <div>
-            <h3 className='text-[18px] font-medium text-[#F5F7FA]'>
-              {drillName}
-            </h3>
-            <p className='text-[13px] text-[rgba(245,247,250,0.5)]'>
-              Video Drill
-            </p>
+        )}
+
+        {/* Play/Pause Overlay - Center */}
+        {!isPlaying && !error && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+             <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Play className="w-6 h-6 text-white ml-1 fill-white" />
+             </div>
           </div>
+        )}
+
+        {/* Controls Bar - Bottom Gradient */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+           
+           {/* Progress Bar */}
+           <div className="mb-3 relative h-1 bg-white/20 rounded-full cursor-pointer group/progress">
+              <div 
+                className="absolute left-0 top-0 bottom-0 bg-blue-500 rounded-full" 
+                style={{ width: `${(currentTime / duration) * 100}%` }}
+              />
+              <input
+                type='range'
+                min='0'
+                max={duration || 0}
+                value={currentTime}
+                onChange={handleSeek}
+                disabled={!!error}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+           </div>
+
+           <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                 <button onClick={togglePlayPause} className="text-white hover:text-blue-400 transition-colors">
+                    {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+                 </button>
+                 
+                 <span className="text-xs font-medium text-gray-300 font-mono">
+                    {formatTime(currentTime)} / {formatTime(duration)}
+                 </span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                 <button className="text-gray-400 hover:text-white transition-colors">
+                    <Settings className="w-4 h-4" />
+                 </button>
+                 <button onClick={toggleFullscreen} className="text-gray-400 hover:text-white transition-colors">
+                    <Maximize className="w-4 h-4" />
+                 </button>
+              </div>
+           </div>
         </div>
-
-        {/* Video Element */}
-        <div className='relative bg-black rounded-xl overflow-hidden'>
-          <video
-            ref={videoRef}
-            src={videoUrl}
-            preload='metadata'
-            className='w-full aspect-video object-contain'
-          />
-          {error && (
-            <div className='absolute inset-0 bg-[rgba(0,0,0,0.8)] flex items-center justify-center'>
-              <p className='text-[14px] text-[rgba(255,107,53,0.9)] text-center px-4'>
-                {error}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Play/Pause Button */}
-        <div className='flex justify-center py-2'>
-          <button
-            onClick={togglePlayPause}
-            disabled={!!error}
-            className='
-              flex items-center justify-center
-              w-20 h-20
-              bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
-              border border-[rgba(184,212,240,0.2)]
-              rounded-full
-              text-[#F5F7FA]
-              shadow-[0_4px_20px_rgba(0,71,171,0.3)]
-              transition-all duration-300
-              hover:-translate-y-1
-              hover:shadow-[0_6px_28px_rgba(0,71,171,0.4)]
-              cursor-pointer
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-              disabled:hover:translate-y-0
-            '
-          >
-            {isPlaying ? (
-              <Pause className='w-8 h-8' />
-            ) : (
-              <Play className='w-8 h-8 ml-1' />
-            )}
-          </button>
-        </div>
-
-        {/* Progress Bar */}
-        <div className='space-y-2'>
-          <input
-            type='range'
-            min='0'
-            max={duration || 0}
-            value={currentTime}
-            onChange={handleSeek}
-            disabled={!!error}
-            className='
-              w-full h-2
-              bg-[rgba(245,247,250,0.1)]
-              rounded-full
-              appearance-none
-              cursor-pointer
-              disabled:cursor-not-allowed
-              disabled:opacity-50
-              [&::-webkit-slider-thumb]:appearance-none
-              [&::-webkit-slider-thumb]:w-4
-              [&::-webkit-slider-thumb]:h-4
-              [&::-webkit-slider-thumb]:rounded-full
-              [&::-webkit-slider-thumb]:bg-[#0047AB]
-              [&::-webkit-slider-thumb]:cursor-pointer
-              [&::-moz-range-thumb]:w-4
-              [&::-moz-range-thumb]:h-4
-              [&::-moz-range-thumb]:rounded-full
-              [&::-moz-range-thumb]:bg-[#0047AB]
-              [&::-moz-range-thumb]:border-0
-            '
-            style={{
-              background: `linear-gradient(to right, rgba(0,71,171,0.8) 0%, rgba(0,71,171,0.8) ${
-                (currentTime / duration) * 100
-              }%, rgba(245,247,250,0.1) ${
-                (currentTime / duration) * 100
-              }%, rgba(245,247,250,0.1) 100%)`,
-            }}
-          />
-
-          {/* Time Display */}
-          <div className='flex justify-between items-center'>
-            <span className='text-[13px] font-mono text-[rgba(245,247,250,0.6)]'>
-              {formatTime(currentTime)}
-            </span>
-            <span className='text-[13px] font-mono text-[rgba(245,247,250,0.6)]'>
-              {formatTime(duration)}
-            </span>
-          </div>
-        </div>
-
-        {/* Controls Row: Volume and Fullscreen */}
-        <div className='flex items-center gap-4'>
-          {/* Volume Control */}
-          <div className='flex items-center gap-3 flex-1'>
-            <Volume2 className='w-4 h-4 text-gray-400' />
-            <input
-              type='range'
-              min='0'
-              max='1'
-              step='0.01'
-              value={volume}
-              onChange={handleVolumeChange}
-              disabled={!!error}
-              className='
-                flex-1 h-1
-                bg-[rgba(245,247,250,0.1)]
-                rounded-full
-                appearance-none
-                cursor-pointer
-                disabled:cursor-not-allowed
-                disabled:opacity-50
-                [&::-webkit-slider-thumb]:appearance-none
-                [&::-webkit-slider-thumb]:w-3
-                [&::-webkit-slider-thumb]:h-3
-                [&::-webkit-slider-thumb]:rounded-full
-                [&::-webkit-slider-thumb]:bg-[rgba(245,247,250,0.6)]
-                [&::-moz-range-thumb]:w-3
-                [&::-moz-range-thumb]:h-3
-                [&::-moz-range-thumb]:rounded-full
-                [&::-moz-range-thumb]:bg-[rgba(245,247,250,0.6)]
-                [&::-moz-range-thumb]:border-0
-              '
-            />
-          </div>
-
-          {/* Fullscreen Button */}
-          <button
-            onClick={toggleFullscreen}
-            disabled={!!error}
-            className='
-              p-2
-              text-gray-400
-              hover:text-[#F5F7FA]
-              transition-colors
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-            '
-            title='Fullscreen'
-          >
-            <Maximize className='w-4 h-4' />
-          </button>
-        </div>
-      </div>
-    </Card>
+    </div>
   );
 }

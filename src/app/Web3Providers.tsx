@@ -73,11 +73,7 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
                   const result: SyncAthleteResponse = await response.json();
 
                   if (result.success) {
-                    console.log(
-                      `Athlete ${
-                        result.isNewUser ? "created" : "synced"
-                      } successfully`
-                    );
+                    // Athlete synced successfully
                   } else {
                     console.error("Failed to sync athlete:", result.error);
                   }
@@ -120,8 +116,6 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
                 const result: SyncAthleteResponse = await response.json();
 
                 if (result.success) {
-                  console.log("Profile updated successfully");
-
                   // Invalidate React Query caches to refresh UI immediately
                   queryClient.invalidateQueries({ queryKey: ["athlete", userId] });
                   queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });

@@ -1,6 +1,7 @@
 import { ButtonCobalt } from "./button-cobalt";
+import React from "react";
 
-export function HeroSection() {
+function HeroSection() {
   return (
     <section className='min-h-screen flex flex-col items-center justify-center px-6 md:px-16 pt-[120px] pb-16 relative'>
       {/* Hero Content */}
@@ -23,3 +24,5 @@ export function HeroSection() {
     </section>
   );
 }
+
+export default React.memo(HeroSection);

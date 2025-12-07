@@ -79,13 +79,15 @@ export function AudioPreviewPlayer({
 
   return (
     <div className='w-full max-w-[600px] mx-auto'>
-      <audio
-        ref={audioRef}
-        src={audioUrl}
-        onLoadedMetadata={handleLoadedMetadata}
-        onTimeUpdate={handleTimeUpdate}
-        onEnded={handleEnded}
-      />
+      {audioUrl && (
+        <audio
+          ref={audioRef}
+          src={audioUrl}
+          onLoadedMetadata={handleLoadedMetadata}
+          onTimeUpdate={handleTimeUpdate}
+          onEnded={handleEnded}
+        />
+      )}
 
       {/* Player Card */}
       <div className='bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-white/15 transition-all duration-300'>
@@ -158,11 +160,9 @@ export function AudioPreviewPlayer({
                   [&::-moz-range-thumb]:cursor-pointer
                 '
                 style={{
-                  background: `linear-gradient(to right, rgba(0,71,171,0.6) 0%, rgba(0,71,171,0.6) ${
-                    (currentTime / duration) * 100
-                  }%, rgba(245,247,250,0.1) ${
-                    (currentTime / duration) * 100
-                  }%, rgba(245,247,250,0.1) 100%)`,
+                  background: `linear-gradient(to right, rgba(0,71,171,0.6) 0%, rgba(0,71,171,0.6) ${(currentTime / duration) * 100
+                    }%, rgba(245,247,250,0.1) ${(currentTime / duration) * 100
+                    }%, rgba(245,247,250,0.1) 100%)`,
                 }}
               />
 

@@ -73,125 +73,74 @@ export function AssetAudioPlayer({
   };
 
   return (
-    <Card variant='elevated' hover={false} className='p-6'>
+    <Card variant='elevated' hover={false} className='p-8 bg-gradient-to-br from-[#0a0a0a] to-[#1a1a2e] border-purple-500/20'>
       <audio ref={audioRef} src={audioUrl} preload='metadata' />
 
-      <div className='space-y-6'>
-        {/* Icon Header */}
-        <div className='flex items-center gap-4'>
-          <div className='w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0'>
-            <Mic className='w-6 h-6 text-purple-400' />
-          </div>
-          <div>
-            <h3 className='text-[18px] font-medium text-[#F5F7FA]'>
-              {challengeName}
-            </h3>
-            <p className='text-[13px] text-[rgba(245,247,250,0.5)]'>
-              Audio Capsule
-            </p>
-          </div>
+      <div className='space-y-8'>
+        {/* Visualizer Placeholder */}
+        <div className="h-24 flex items-center justify-center gap-1">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="w-1.5 bg-purple-500/40 rounded-full animate-pulse"
+              style={{
+                height: isPlaying ? `${Math.max(20, Math.random() * 100)}%` : '20%',
+                animationDuration: `${0.5 + Math.random() * 0.5}s`,
+                animationPlayState: isPlaying ? 'running' : 'paused'
+              }}
+            />
+          ))}
         </div>
 
-        {/* Play/Pause Button */}
-        <div className='flex justify-center py-4'>
+        {/* Icon Header - Centered */}
+        <div className='text-center'>
+          <h3 className='text-[24px] font-light tracking-tight text-white mb-1'>
+            {challengeName}
+          </h3>
+          <p className='text-[14px] text-purple-400 font-medium uppercase tracking-wider'>
+            Audio Identity Capsule
+          </p>
+        </div>
+
+        {/* Controls Container */}
+        <div className="flex flex-col items-center gap-6">
+          {/* Play/Pause Button */}
           <button
             onClick={togglePlayPause}
             className='
-              flex items-center justify-center
-              w-20 h-20
-              bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
-              border border-[rgba(184,212,240,0.2)]
-              rounded-full
-              text-[#F5F7FA]
-              shadow-[0_4px_20px_rgba(0,71,171,0.3)]
-              transition-all duration-300
-              hover:-translate-y-1
-              hover:shadow-[0_6px_28px_rgba(0,71,171,0.4)]
-              cursor-pointer
-            '
+                flex items-center justify-center
+                w-24 h-24
+                bg-white text-black
+                rounded-full
+                shadow-[0_0_40px_rgba(168,85,247,0.3)]
+                transition-all duration-300
+                hover:scale-105
+                hover:shadow-[0_0_60px_rgba(168,85,247,0.5)]
+                cursor-pointer
+                '
           >
             {isPlaying ? (
-              <Pause className='w-8 h-8' />
+              <Pause className='w-10 h-10 fill-current' />
             ) : (
-              <Play className='w-8 h-8 ml-1' />
+              <Play className='w-10 h-10 fill-current ml-1.5' />
             )}
           </button>
-        </div>
 
-        {/* Progress Bar */}
-        <div className='space-y-2'>
-          <input
-            type='range'
-            min='0'
-            max={duration || 0}
-            value={currentTime}
-            onChange={handleSeek}
-            className='
-              w-full h-2
-              bg-[rgba(245,247,250,0.1)]
-              rounded-full
-              appearance-none
-              cursor-pointer
-              [&::-webkit-slider-thumb]:appearance-none
-              [&::-webkit-slider-thumb]:w-4
-              [&::-webkit-slider-thumb]:h-4
-              [&::-webkit-slider-thumb]:rounded-full
-              [&::-webkit-slider-thumb]:bg-[#0047AB]
-              [&::-webkit-slider-thumb]:cursor-pointer
-              [&::-moz-range-thumb]:w-4
-              [&::-moz-range-thumb]:h-4
-              [&::-moz-range-thumb]:rounded-full
-              [&::-moz-range-thumb]:bg-[#0047AB]
-              [&::-moz-range-thumb]:border-0
-            '
-            style={{
-              background: `linear-gradient(to right, rgba(0,71,171,0.8) 0%, rgba(0,71,171,0.8) ${
-                (currentTime / duration) * 100
-              }%, rgba(245,247,250,0.1) ${
-                (currentTime / duration) * 100
-              }%, rgba(245,247,250,0.1) 100%)`,
-            }}
-          />
-
-          {/* Time Display */}
-          <div className='flex justify-between items-center'>
-            <span className='text-[13px] font-mono text-[rgba(245,247,250,0.6)]'>
-              {formatTime(currentTime)}
-            </span>
-            <span className='text-[13px] font-mono text-[rgba(245,247,250,0.6)]'>
-              {formatTime(duration)}
-            </span>
+          {/* Progress Bar */}
+          <div className='w-full space-y-2'>
+            <input
+              type='range'
+              min='0'
+              max={duration || 0}
+              value={currentTime}
+              onChange={handleSeek}
+              className='w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400 transition-colors'
+            />
+            <div className='flex justify-between text-xs font-mono text-gray-500'>
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
+            </div>
           </div>
-        </div>
-
-        {/* Volume Control */}
-        <div className='flex items-center gap-3'>
-          <Volume2 className='w-4 h-4 text-gray-400' />
-          <input
-            type='range'
-            min='0'
-            max='1'
-            step='0.01'
-            value={volume}
-            onChange={handleVolumeChange}
-            className='
-              flex-1 h-1
-              bg-[rgba(245,247,250,0.1)]
-              rounded-full
-              appearance-none
-              cursor-pointer
-              [&::-webkit-slider-thumb]:appearance-none
-              [&::-webkit-slider-thumb]:w-3
-              [&::-webkit-slider-thumb]:h-3
-              [&::-webkit-slider-thumb]:rounded-full
-              [&::-webkit-slider-thumb]:bg-[rgba(245,247,250,0.6)]
-              [&::-moz-range-thumb]:w-3
-              [&::-moz-range-thumb]:h-3
-              [&::-moz-range-thumb]:rounded-full
-              [&::-moz-range-thumb]:bg-[rgba(245,247,250,0.6)]
-              [&::-moz-range-thumb]:border-0
-            '
-          />
         </div>
       </div>
     </Card>

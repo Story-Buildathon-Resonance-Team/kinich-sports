@@ -21,7 +21,6 @@ const pinata = new PinataSDK({
 export async function uploadJSONToIPFS(jsonMetadata: any): Promise<string> {
   try {
     const result = await pinata.upload.public.json(jsonMetadata);
-    console.log("[IPFS] JSON uploaded:", result.cid);
     return result.cid;
   } catch (error) {
     console.error("[IPFS] Error uploading JSON:", error);
@@ -40,7 +39,6 @@ export async function uploadJSONToIPFS(jsonMetadata: any): Promise<string> {
 export async function uploadFileToIPFS(file: File): Promise<string> {
   try {
     const result = await pinata.upload.public.file(file);
-    console.log("[IPFS] File uploaded:", result.cid);
     return result.cid;
   } catch (error) {
     console.error("[IPFS] Error uploading file:", error);

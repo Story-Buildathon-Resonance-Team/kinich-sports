@@ -1,7 +1,8 @@
 "use client";
 
-import { ProfileHeader } from "./profile-header";
-import { VerificationCard } from "./verification-card";
+import ProfileHeader from "./profile-header";
+import VerificationCard from "./verification-card";
+import React from "react";
 
 interface ProfileHeaderSectionProps {
   athlete: {
@@ -16,7 +17,7 @@ interface ProfileHeaderSectionProps {
   onVerificationSuccess?: () => void;
 }
 
-export function ProfileHeaderSection({
+function ProfileHeaderSection({
   athlete,
   onVerificationSuccess,
 }: ProfileHeaderSectionProps) {
@@ -36,7 +37,7 @@ export function ProfileHeaderSection({
 
         {/* Verification Card - Right Side (only show if not verified) */}
         {!athlete.world_id_verified && (
-          <div className='flex-1 lg:max-w-md'>
+          <div className='flex-1 lg:max-w-lg'>
             <VerificationCard
               athleteId={athlete.id}
               isWorldIdVerified={athlete.world_id_verified}
@@ -49,3 +50,5 @@ export function ProfileHeaderSection({
     </div>
   );
 }
+
+export default React.memo(ProfileHeaderSection);

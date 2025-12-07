@@ -1,12 +1,14 @@
 "use client";
 
+import React from "react";
+
 interface ProfileScoreDisplayProps {
   score: number;
   worldIdVerified: boolean;
   audioCount?: number;
 }
 
-export function ProfileScoreDisplay({
+function ProfileScoreDisplay({
   score,
   worldIdVerified,
   audioCount = 0,
@@ -45,3 +47,5 @@ export function ProfileScoreDisplay({
     </div>
   );
 }
+
+export default React.memo(ProfileScoreDisplay);
