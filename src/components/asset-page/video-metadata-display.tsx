@@ -98,8 +98,8 @@ export function VideoMetadataDisplay({
                 <X className='w-5 h-5 text-gray-400' />
               </button>
             </div>
-            <div className='flex-1 overflow-auto p-6'>
-              <pre className='text-xs font-mono text-blue-300 bg-[#050505] p-4 rounded-xl border border-white/5 overflow-x-auto overflow-y-auto max-h-[500px]'>
+            <div className='flex-1 p-6'>
+              <pre className='text-xs font-mono text-blue-300 bg-[#050505] p-4 rounded-xl border border-white/5 overflow-auto max-h-[500px]'>
                 {JSON.stringify(metadata, null, 2)}
               </pre>
             </div>
