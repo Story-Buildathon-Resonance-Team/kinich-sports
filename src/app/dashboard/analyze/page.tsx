@@ -1,9 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
-import Lenis from "lenis";
-import gsap from "gsap";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const BurpeeAnalyzer = dynamic(() => import("@/components/drills/burpee-analyzer"), {
@@ -20,35 +17,9 @@ const BurpeeAnalyzer = dynamic(() => import("@/components/drills/burpee-analyzer
 });
 
 export default function AnalyzePage() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Initialize Lenis for smooth scrolling
-    const lenis = new Lenis();
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-
-    // Content Animation
-    if (containerRef.current) {
-        gsap.fromTo(containerRef.current,
-            { opacity: 0, y: 10 },
-            { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", delay: 0.1 }
-        );
-    }
-
-    return () => {
-      lenis.destroy();
-    };
-  }, []);
-
   return (
-      <div ref={containerRef} className="flex-1 p-6 lg:p-8 h-full">
-        <BurpeeAnalyzer />
-      </div>
+    <div className="flex-1 p-6 lg:p-8 h-full animate-fade-in-up">
+      <BurpeeAnalyzer />
+    </div>
   );
 }

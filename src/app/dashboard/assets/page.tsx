@@ -70,7 +70,7 @@ export default function AssetsPage() {
 
     if (!sdkHasLoaded || !user || isLoading) {
         return (
-            <div className="p-6 lg:p-8 w-full space-y-8">
+            <div className="p-6 lg:p-8 w-full max-w-[1600px] mx-auto space-y-8">
                 <div className="flex justify-between items-end">
                     <div className="space-y-2">
                         <Skeleton className="h-8 w-48 rounded-lg bg-white/5" />
@@ -117,7 +117,7 @@ export default function AssetsPage() {
     };
 
     return (
-        <div className="p-6 lg:p-8 w-full animate-fade-in-up">
+        <div className="p-6 lg:p-8 w-full max-w-[1600px] mx-auto animate-fade-in-up">
             <div className="flex justify-end mb-6">
                 <FilterTabs
                     defaultFilter="all"
@@ -163,58 +163,55 @@ export default function AssetsPage() {
                         }
 
                         return (
-                            <div
-                                key={asset.id}
-                                onClick={() => router.push(`/dashboard/assets/${asset.id}`)}
-                                className="group relative grid grid-cols-[auto_1.5fr_1fr_1fr_auto] gap-6 p-4 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl transition-all duration-200 cursor-pointer items-center"
-                            >
-                                {/* Col 1: Icon */}
-                                <div className={cn(
-                                    "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 relative overflow-hidden",
-                                    isVideo ? "bg-blue-900/20" : "bg-purple-900/20"
-                                )}>
-                                    {isVideo ? (
-                                        <Video className="w-5 h-5 text-blue-400" />
-                                    ) : (
-                                        <Mic className="w-5 h-5 text-purple-400" />
-                                    )}
-
-                                    {/* Hover Play Overlay */}
-                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                        <Play className="w-5 h-5 text-white fill-current" />
-                                    </div>
-                                </div>
-
-                                {/* Col 2: Title & Type */}
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-3 mb-1.5">
-                                        <h3 className="text-white font-medium text-sm truncate group-hover:text-blue-400 transition-colors">
-                                            {title}
-                                        </h3>
-                                        <div className={cn(
-                                            "px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border",
-                                            isVideo ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "bg-purple-500/10 text-purple-400 border-purple-500/20"
-                                        )}>
-                                            {isVideo ? "VIS" : "AUD"}
+                            <div key={asset.id}>
+                                <div className="md:hidden p-4 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl transition-all cursor-pointer" onClick={() => router.push(`/dashboard/assets/${asset.id}`)}>
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", isVideo ? "bg-blue-900/20" : "bg-purple-900/20")}>
+                                            {isVideo ? <Video className="w-4 h-4 text-blue-400" /> : <Mic className="w-4 h-4 text-purple-400" />}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-white font-medium text-sm truncate">{title}</h3>
+                                            <p className="text-xs text-gray-500 truncate">ID: {asset.id.slice(0, 8)}</p>
+                                        </div>
+                                        <div className={cn("px-2 py-1 rounded-full text-[10px] font-bold", asset.status === 'active' || asset.status === 'registered' ? "bg-emerald-500/10 text-emerald-400" : "bg-yellow-500/10 text-yellow-400")}>
+                                            {asset.status === 'registered' ? 'Active' : asset.status}
                                         </div>
                                     </div>
-                                    <p className="text-xs text-gray-500 truncate">
-                                        ID: <span className="font-mono opacity-70">{asset.id.slice(0, 8)}</span>
-                                    </p>
-                                </div>
-
-                                {/* Col 3: Experience & Tag */}
-                                <div className="hidden md:block">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-xs text-gray-400 uppercase tracking-wider font-medium">Level</span>
-                                        <span className="text-sm text-white capitalize">{metadata.athlete_profile?.experience_level || "Competitive"}</span>
+                                    <div className="grid grid-cols-2 gap-2 text-xs mb-2">
+                                        <div className="flex items-center gap-1 text-gray-400">
+                                            <Calendar className="w-3 h-3" />
+                                            <span>{formatDate(asset.created_at)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-gray-400">
+                                            <Clock className="w-3 h-3" />
+                                            <span>{duration}</span>
+                                        </div>
+                                    </div>
+                                    <div className="pt-2 border-t border-white/5 flex justify-between items-center">
+                                        <span className="text-xs text-gray-400">License Fee</span>
+                                        <span className="text-sm font-bold text-white font-mono">{asset.license_fee} <span className="text-xs text-gray-500">$IP</span></span>
                                     </div>
                                 </div>
 
-                                {/* Col 4: Date & Duration */}
-                                <div className="hidden sm:block">
-                                    <div className="flex flex-col gap-1">
-                                        <div className="flex items-center gap-2 text-xs text-gray-400">
+                                <div className="hidden md:grid grid-cols-[auto_1.5fr_1fr_1fr_auto] gap-6 p-4 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl transition-all cursor-pointer items-center" onClick={() => router.push(`/dashboard/assets/${asset.id}`)}>
+                                    <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center relative overflow-hidden", isVideo ? "bg-blue-900/20" : "bg-purple-900/20")}>
+                                        {isVideo ? <Video className="w-5 h-5 text-blue-400" /> : <Mic className="w-5 h-5 text-purple-400" />}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-3 mb-1.5">
+                                            <h3 className="text-white font-medium text-sm truncate">{title}</h3>
+                                            <div className={cn("px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border", isVideo ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "bg-purple-500/10 text-purple-400 border-purple-500/20")}>
+                                                {isVideo ? "VIS" : "AUD"}
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-500 truncate">ID: {asset.id.slice(0, 8)}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-xs text-gray-400 uppercase tracking-wider font-medium">Level</span>
+                                        <p className="text-sm text-white capitalize">{metadata.athlete_profile?.experience_level || "Competitive"}</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
                                             <Calendar className="w-3 h-3" />
                                             <span>{formatDate(asset.created_at)}</span>
                                         </div>
@@ -223,23 +220,11 @@ export default function AssetsPage() {
                                             <span>{duration}</span>
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Col 5: Price & Status */}
-                                <div className="flex items-center gap-4 justify-end">
-                                    <div className="text-right">
-                                        <div className="text-sm font-bold text-white font-mono">
-                                            {asset.license_fee} <span className="text-xs text-gray-500 font-normal">$IP</span>
+                                    <div className="flex items-center gap-4 justify-end">
+                                        <div className="text-sm font-bold text-white font-mono">{asset.license_fee} <span className="text-xs text-gray-500">$IP</span></div>
+                                        <div className={cn("px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border", asset.status === 'active' || asset.status === 'registered' ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20")}>
+                                            {asset.status === 'registered' ? 'Active' : asset.status}
                                         </div>
-                                    </div>
-
-                                    <div className={cn(
-                                        "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border",
-                                        asset.status === 'active' || asset.status === 'registered'
-                                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                            : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-                                    )}>
-                                        {asset.status === 'registered' ? 'Active' : asset.status}
                                     </div>
                                 </div>
                             </div>

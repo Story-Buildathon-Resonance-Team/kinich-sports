@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   compress: true,
-  optimizePackageImports: ["lucide-react", "@dynamic-labs/sdk-react-core", "gsap", "framer-motion"],
+  optimizePackageImports: ["lucide-react", "@dynamic-labs/sdk-react-core", "recharts"],
   images: {
     remotePatterns: [
       {

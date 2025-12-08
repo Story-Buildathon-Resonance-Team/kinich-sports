@@ -194,6 +194,21 @@
             background-position: -200% 0;
         }
     }
+    .animate-rep-count {
+        animation: repPulse 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    @keyframes repPulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.5);
+            color: #4ade80;
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
     .animate-float {
         animation: float 6s ease-in-out infinite;
     }

@@ -13,7 +13,8 @@ import {
   LineChart,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 const PerformanceChart = dynamic(
   () => import("@/components/dashboard/performance-chart"),
@@ -40,66 +41,36 @@ const DEMO_PERFORMANCE_DATA = [
 export default function AthleteDashboard() {
   const { user, sdkHasLoaded } = useDynamicContext();
   const [chartType, setChartType] = useState<"area" | "bar">("area");
-  
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let isMounted = true;
+  const { data, isLoading } = useQuery({
+    queryKey: ["dashboard", user?.userId],
+    queryFn: async () => {
+      if (!user?.userId) throw new Error("No user");
 
-    async function loadData() {
-      if (!user?.userId) return;
-      
-      try {
-        const [athleteRes] = await Promise.all([
-            fetch(`/api/athletes/me?dynamic_user_id=${user.userId}`)
-        ]);
+      const athleteRes = await fetch(`/api/athletes/me?dynamic_user_id=${user.userId}`);
+      if (!athleteRes.ok) throw new Error("Failed to fetch athlete");
+      const athleteData = await athleteRes.json();
 
-        if (!isMounted || !user?.userId) return;
+      const assetsRes = await fetch(`/api/assets?athlete_id=${athleteData.athlete.id}`);
+      const assetsData = assetsRes.ok ? await assetsRes.json() : { assets: [] };
 
-        if (!athleteRes.ok) throw new Error("Failed to fetch athlete");
-        const athleteData = await athleteRes.json();
-        
-        if (!isMounted || !user?.userId) return;
+      return {
+        athlete: athleteData.athlete,
+        stats: athleteData.stats,
+        assets: assetsData.assets
+      };
+    },
+    enabled: !!user?.userId && sdkHasLoaded,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
 
-        const assetsRes = await fetch(`/api/assets?athlete_id=${athleteData.athlete.id}`);
-        const assetsData = assetsRes.ok ? await assetsRes.json() : { assets: [] };
-
-        if (!isMounted || !user?.userId) return;
-
-        setData({
-          athlete: athleteData.athlete,
-          stats: athleteData.stats,
-          assets: assetsData.assets
-        });
-      } catch (e) {
-        console.error(e);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    if (sdkHasLoaded && user) {
-      loadData();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [user, sdkHasLoaded]);
-
-
-  if (!sdkHasLoaded || !user || loading) {
+  if (!sdkHasLoaded || !user || isLoading) {
     return <DashboardLoading />;
   }
 
   if (!data) {
-    return (
-        <div className="p-8 text-center">Failed to load data. Please refresh.</div>
-    )
+    return <div className="p-8 text-center">Failed to load data. Please refresh.</div>;
   }
 
   const { athlete, stats, assets } = data;

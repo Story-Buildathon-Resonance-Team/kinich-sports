@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AssetAudioPlayer } from "@/components/asset-page/asset-audio-player";
 import { AssetVideoPlayer } from "@/components/asset-page/asset-video-player";
@@ -12,8 +12,6 @@ import { Card } from "@/components/custom/card";
 import { AudioCapsuleMetadata } from "@/lib/types/audio";
 import { VideoDrillMetadata } from "@/lib/types/video";
 import { createClient } from "@/utils/supabase/client";
-import gsap from "gsap";
-import Lenis from "lenis";
 import { Loader2, AlertCircle, ArrowLeft, Share2 } from "lucide-react";
 
 export default function AssetDetailPage() {
@@ -24,7 +22,6 @@ export default function AssetDetailPage() {
   const [asset, setAsset] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchAsset = async () => {
@@ -71,29 +68,6 @@ export default function AssetDetailPage() {
       fetchAsset();
     }
   }, [assetId]);
-
-  useEffect(() => {
-    const lenis = new Lenis();
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-
-    if (containerRef.current) {
-      gsap.fromTo(
-        containerRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
-      );
-    }
-
-    return () => {
-      lenis.destroy();
-    };
-  }, []);
 
   if (loading) {
     return (
@@ -158,10 +132,7 @@ export default function AssetDetailPage() {
     asset.asset_type === "video" ? "text-blue-400" : "text-purple-400";
 
   return (
-    <div
-      ref={containerRef}
-      className='p-6 lg:p-8 max-w-[1600px] mx-auto min-h-screen'
-    >
+    <div className='p-6 lg:p-8 max-w-[1600px] mx-auto min-h-screen animate-fade-in-up'>
       <div className='flex items-center justify-between mb-8'>
         <button
           onClick={() => router.push("/dashboard/assets")}

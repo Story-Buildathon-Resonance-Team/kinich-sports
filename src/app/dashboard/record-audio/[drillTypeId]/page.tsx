@@ -9,8 +9,6 @@ import { AudioAccessGate } from "@/components/audio/audio-access-gate";
 import { Card } from "@/components/custom/card";
 import { getDrillById, AudioCapsule } from "@/lib/drills/constants";
 import { useAudioUpload } from "@/hooks/useAudioUpload";
-import gsap from "gsap";
-import Lenis from "lenis";
 import { Loader2 } from "lucide-react";
 
 type SubmissionStep = "instructions" | "recording" | "preview" | "uploading";
@@ -32,16 +30,15 @@ export default function AudioSubmissionPage() {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
   const hasInitialized = useRef(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const uploadHook = useAudioUpload({
     challenge: challenge || null,
     athleteId: athleteId || null,
     athleteProfile: athleteProfile
       ? {
-          ...athleteProfile,
-          wallet_address: user?.verifiedCredentials?.[0]?.address,
-        }
+        ...athleteProfile,
+        wallet_address: user?.verifiedCredentials?.[0]?.address,
+      }
       : null,
   });
 
@@ -96,29 +93,6 @@ export default function AudioSubmissionPage() {
 
     initialize();
   }, [drillTypeId, user?.userId]);
-
-  useEffect(() => {
-    const lenis = new Lenis();
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-
-    if (containerRef.current) {
-      gsap.fromTo(
-        containerRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
-      );
-    }
-
-    return () => {
-      lenis.destroy();
-    };
-  }, []);
 
   const handleRecordingComplete = (blob: Blob, duration: number) => {
     setRecordedBlob(blob);
@@ -240,7 +214,7 @@ export default function AudioSubmissionPage() {
 
   return (
     <AudioAccessGate athleteId={athleteId}>
-      <div ref={containerRef} className='min-h-screen bg-[#050505]'>
+      <div className='min-h-screen bg-[#050505] animate-fade-in-up'>
         <div className='max-w-[1000px] mx-auto px-6 md:px-16 pt-[140px] pb-20'>
           {/* Header */}
           <div className='text-center mb-12'>
