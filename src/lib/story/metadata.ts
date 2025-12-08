@@ -9,8 +9,10 @@ import { Address } from "viem";
 /**
  * Default IPFS images for NFT metadata
  */
-const DEFAULT_VIDEO_IMAGE_CID = "bafybeig77bodtxvpwixi6ouk7cbo4hwgdioqyo53mf5pufvbdqvnmguipy";
-const DEFAULT_AUDIO_IMAGE_CID = "bafybeicvtq63wkczg3wt7nnv2kelmjdoqh333sxmenhzlilbfsqvw443xy";
+const DEFAULT_VIDEO_IMAGE_CID =
+  "bafybeig77bodtxvpwixi6ouk7cbo4hwgdioqyo53mf5pufvbdqvnmguipy";
+const DEFAULT_AUDIO_IMAGE_CID =
+  "bafybeicvtq63wkczg3wt7nnv2kelmjdoqh333sxmenhzlilbfsqvw443xy";
 
 /**
  * Creator information for IP metadata
@@ -53,7 +55,16 @@ export function buildDrillIPMetadata(params: {
   humanConfidenceScore: number; // Human confidence from MediaPipe (0-1)
   repCount: number; // Number of reps detected
 }): IpMetadata {
-  const { athleteName, athleteAddress, drillInfo, media, description, cvVideoVerified, humanConfidenceScore, repCount } = params;
+  const {
+    athleteName,
+    athleteAddress,
+    drillInfo,
+    media,
+    description,
+    cvVideoVerified,
+    humanConfidenceScore,
+    repCount,
+  } = params;
 
   // Use drill name from constants as title
   const title = `${drillInfo.drill_name} - ${drillInfo.experience_level} Athlete`;
@@ -152,25 +163,33 @@ export function buildNFTMetadata(params: {
   description: string;
   imageUrl?: string;
   assetType?: "video" | "audio";
+  attributes?: Array<{
+    trait_type: string;
+    value: string | number;
+    display_type?: "number" | "boost_percentage" | "boost_number" | "date";
+  }>;
 }): {
   name: string | undefined;
   description: string;
   image: string;
+  attributes?: Array<any>;
 } {
   // Determine image URL with fallback to asset type defaults
   let imageUrl = params.imageUrl;
 
   if (!imageUrl && params.assetType) {
-    const cid = params.assetType === "video"
-      ? DEFAULT_VIDEO_IMAGE_CID
-      : DEFAULT_AUDIO_IMAGE_CID;
+    const cid =
+      params.assetType === "video"
+        ? DEFAULT_VIDEO_IMAGE_CID
+        : DEFAULT_AUDIO_IMAGE_CID;
     imageUrl = `ipfs://${cid}`;
   }
 
   return {
     name: params.title,
     description: params.description,
-    image: imageUrl || "", // Fallback to empty string if still undefined
+    image: imageUrl || "",
+    attributes: params.attributes,
   };
 }
 
