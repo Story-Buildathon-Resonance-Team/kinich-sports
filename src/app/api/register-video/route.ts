@@ -67,7 +67,8 @@ export async function POST(request: NextRequest) {
       },
       description:
         metadata?.description ||
-        `${drill.name} - ${metadata?.cv_metrics?.rep_count || 0
+        `${drill.name} - ${
+          metadata?.cv_metrics?.rep_count || 0
         } reps completed with ${(
           (metadata?.verification?.human_confidence_score || 0) * 100
         ).toFixed(0)}% confidence`,
@@ -81,6 +82,32 @@ export async function POST(request: NextRequest) {
       description: ipMetadata.description || "Video drill performance",
       imageUrl: undefined,
       assetType: "video",
+      attributes: [
+        {
+          trait_type: "Drill Type",
+          value: drill.name,
+        },
+        {
+          trait_type: "Experience Level",
+          value: experienceLevel || "competitive",
+        },
+        {
+          trait_type: "Reps Completed",
+          value: metadata?.cv_metrics?.rep_count || 0,
+          display_type: "number",
+        },
+        {
+          trait_type: "Confidence Score",
+          value: Math.round(
+            (metadata?.verification?.human_confidence_score || 0) * 100
+          ),
+          display_type: "number",
+        },
+        {
+          trait_type: "CV Verified",
+          value: metadata?.verification?.is_verified ? "Yes" : "No",
+        },
+      ],
     });
 
     const result = await registerIPAsset({

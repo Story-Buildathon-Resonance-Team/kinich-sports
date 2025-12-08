@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         drillTypeId: !!drillTypeId,
         mediaUrl: !!mediaUrl,
         licenseFee: !!licenseFee,
-        verificationMethod: !!verificationMethod
+        verificationMethod: !!verificationMethod,
       });
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -104,6 +104,25 @@ export async function POST(request: NextRequest) {
       description: ipMetadata.description || "Audio mental training",
       imageUrl: undefined,
       assetType: "audio",
+      attributes: [
+        {
+          trait_type: "Challenge Type",
+          value: drill.name,
+        },
+        {
+          trait_type: "Experience Level",
+          value: experienceLevel,
+        },
+        {
+          trait_type: "Questions Answered",
+          value: questionsCount || 0,
+          display_type: "number",
+        },
+        {
+          trait_type: "World ID Verified",
+          value: worldIdVerified ? "Yes" : "No",
+        },
+      ],
     });
 
     const result = await registerIPAsset({
