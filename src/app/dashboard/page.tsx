@@ -1,14 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { useQuery } from "@tanstack/react-query";
 import ProfileScoreDisplay from "@/components/dashboard/profile-score-display";
 import ProfileHeaderSection from "@/components/dashboard/profile-header-section";
 import DashboardLoading from "@/app/dashboard/loading";
-import type { Athlete, SyncAthleteRequest } from "@/lib/types/athlete";
 import {
-  AlertCircle,
   Activity,
   DollarSign,
   Layers,
@@ -17,6 +13,7 @@ import {
   LineChart,
 } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useState, useEffect } from "react";
 
 const PerformanceChart = dynamic(
   () => import("@/components/dashboard/performance-chart"),
@@ -30,28 +27,6 @@ const PerformanceChart = dynamic(
   }
 );
 
-interface Asset {
-  id: string;
-  asset_type: "video" | "audio";
-  drill_type_id: string;
-  asset_url: string;
-  license_fee: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  metadata: any;
-  status: string;
-  created_at: string;
-}
-
-interface DashboardData {
-  athlete: Athlete;
-  stats: {
-    profileScore: number;
-    totalRoyalties: number;
-    totalAssets: number;
-  };
-  assets: Asset[];
-}
-
 const DEMO_PERFORMANCE_DATA = [
   { name: "Mon", value: 0 },
   { name: "Tue", value: 0 },
@@ -62,173 +37,76 @@ const DEMO_PERFORMANCE_DATA = [
   { name: "Sun", value: 0 },
 ];
 
-// Fetcher function for React Query
-async function fetchDashboardDataApi(
-  userId: string,
-  primaryWalletAddress: string | undefined,
-  firstName?: string,
-  lastName?: string
-): Promise<DashboardData> {
-  // Attempt to fetch athlete data
-  let athleteResponse = await fetch(
-    `/api/athletes/me?dynamic_user_id=${userId}`
-  );
-
-  // If user not found (404), attempt to sync athlete record
-  if (athleteResponse.status === 404 && primaryWalletAddress) {
-    console.log("Athlete not found in database, attempting sync...");
-
-    const syncData: SyncAthleteRequest = {
-      dynamicUserId: userId,
-      walletAddress: primaryWalletAddress,
-      firstName: firstName,
-      lastName: lastName,
-    };
-
-    try {
-      const syncResponse = await fetch("/api/sync-athlete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(syncData),
-      });
-
-      if (syncResponse.ok) {
-        // Retry fetch after successful sync
-        athleteResponse = await fetch(
-          `/api/athletes/me?dynamic_user_id=${userId}`
-        );
-      }
-    } catch (syncErr) {
-      console.error("Auto-sync failed:", syncErr);
-    }
-  }
-
-  if (!athleteResponse.ok) {
-    throw new Error("Failed to fetch athlete data");
-  }
-
-  const athleteData = await athleteResponse.json();
-
-  // Fetch assets
-  const assetsResponse = await fetch(
-    `/api/assets?athlete_id=${athleteData.athlete.id}`
-  );
-
-  if (!assetsResponse.ok) {
-    throw new Error("Failed to fetch assets");
-  }
-
-  const assetsData = await assetsResponse.json();
-
-  return {
-    athlete: athleteData.athlete,
-    stats: athleteData.stats,
-    assets: assetsData.assets,
-  };
-}
-
 export default function AthleteDashboard() {
-  const { user, primaryWallet, sdkHasLoaded } = useDynamicContext();
+  const { user, sdkHasLoaded } = useDynamicContext();
   const [chartType, setChartType] = useState<"area" | "bar">("area");
+  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const {
-    data: dashboardData,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ["dashboard", user?.userId],
-    queryFn: () => {
-      if (!user?.userId) throw new Error("User not authenticated");
-      return fetchDashboardDataApi(
-        user.userId,
-        primaryWallet?.address,
-        user.firstName,
-        user.lastName
-      );
-    },
-    enabled: !!user?.userId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+  useEffect(() => {
+    let isMounted = true;
 
-  const generateChartData = (assets: Asset[]) => {
-    if (!assets || assets.length === 0) return [];
+    async function loadData() {
+      if (!user?.userId) return;
+      
+      try {
+        const [athleteRes] = await Promise.all([
+            fetch(`/api/athletes/me?dynamic_user_id=${user.userId}`)
+        ]);
 
-    // Sort assets by date ascending
-    const sortedAssets = [...assets].sort(
-      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    );
+        if (!isMounted || !user?.userId) return;
 
-    let cumulativeValue = 0;
-    const dataMap = new Map<string, number>();
+        if (!athleteRes.ok) throw new Error("Failed to fetch athlete");
+        const athleteData = await athleteRes.json();
+        
+        if (!isMounted || !user?.userId) return;
 
-    sortedAssets.forEach((asset) => {
-      const date = new Date(asset.created_at).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      });
-      cumulativeValue += Number(asset.license_fee) || 0;
-      dataMap.set(date, cumulativeValue);
-    });
+        const assetsRes = await fetch(`/api/assets?athlete_id=${athleteData.athlete.id}`);
+        const assetsData = assetsRes.ok ? await assetsRes.json() : { assets: [] };
 
-    // Convert map to array
-    const chartData = Array.from(dataMap.entries()).map(([name, value]) => ({
-      name,
-      value,
-    }));
+        if (!isMounted || !user?.userId) return;
 
-    // If only one data point, add a "start" point to make a line
-    if (chartData.length === 1) {
-      const firstDate = new Date(sortedAssets[0].created_at);
-      firstDate.setDate(firstDate.getDate() - 1);
-      chartData.unshift({
-        name: firstDate.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-        value: 0
-      });
+        setData({
+          athlete: athleteData.athlete,
+          stats: athleteData.stats,
+          assets: assetsData.assets
+        });
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     }
 
-    return chartData;
-  };
+    if (sdkHasLoaded && user) {
+      loadData();
+    }
 
-  // Calculate real chart data
-  const chartData = dashboardData?.assets && dashboardData.assets.length > 0
-    ? generateChartData(dashboardData.assets)
-    : DEMO_PERFORMANCE_DATA; // Fallback to minimal data if no assets
+    return () => {
+      isMounted = false;
+    };
+  }, [user, sdkHasLoaded]);
 
-  if (!sdkHasLoaded || !user || isLoading) {
+
+  if (!sdkHasLoaded || !user || loading) {
     return <DashboardLoading />;
   }
 
-  if (error || !dashboardData) {
+  if (!data) {
     return (
-      <div className='flex-1 flex items-center justify-center p-8'>
-        <div className='text-center max-w-md p-8 glass-panel rounded-2xl'>
-          <AlertCircle className='w-12 h-12 text-red-500 mx-auto mb-4' />
-          <h3 className='text-xl font-bold text-white mb-2'>
-            Unable to load dashboard
-          </h3>
-          <p className='text-gray-400 mb-6 text-sm'>
-            {error instanceof Error
-              ? error.message
-              : "We encountered an issue loading your athlete data."}
-          </p>
-          <button
-            onClick={() => refetch()}
-            className='px-6 py-2.5 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition-colors'
-          >
-            Retry Connection
-          </button>
-        </div>
-      </div>
-    );
+        <div className="p-8 text-center">Failed to load data. Please refresh.</div>
+    )
   }
 
-  const { athlete, stats, assets } = dashboardData;
+  const { athlete, stats, assets } = data;
 
   const audioCount = assets.filter(
-    (asset) => asset.asset_type === "audio"
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (asset: any) => asset.asset_type === "audio"
   ).length;
 
   const getInitials = (name: string | null): string => {
@@ -269,12 +147,49 @@ export default function AthleteDashboard() {
     world_id_verified_at: athlete.world_id_verified_at,
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const generateChartData = (assets: any[]) => {
+    if (!assets || assets.length === 0) return [];
+    const sortedAssets = [...assets].sort(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+    let cumulativeValue = 0;
+    const dataMap = new Map<string, number>();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sortedAssets.forEach((asset: any) => {
+      const date = new Date(asset.created_at).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+      cumulativeValue += Number(asset.license_fee) || 0;
+      dataMap.set(date, cumulativeValue);
+    });
+    const chartData = Array.from(dataMap.entries()).map(([name, value]) => ({
+      name,
+      value,
+    }));
+    if (chartData.length === 1) {
+      const firstDate = new Date(sortedAssets[0].created_at);
+      firstDate.setDate(firstDate.getDate() - 1);
+      chartData.unshift({
+        name: firstDate.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        value: 0
+      });
+    }
+    return chartData;
+  };
+
+  const chartData = assets && assets.length > 0
+    ? generateChartData(assets)
+    : DEMO_PERFORMANCE_DATA;
+
   return (
     <div className='p-6 lg:p-8 w-full max-w-[1600px] mx-auto animate-fade-in-up'>
       {/* Profile Header Section */}
       <ProfileHeaderSection
         athlete={athleteProfile}
-        onVerificationSuccess={() => refetch()}
+        onVerificationSuccess={() => window.location.reload()}
       />
 
       {/* Stats Grid */}

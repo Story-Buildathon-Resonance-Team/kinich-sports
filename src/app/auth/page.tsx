@@ -15,13 +15,6 @@ export default function AuthPage() {
         }
     }, [isAuthenticated, router]);
 
-    // If the user closes the modal without connecting, we might want to show the button again.
-    // However, detecting "modal close" from here is tricky without the explicit event.
-    // A simple timeout or relying on the user to refresh if they cancel is a safer MVP, 
-    // OR we can just leave it hidden since they likely wanted to connect.
-    // BETTER: We can use a layout effect or just assume if they are not authenticated after a while, 
-    // we *could* reset. But for now, let's hide it on click.
-
     const handleConnect = () => {
         if (isAuthenticated) {
             router.push("/dashboard");
@@ -30,22 +23,6 @@ export default function AuthPage() {
 
         setIsConnecting(true);
         setShowAuthFlow(true);
-    };
-
-    // Effect to reset button state if modal closes without auth
-    // This is a heuristic: if we clicked connect, but time passed and we are still not authenticated,
-    // and the modal might have been closed by the user.
-    // Dynamic SDK doesn't provide a simple "onClose" hook here easily without custom events.
-    // A simple way is to add a "Cancel" or "Reset" button if it gets stuck, or rely on the user reloading.
-    // For now, we will add a small "Log out / Reset" text below for stuck users.
-
-    const handleLogout = async () => {
-        try {
-            await window.localStorage.clear();
-            window.location.reload();
-        } catch (e) {
-            console.error("Error clearing storage", e);
-        }
     };
 
     return (
@@ -68,15 +45,7 @@ export default function AuthPage() {
                 >
                     Connect Wallet
                 </button>
-
-                <button
-                    onClick={handleLogout}
-                    className="text-xs text-white/30 hover:text-white/60 transition-colors"
-                >
-                    Reset Session
-                </button>
             </div>
         </div>
     );
 }
-

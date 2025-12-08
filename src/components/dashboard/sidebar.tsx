@@ -2,28 +2,41 @@
 
 import Link from "next/link";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 import { useState, useEffect, useMemo } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { dashboardNavItems } from "@/config/navigation";
 import React from "react";
+import { LogOut } from "lucide-react";
 
 function DashboardSidebar() {
-  const { user } = useDynamicContext();
+  const { handleLogOut } = useDynamicContext();
+  const router = useRouter();
   const [isDesktop, setIsDesktop] = useState(false);
   const currentPath = usePathname();
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 1024px)");
     
-    // Initial set - safe in useEffect as it runs after mount
-    setIsDesktop(mediaQuery.matches);
+    const updateDesktopState = () => {
+      setIsDesktop(mediaQuery.matches);
+    };
+
+    updateDesktopState();
 
     const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
+
+  const onLogout = async () => {
+    try {
+        await handleLogOut();
+        router.replace("/");
+    } catch (err) {
+        console.error("Logout failed", err);
+    }
+  };
 
   const navLinks = useMemo(() => {
     return dashboardNavItems.map((item) => {
@@ -72,10 +85,13 @@ function DashboardSidebar() {
 
       <div className='px-8 pt-8 pb-16 mt-auto space-y-4 border-t border-white/5 bg-[#080808]'>
         {isDesktop && (
-          <DynamicWidget
-            variant='modal'
-            innerButtonComponent={<span>Login</span>}
-          />
+          <button 
+              onClick={onLogout}
+              className="flex items-center gap-3 text-gray-500 hover:text-white transition-colors w-full px-1 py-2"
+          >
+              <LogOut className="w-4 h-4" />
+              <span className="text-sm font-medium">Log Out</span>
+          </button>
         )}
       </div>
     </aside>

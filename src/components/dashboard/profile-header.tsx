@@ -20,12 +20,12 @@ function ProfileHeader({
     <div className='text-center'>
       <div className='relative mx-auto mb-5 w-fit'>
         <div className='w-24 h-24 bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-400/20 rounded-full flex items-center justify-center text-2xl font-medium text-blue-200 shadow-inner'>
-            {initials}
+          {initials}
         </div>
         {isWorldIdVerified && (
-            <div className="absolute -bottom-1 -right-1 bg-[#050505] rounded-full p-1">
-                <HumanBadge variant='icon-only' size='small' />
-            </div>
+          <div className="absolute -bottom-1 -right-1 bg-[#050505] rounded-full p-1">
+            <HumanBadge variant='icon-only' size='small' />
+          </div>
         )}
       </div>
 
@@ -43,4 +43,6 @@ function ProfileHeader({
   );
 }
 
-export default React.memo(ProfileHeader);
+export default React.memo(ProfileHeader, (prev, next) => {
+  return prev.name === next.name && prev.isWorldIdVerified === next.isWorldIdVerified;
+});

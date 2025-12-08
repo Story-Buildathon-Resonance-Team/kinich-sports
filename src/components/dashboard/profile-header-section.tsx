@@ -51,4 +51,9 @@ function ProfileHeaderSection({
   );
 }
 
-export default React.memo(ProfileHeaderSection);
+export default React.memo(ProfileHeaderSection, (prevProps, nextProps) => {
+  return (
+    prevProps.athlete.id === nextProps.athlete.id &&
+    prevProps.athlete.world_id_verified === nextProps.athlete.world_id_verified
+  );
+});

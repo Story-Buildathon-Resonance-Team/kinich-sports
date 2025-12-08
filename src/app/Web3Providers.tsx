@@ -64,6 +64,7 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
     },
   ];
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleAuthSuccess = async (args: any) => {
     // Sync athlete data on successful authentication
     const userId = args.user.userId;
@@ -82,25 +83,25 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
         competitiveLevel: metadata?.["Competitive Level"],
       };
 
-      try {
-        const response = await fetch("/api/sync-athlete", {
+      // Sync in background - don't await
+      fetch("/api/sync-athlete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(syncData),
-        });
-        
-        const result: SyncAthleteResponse = await response.json();
+      })
+      .then(res => res.json())
+      .then((result: SyncAthleteResponse) => {
           if (result.success) {
-            console.log(`Athlete ${result.isNewUser ? "created" : "synced"} successfully`);
-           // Invalidate React Query caches to refresh UI immediately
-           queryClient.invalidateQueries({ queryKey: ["athlete", userId] });
-           queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
+             console.log(`Athlete ${result.isNewUser ? "created" : "synced"} successfully`);
+             queryClient.invalidateQueries({ queryKey: ["athlete", userId] });
+             queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
           } else {
-            console.error("Failed to sync athlete:", result.error);
+             console.error("Failed to sync athlete:", result.error);
           }
-      } catch (error) {
+      })
+      .catch((error) => {
           console.error("Error syncing athlete:", error);
-      }
+      });
     }
 
     // Redirect to dashboard on successful auth from landing page or auth page
@@ -109,6 +110,7 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleUserProfileUpdate = async (user: any) => {
     // Sync profile changes when user updates their information
     const userId = user.userId;
@@ -127,25 +129,12 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
         competitiveLevel: metadata?.["Competitive Level"],
       };
 
-      try {
-        const response = await fetch("/api/sync-athlete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(syncData),
-        });
-        
-        const result: SyncAthleteResponse = await response.json();
-        
-        if (result.success) {
-            // Invalidate React Query caches to refresh UI immediately
-            queryClient.invalidateQueries({ queryKey: ["athlete", userId] });
-            queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
-        } else {
-            console.error("Failed to update profile:", result.error);
-        }
-      } catch (error) {
-        console.error("Error updating profile:", error);
-      }
+      // Sync in background - don't await
+      fetch("/api/sync-athlete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(syncData),
+      }).catch(err => console.error("Background sync error:", err));
     }
   };
 
@@ -191,7 +180,7 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
       }}
     >
         {children}
-      </DynamicContextProvider>
+    </DynamicContextProvider>
   );
 }
 
