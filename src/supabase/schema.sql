@@ -11,7 +11,9 @@ CREATE TABLE athletes (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   world_id_verified BOOLEAN DEFAULT FALSE,
   world_id_nullifier_hash TEXT UNIQUE,
-  world_id_verified_at TIMESTAMP WITH TIME ZONE
+  world_id_verified_at TIMESTAMP WITH TIME ZONE,
+  audio_unlocked_via_worldid BOOLEAN DEFAULT FALSE,
+  audio_unlocked_via_cv BOOLEAN DEFAULT FALSE
 );
 
 -- Assets table
@@ -28,7 +30,8 @@ CREATE TABLE assets (
   metadata JSONB NOT NULL, -- Full drill metadata from submission protocol
   cv_verified BOOLEAN DEFAULT FALSE,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'failed')),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  profile_score INTEGER DEFAULT 0
 );
 
 -- Indexes
@@ -40,3 +43,33 @@ CREATE INDEX idx_assets_status ON assets(status);
 CREATE INDEX idx_assets_metadata ON assets USING GIN (metadata);
 CREATE INDEX idx_assets_athlete_drill ON assets(athlete_id, drill_type_id); -- For querying all attempts of same drill by athlete
 CREATE INDEX idx_assets_drill_type ON assets(drill_type_id); -- For filtering by drill type
+CREATE INDEX idx_assets_cv_verified ON assets(athlete_id, cv_verified) WHERE asset_type = 'video' AND status = 'active';
+CREATE INDEX idx_athletes_profile_score ON athletes(profile_score DESC);
+
+-- Audio Access Function
+-- This can be called from SQL queries to check if athlete has audio access
+
+-- Create function to check if athlete has audio access
+CREATE OR REPLACE FUNCTION has_audio_access(athlete_id_param UUID)
+RETURNS BOOLEAN AS $$
+DECLARE
+  has_world_id BOOLEAN;
+  has_cv_video BOOLEAN;
+BEGIN
+  -- Check World ID verification
+  SELECT world_id_verified INTO has_world_id
+  FROM athletes
+  WHERE id = athlete_id_param;
+  
+  -- Check if athlete has at least one CV-verified video
+  SELECT EXISTS(
+    SELECT 1 FROM assets
+    WHERE athlete_id = athlete_id_param
+    AND asset_type = 'video'
+    AND cv_verified = TRUE
+    AND status = 'active'
+  ) INTO has_cv_video;
+  
+  RETURN (has_world_id OR has_cv_video);
+END;
+$$ LANGUAGE plpgsql;

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { recalculateAthleteScoreSafe } from "@/lib/scoring/calculateProfileScore";
 
 interface VerifyWorldIdRequest {
   proof: {
@@ -136,6 +137,14 @@ export async function POST(request: NextRequest) {
           nullifier_hash: proof.nullifier_hash,
         },
         { status: 500 }
+      );
+    }
+
+    // Update profile score after World ID verification
+    const scoreResult = await recalculateAthleteScoreSafe(athlete_id);
+    if (scoreResult.success) {
+      console.log(
+        `Profile score updated after World ID verification: ${scoreResult.score}`
       );
     }
 

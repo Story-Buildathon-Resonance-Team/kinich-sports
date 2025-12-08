@@ -39,8 +39,8 @@ export default function HumanBadge({
       <div
         className={`
           inline-flex items-center justify-center
-          bg-[rgba(245,247,250,0.12)]
-          border border-[rgba(245,247,250,0.2)]
+          bg-[rgba(245,247,250)]
+          border-[rgba(245,247,250,0.7)]
           rounded-md
           ${config.container}
           ${className}
@@ -63,8 +63,8 @@ export default function HumanBadge({
     <div
       className={`
         inline-flex items-center
-        bg-[rgba(245,247,250,0.12)]
-        border border-[rgba(245,247,250,0.2)]
+        bg-[rgba(245,247,250)]
+        border-[rgba(245,247,250,0.7)]
         rounded-md
         ${config.container}
         ${className}
@@ -76,7 +76,6 @@ export default function HumanBadge({
         alt='World ID'
         width={config.icon}
         height={config.icon}
-        className='opacity-90'
       />
       <span
         className={`

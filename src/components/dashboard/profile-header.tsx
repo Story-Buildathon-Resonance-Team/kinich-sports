@@ -1,4 +1,5 @@
 import HumanBadge from "../custom/human-badge";
+import React from "react";
 
 interface ProfileHeaderProps {
   initials: string;
@@ -8,7 +9,7 @@ interface ProfileHeaderProps {
   isWorldIdVerified?: boolean;
 }
 
-export function ProfileHeader({
+function ProfileHeader({
   initials,
   name,
   discipline,
@@ -41,3 +42,5 @@ export function ProfileHeader({
     </div>
   );
 }
+
+export default React.memo(ProfileHeader);

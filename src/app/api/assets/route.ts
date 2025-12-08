@@ -17,10 +17,10 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Build query
+    // Build query - Select only needed fields to reduce payload size
     let query = supabase
       .from("assets")
-      .select("*")
+      .select("id, asset_type, drill_type_id, asset_url, license_fee, metadata, status, created_at")
       .eq("athlete_id", athleteId)
       .eq("status", status)
       .order("created_at", { ascending: false });

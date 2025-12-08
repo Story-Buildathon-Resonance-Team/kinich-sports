@@ -1,8 +1,8 @@
-import { ReactNode } from "react";
+import { ReactNode, HTMLAttributes } from "react";
 
 type CardVariant = "default" | "elevated" | "featured" | "stat";
 
-interface CardProps {
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: CardVariant;
   children: ReactNode;
   className?: string;
@@ -14,6 +14,7 @@ export function Card({
   children,
   className = "",
   hover = true,
+  ...props
 }: CardProps) {
   const baseStyles = "rounded-xl border transition-all duration-300";
 
@@ -43,7 +44,7 @@ export function Card({
   };
 
   return (
-    <div className={`${baseStyles} ${variants[variant]} ${className} group`}>
+    <div className={`${baseStyles} ${variants[variant]} ${className} group`} {...props}>
       {(variant === "elevated" || variant === "stat") && hover && (
         <div className='absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,71,171,0.3)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[400ms]' />
       )}

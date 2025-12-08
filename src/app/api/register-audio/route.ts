@@ -1,30 +1,24 @@
-/**
- * POST /api/register-audio
- *
- * Registers an audio asset as an IP on Story Protocol
- * Called by frontend immediately after audio upload to DB (no verification needed)
- *
- * Flow:
- * 1. Validate request data
- * 2. Call registerIPAsset() (platform pays gas)
- * 3. Update asset in database with Story Protocol data
- * 4. Return success with IP ID
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { registerIPAsset } from "@/lib/story/actions";
 import { buildAudioIPMetadata, buildNFTMetadata } from "@/lib/story/metadata";
 import { createClient } from "@/utils/supabase/server";
 import { getDrillById } from "@/lib/drills/constants";
 import { Address } from "viem";
+import { recalculateAthleteScoreSafe } from "@/lib/scoring/calculateProfileScore";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const text = await request.text();
+    if (!text) {
+      return NextResponse.json(
+        { error: "Empty request body" },
+        { status: 400 }
+      );
+    }
+    const body = JSON.parse(text);
 
-    // Validate required fields
     const {
-      assetId, // UUID from database
+      assetId,
       athleteWallet,
       athleteName,
       drillTypeId,
@@ -32,8 +26,10 @@ export async function POST(request: NextRequest) {
       mediaUrl,
       mimeType,
       licenseFee,
-      verificationPhrase,
       questionsCount,
+      verificationMethod,
+      worldIdVerified,
+      cvVideoVerified,
     } = body;
 
     if (
@@ -42,19 +38,42 @@ export async function POST(request: NextRequest) {
       !athleteName ||
       !drillTypeId ||
       !mediaUrl ||
-      !licenseFee
+      !licenseFee ||
+      !verificationMethod
     ) {
+      console.error("[Register Audio] Missing fields:", {
+        assetId: !!assetId,
+        athleteWallet: !!athleteWallet,
+        athleteName: !!athleteName,
+        drillTypeId: !!drillTypeId,
+        mediaUrl: !!mediaUrl,
+        licenseFee: !!licenseFee,
+        verificationMethod: !!verificationMethod
+      });
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    console.log("[Register Audio] Starting registration");
-    console.log("[Register Audio] Asset ID:", assetId);
-    console.log("[Register Audio] Athlete:", athleteWallet);
+    if (
+      verificationMethod !== "world_id" &&
+      verificationMethod !== "cv_video" &&
+      verificationMethod !== "world_id_and_cv_video"
+    ) {
+      return NextResponse.json(
+        { error: "Invalid verification method" },
+        { status: 400 }
+      );
+    }
 
-    // Get drill definition from constants
+    if (!worldIdVerified && !cvVideoVerified) {
+      return NextResponse.json(
+        { error: "At least one verification method must be active" },
+        { status: 400 }
+      );
+    }
+
     const drill = getDrillById(drillTypeId);
     if (!drill || drill.asset_type !== "audio") {
       return NextResponse.json(
@@ -63,30 +82,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Build IP metadata using metadata builder
     const ipMetadata = buildAudioIPMetadata({
       athleteName,
       athleteAddress: athleteWallet as Address,
       drillTypeId,
-      drillName: drill.name, // From constants
+      drillName: drill.name,
       experienceLevel,
       media: {
         url: mediaUrl,
         type: "audio",
         mimeType,
       },
-      verificationPhrase,
+      verificationMethod,
+      worldIdVerified,
+      cvVideoVerified,
       questionsCount,
     });
 
-    // Build NFT metadata
     const nftMetadata = buildNFTMetadata({
       title: ipMetadata.title,
       description: ipMetadata.description || "Audio mental training",
-      imageUrl: undefined, // TODO: Get default image, fix path
+      imageUrl: undefined,
+      assetType: "audio",
     });
 
-    // Register IP Asset on Story Protocol
     const result = await registerIPAsset({
       athleteWallet: athleteWallet as Address,
       athleteName,
@@ -103,9 +122,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("[Register Audio] IP registered:", result.ipId);
-
-    // Update asset in database with Story Protocol data
     const supabase = await createClient();
     const { error: updateError } = await supabase
       .from("assets")
@@ -113,14 +129,26 @@ export async function POST(request: NextRequest) {
         story_ip_id: result.ipId,
         story_tx_hash: result.txHash,
         ipfs_cid: result.ipfsCid,
-        status: "active", // Mark as active immediately
+        status: "active",
       })
       .eq("id", assetId);
 
     if (updateError) {
       console.error("[Register Audio] Database update failed:", updateError);
-      // Don't fail the request - registration succeeded
-      // Log error for manual review
+    }
+
+    // Update profile score after audio registration
+    const { data: asset } = await supabase
+      .from("assets")
+      .select("athlete_id")
+      .eq("id", assetId)
+      .single();
+
+    if (asset) {
+      const scoreResult = await recalculateAthleteScoreSafe(asset.athlete_id);
+      if (scoreResult.success) {
+        // Score updated silently
+      }
     }
 
     return NextResponse.json({

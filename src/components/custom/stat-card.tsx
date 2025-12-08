@@ -1,10 +1,12 @@
+import React from "react";
+
 interface StatCardProps {
   number: string;
   label: string;
   description: string;
 }
 
-export function StatCard({ number, label, description }: StatCardProps) {
+function StatCard({ number, label, description }: StatCardProps) {
   return (
     <div className='relative overflow-hidden bg-[rgba(26,26,28,0.6)] border border-[rgba(245,247,250,0.06)] rounded-2xl px-8 py-12 text-center transition-all duration-[400ms] hover:border-[rgba(0,71,171,0.2)] hover:-translate-y-1 group'>
       <div className='absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,71,171,0.3)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-[400ms]' />
@@ -29,3 +31,5 @@ export function StatCard({ number, label, description }: StatCardProps) {
     </div>
   );
 }
+
+export default React.memo(StatCard);

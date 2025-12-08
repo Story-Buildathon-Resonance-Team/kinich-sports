@@ -4,10 +4,19 @@ import { buildDrillIPMetadata, buildNFTMetadata } from "@/lib/story/metadata";
 import { createClient } from "@/utils/supabase/server";
 import { getDrillById } from "@/lib/drills/constants";
 import { Address } from "viem";
+import { recalculateAthleteScoreSafe } from "@/lib/scoring/calculateProfileScore";
+import type { VideoDrillMetadata } from "@/lib/types/video";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const text = await request.text();
+    if (!text) {
+      return NextResponse.json(
+        { error: "Empty request body" },
+        { status: 400 }
+      );
+    }
+    const body = JSON.parse(text);
 
     const {
       assetId,
@@ -18,7 +27,7 @@ export async function POST(request: NextRequest) {
       mediaUrl,
       mimeType,
       licenseFee,
-      metadata, // The full VideoDrillMetadata object
+      metadata,
     } = body;
 
     if (
@@ -35,8 +44,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("[Register Video] Starting registration");
-
     const drill = getDrillById(drillTypeId);
     if (!drill || drill.asset_type !== "video") {
       return NextResponse.json(
@@ -51,26 +58,34 @@ export async function POST(request: NextRequest) {
       drillInfo: {
         drill_type_id: drillTypeId,
         drill_name: drill.name,
-        experience_level: experienceLevel,
+        experience_level: experienceLevel || "competitive",
       },
       media: {
         url: mediaUrl,
         type: "video",
-        mimeType: mimeType || "video/webm",
+        mimeType: mimeType || "video/mp4",
       },
-      description: `Verified performance data for ${drill.name}. Form Score: ${metadata?.cv_metrics?.form_score_avg?.toFixed(2) || "N/A"}`,
+      description:
+        metadata?.description ||
+        `${drill.name} - ${metadata?.cv_metrics?.rep_count || 0
+        } reps completed with ${(
+          (metadata?.verification?.human_confidence_score || 0) * 100
+        ).toFixed(0)}% confidence`,
+      cvVideoVerified: metadata?.verification?.is_verified || false,
+      humanConfidenceScore: metadata?.verification?.human_confidence_score || 0,
+      repCount: metadata?.cv_metrics?.rep_count || 0,
     });
 
     const nftMetadata = buildNFTMetadata({
       title: ipMetadata.title,
       description: ipMetadata.description || "Video drill performance",
       imageUrl: undefined,
+      assetType: "video",
     });
 
     const result = await registerIPAsset({
       athleteWallet: athleteWallet as Address,
       athleteName,
-      athleteId: metadata?.athlete_profile?.athlete_id,
       ipMetadata,
       nftMetadata,
       licenseFee: Number(licenseFee),
@@ -84,8 +99,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("[Register Video] IP registered:", result.ipId);
-
     const supabase = await createClient();
     const { error: updateError } = await supabase
       .from("assets")
@@ -93,6 +106,7 @@ export async function POST(request: NextRequest) {
         story_ip_id: result.ipId,
         story_tx_hash: result.txHash,
         ipfs_cid: result.ipfsCid,
+        cv_verified: metadata?.verification?.is_verified || false,
         status: "active",
       })
       .eq("id", assetId);
@@ -101,12 +115,26 @@ export async function POST(request: NextRequest) {
       console.error("[Register Video] Database update failed:", updateError);
     }
 
+    const { data: asset } = await supabase
+      .from("assets")
+      .select("athlete_id")
+      .eq("id", assetId)
+      .single();
+
+    if (asset) {
+      const scoreResult = await recalculateAthleteScoreSafe(asset.athlete_id);
+      if (scoreResult.success) {
+        // Score updated silently
+      }
+    }
+
     return NextResponse.json({
       success: true,
       ipId: result.ipId,
       txHash: result.txHash,
       tokenId: result.tokenId?.toString(),
       licenseTermsId: result.licenseTermsIds?.toLocaleString(),
+      explorerUrl: `https://aeneid.explorer.story.foundation/ipa/${result.ipId}`,
     });
   } catch (error) {
     console.error("[Register Video] Unexpected error:", error);
@@ -119,4 +147,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

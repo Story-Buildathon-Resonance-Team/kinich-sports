@@ -1,5 +1,6 @@
 import { Play, Music } from "lucide-react";
 import { cn } from "@/lib/utils";
+import React from "react";
 
 interface AssetCardProps {
   type: "video" | "audio";
@@ -10,7 +11,7 @@ interface AssetCardProps {
   onClick?: () => void;
 }
 
-export function AssetCard({
+function AssetCard({
   type,
   title,
   price,
@@ -20,7 +21,7 @@ export function AssetCard({
 }: AssetCardProps) {
   return (
     <div
-      className='glass-panel glass-panel-hover rounded-2xl overflow-hidden cursor-pointer group relative'
+      className='glass-panel glass-panel-hover rounded-2xl overflow-hidden cursor-pointer group relative transform transition-all duration-300 hover:scale-[1.02]'
       onClick={onClick}
     >
       {/* Media Preview Area */}
@@ -91,3 +92,5 @@ export function AssetCard({
     </div>
   );
 }
+
+export default React.memo(AssetCard);

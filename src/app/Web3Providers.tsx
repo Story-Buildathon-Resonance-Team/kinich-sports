@@ -2,7 +2,7 @@
 import { createConfig, WagmiProvider } from "wagmi";
 import { http } from "viem";
 import { mainnet } from "wagmi/chains";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
@@ -25,13 +25,14 @@ const config = createConfig({
     [aeneid.id]: http(),
   },
 });
-const queryClient = new QueryClient();
+const queryClientInstance = new QueryClient();
 
 function DynamicProviderWrapper({ children }: PropsWithChildren) {
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
 
-  // Use environment variable or fallback
+  // Use environment variable or fallback for development
   const dynamicEnvId = process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID || "4f755b1f-1989-48ae-a596-864c24894094";
 
   useEffect(() => {
@@ -81,23 +82,25 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
         competitiveLevel: metadata?.["Competitive Level"],
       };
 
-      // Sync in background - don't await
-      fetch("/api/sync-athlete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(syncData),
-      })
-        .then((response) => response.json())
-        .then((result: SyncAthleteResponse) => {
-          if (result.success) {
-            console.log(`Athlete ${result.isNewUser ? "created" : "synced"} successfully`);
-          } else {
-            console.error("Failed to sync athlete:", result.error);
-          }
-        })
-        .catch((error) => {
-          console.error("Error syncing athlete:", error);
+      try {
+        const response = await fetch("/api/sync-athlete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(syncData),
         });
+        
+        const result: SyncAthleteResponse = await response.json();
+        if (result.success) {
+           console.log(`Athlete ${result.isNewUser ? "created" : "synced"} successfully`);
+           // Invalidate React Query caches to refresh UI immediately
+           queryClient.invalidateQueries({ queryKey: ["athlete", userId] });
+           queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
+        } else {
+           console.error("Failed to sync athlete:", result.error);
+        }
+      } catch (error) {
+         console.error("Error syncing athlete:", error);
+      }
     }
 
     // Redirect to dashboard on successful auth from landing page
@@ -125,11 +128,21 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
       };
 
       try {
-        await fetch("/api/sync-athlete", {
+        const response = await fetch("/api/sync-athlete", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(syncData),
         });
+        
+        const result: SyncAthleteResponse = await response.json();
+        
+        if (result.success) {
+            // Invalidate React Query caches to refresh UI immediately
+            queryClient.invalidateQueries({ queryKey: ["athlete", userId] });
+            queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
+        } else {
+            console.error("Failed to update profile:", result.error);
+        }
       } catch (error) {
         console.error("Error updating profile:", error);
       }
@@ -142,8 +155,8 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
       settings={{
         environmentId: dynamicEnvId,
         shadowDOMEnabled: true,
-        // Only use Ethereum wallets to avoid email signin complexity unless backend is fully configured
-        walletConnectors: [EthereumWalletConnectors],
+        // Include ZeroDev from main, keep Ethereum from HEAD/main
+        walletConnectors: [EthereumWalletConnectors, ZeroDevSmartWalletConnectors],
         overrides: { evmNetworks },
         cssOverrides: `
           :host {
@@ -177,19 +190,19 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
         },
       }}
     >
-      {children}
+        {children}
     </DynamicContextProvider>
   );
 }
 
 export default function Web3Providers({ children }: PropsWithChildren) {
   return (
-    <DynamicProviderWrapper>
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClientInstance}>
+      <DynamicProviderWrapper>
+        <WagmiProvider config={config}>
           <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </DynamicProviderWrapper>
+        </WagmiProvider>
+      </DynamicProviderWrapper>
+    </QueryClientProvider>
   );
 }

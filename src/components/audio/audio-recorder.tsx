@@ -1,0 +1,296 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { Mic } from "lucide-react";
+
+interface AudioRecorderProps {
+  onRecordingComplete: (blob: Blob, duration: number) => void;
+  maxDurationSeconds?: number;
+  onError?: (error: string) => void;
+}
+
+type RecordingState = "idle" | "recording" | "stopped";
+
+export function AudioRecorder({
+  onRecordingComplete,
+  maxDurationSeconds = 240, // 4 minutes default
+  onError,
+}: AudioRecorderProps) {
+  const [recordingState, setRecordingState] = useState<RecordingState>("idle");
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [waveformBars, setWaveformBars] = useState([0, 0, 0, 0, 0]);
+  const [hasPermission, setHasPermission] = useState(false);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  // Request permission
+  const requestPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+
+      streamRef.current = stream;
+      setHasPermission(true);
+
+      // Setup waveform
+      const audioContext = new AudioContext();
+      const analyser = audioContext.createAnalyser();
+      const source = audioContext.createMediaStreamSource(stream);
+
+      analyser.fftSize = 256;
+      source.connect(analyser);
+
+      audioContextRef.current = audioContext;
+      analyserRef.current = analyser;
+    } catch (error) {
+      console.error("[AudioRecorder] Permission denied:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Microphone access denied. Please enable microphone permissions.";
+      onError?.(errorMessage);
+    }
+  };
+
+  // Animate waveform
+  const animateWaveform = () => {
+    if (!analyserRef.current || recordingState !== "recording") {
+      return;
+    }
+
+    const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+    analyserRef.current.getByteFrequencyData(dataArray);
+
+    const bars = [0, 1, 2, 3, 4].map((i) => {
+      const start = Math.floor((i * dataArray.length) / 5);
+      const end = Math.floor(((i + 1) * dataArray.length) / 5);
+      const slice = dataArray.slice(start, end);
+      const average = slice.reduce((a, b) => a + b, 0) / slice.length;
+      return Math.max(0.2, Math.min(1, average / 255));
+    });
+
+    setWaveformBars(bars);
+    animationFrameRef.current = requestAnimationFrame(animateWaveform);
+  };
+
+  // Start recording
+  const startRecording = async () => {
+    if (!streamRef.current) {
+      await requestPermission();
+      return;
+    }
+
+    try {
+      chunksRef.current = [];
+
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm")
+        ? "audio/webm"
+        : "audio/ogg";
+
+      const mediaRecorder = new MediaRecorder(streamRef.current, {
+        mimeType,
+      });
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: mimeType });
+        onRecordingComplete(blob, recordingTime);
+      };
+
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setRecordingState("recording");
+      setRecordingTime(0);
+
+      timerRef.current = setInterval(() => {
+        setRecordingTime((prev) => {
+          const newTime = prev + 1;
+          if (newTime >= maxDurationSeconds) {
+            stopRecording();
+          }
+          return newTime;
+        });
+      }, 1000);
+
+      animateWaveform();
+    } catch (error) {
+      console.error("[AudioRecorder] Start recording failed:", error);
+      onError?.("Failed to start recording. Please try again.");
+    }
+  };
+
+  // Stop recording
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && recordingState === "recording") {
+      mediaRecorderRef.current.stop();
+      setRecordingState("stopped");
+
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    }
+  };
+
+  // Format MM:SS
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
+
+  return (
+    <div className='flex flex-col items-center gap-6'>
+      {/* Waveform Visualization */}
+      <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 w-full max-w-md'>
+        <div className='flex items-end justify-center gap-2 h-24'>
+          {waveformBars.map((height, index) => (
+            <div
+              key={index}
+              className='w-3 rounded-full transition-all duration-150 ease-out'
+              style={{
+                height: `${height * 100}%`,
+                background:
+                  index === 2
+                    ? "linear-gradient(to top, rgba(255,107,53,0.8), rgba(255,107,53,0.4))"
+                    : "linear-gradient(to top, rgba(0,71,171,0.8), rgba(0,71,171,0.4))",
+                minHeight: "20%",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Timer Display */}
+      <div className='bg-[#0a0a0a] rounded-xl p-4 border border-white/10 text-center min-w-[200px]'>
+        <div className='text-[36px] font-mono font-light text-[#F5F7FA]'>
+          {formatTime(recordingTime)}
+        </div>
+        <div className='text-[12px] font-mono text-[rgba(245,247,250,0.5)]'>
+          {formatTime(maxDurationSeconds)} max
+        </div>
+      </div>
+
+      {/* Recording Controls */}
+      <div className='flex items-center gap-4'>
+        {!hasPermission && recordingState === "idle" && (
+          <button
+            onClick={requestPermission}
+            className='
+              bg-transparent
+              border border-[rgba(245,247,250,0.1)]
+              text-[rgba(245,247,250,0.7)]
+              px-8 py-3 rounded-lg
+              text-[15px] font-medium
+              transition-all duration-300
+              hover:bg-[rgba(0,71,171,0.1)]
+              hover:border-[rgba(0,71,171,0.3)]
+              hover:text-[#F5F7FA]
+              flex items-center gap-2
+              cursor-pointer
+            '
+          >
+            <Mic className='w-5 h-5' />
+            Enable Microphone
+          </button>
+        )}
+
+        {hasPermission && recordingState === "idle" && (
+          <button
+            onClick={startRecording}
+            className='
+              relative overflow-hidden
+              bg-gradient-to-br from-[rgba(0,71,171,0.8)] to-[rgba(0,86,214,0.8)]
+              border border-[rgba(184,212,240,0.2)]
+              text-[#F5F7FA] font-medium
+              rounded-xl px-10 py-4
+              shadow-[0_4px_20px_rgba(0,71,171,0.2)]
+              transition-all duration-[400ms]
+              hover:-translate-y-0.5
+              hover:shadow-[0_8px_28px_rgba(0,71,171,0.3)]
+              group
+              cursor-pointer
+            '
+          >
+            <span className='absolute inset-0 -left-full bg-gradient-to-r from-transparent via-[rgba(255,107,53,0.2)] to-transparent transition-all duration-[600ms] group-hover:left-full pointer-events-none' />
+            <span className='relative z-10 flex items-center gap-3'>
+              <Mic className='w-5 h-5' />
+              Start Recording
+            </span>
+          </button>
+        )}
+
+        {recordingState === "recording" && (
+          <button
+            onClick={stopRecording}
+            className='
+              bg-gradient-to-br from-[rgba(255,107,53,0.8)] to-[rgba(255,107,53,0.6)]
+              border border-[rgba(255,107,53,0.3)]
+              text-[#F5F7FA] font-medium
+              rounded-xl px-10 py-4
+              shadow-[0_4px_20px_rgba(255,107,53,0.3)]
+              transition-all duration-300
+              hover:-translate-y-0.5
+              hover:shadow-[0_8px_28px_rgba(255,107,53,0.4)]
+              animate-pulse
+              cursor-pointer
+            '
+          >
+            <span className='flex items-center gap-3'>
+              <span className='w-3 h-3 bg-[#F5F7FA] rounded-sm' />
+              Stop Recording
+            </span>
+          </button>
+        )}
+      </div>
+
+      {/* Recording Status */}
+      {recordingState === "recording" && (
+        <div className='text-[14px] text-[rgba(255,107,53,0.9)] font-medium animate-pulse'>
+          ● Recording in progress...
+        </div>
+      )}
+    </div>
+  );
+}
