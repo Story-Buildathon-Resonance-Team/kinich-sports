@@ -184,7 +184,7 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
         events: {
           onAuthSuccess: handleAuthSuccess,
           onUserProfileUpdate: handleUserProfileUpdate,
-          onLogout: (_args) => {
+          onLogout: () => {
             router.push("/");
           },
         },

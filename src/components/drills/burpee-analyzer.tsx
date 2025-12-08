@@ -55,7 +55,7 @@ export default function BurpeeAnalyzer() {
     }, [user?.userId]);
 
     // Initialize video upload hook
-    const { uploadAndAnalyze, submitToStory, isUploading, error: uploadError, progress: uploadProgress } = useVideoUpload({
+    const { uploadAndAnalyze, submitToStory, isUploading, progress: uploadProgress } = useVideoUpload({
         athleteId: athleteProfile?.id,
         athleteProfile: {
             wallet_address: user?.verifiedCredentials?.[0]?.address,
