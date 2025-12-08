@@ -7,7 +7,7 @@ import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { ZeroDevSmartWalletConnectors } from "@dynamic-labs/ethereum-aa";
-import { PropsWithChildren, useEffect } from "react";
+import { PropsWithChildren, useEffect, useCallback, useRef, useMemo } from "react";
 import { aeneid } from "@story-protocol/core-sdk";
 import { useRouter, usePathname } from "next/navigation";
 import type {
@@ -30,7 +30,12 @@ const queryClientInstance = new QueryClient();
 function DynamicProviderWrapper({ children }: PropsWithChildren) {
   const router = useRouter();
   const pathname = usePathname();
+  const pathnameRef = useRef(pathname);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
   // Use environment variable or fallback for development
   const dynamicEnvId = process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID || "4f755b1f-1989-48ae-a596-864c24894094";
@@ -65,7 +70,7 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
   ];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleAuthSuccess = async (args: any) => {
+  const handleAuthSuccess = useCallback(async (args: any) => {
     // Sync athlete data on successful authentication
     const userId = args.user.userId;
     const firstName = args.user.firstName;
@@ -89,29 +94,31 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(syncData),
       })
-      .then(res => res.json())
-      .then((result: SyncAthleteResponse) => {
+        .then(res => res.json())
+        .then((result: SyncAthleteResponse) => {
           if (result.success) {
-             console.log(`Athlete ${result.isNewUser ? "created" : "synced"} successfully`);
-             queryClient.invalidateQueries({ queryKey: ["athlete", userId] });
-             queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
+            console.log(`Athlete ${result.isNewUser ? "created" : "synced"} successfully`);
+            queryClient.invalidateQueries({ queryKey: ["athlete", userId] });
+            queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
           } else {
-             console.error("Failed to sync athlete:", result.error);
+            console.error("Failed to sync athlete:", result.error);
           }
-      })
-      .catch((error) => {
+        })
+        .catch((error) => {
           console.error("Error syncing athlete:", error);
-      });
+        });
     }
 
     // Redirect to dashboard on successful auth from landing page or auth page
-    if (pathname === "/" || pathname === "/auth") {
+    // Use ref to access current pathname without stale closure
+    const currentPath = pathnameRef.current;
+    if (currentPath === "/" || currentPath === "/auth") {
       router.push("/dashboard");
     }
-  };
+  }, [queryClient, router]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleUserProfileUpdate = async (user: any) => {
+  const handleUserProfileUpdate = useCallback(async (user: any) => {
     // Sync profile changes when user updates their information
     const userId = user.userId;
     const firstName = user.firstName;
@@ -136,18 +143,19 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
         body: JSON.stringify(syncData),
       }).catch(err => console.error("Background sync error:", err));
     }
-  };
+  }, []);
 
-  return (
-    <DynamicContextProvider
-      theme="dark"
-      settings={{
-        environmentId: dynamicEnvId,
-        shadowDOMEnabled: true,
-        // Include ZeroDev from main, keep Ethereum from HEAD/main
-        walletConnectors: [EthereumWalletConnectors, ZeroDevSmartWalletConnectors],
-        overrides: { evmNetworks },
-        cssOverrides: `
+  const handleLogout = useCallback(() => {
+    router.push("/");
+  }, [router]);
+
+  const settings = useMemo(() => ({
+    environmentId: dynamicEnvId,
+    shadowDOMEnabled: true,
+    // Include ZeroDev from main, keep Ethereum from HEAD/main
+    walletConnectors: [EthereumWalletConnectors, ZeroDevSmartWalletConnectors],
+    overrides: { evmNetworks },
+    cssOverrides: `
           :host {
             --dynamic-base-1: #1c1c1e;
             --dynamic-base-2: #2c2c2e;
@@ -170,16 +178,19 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
             --dynamic-radius: 16px;
           }
         `,
-        events: {
-          onAuthSuccess: handleAuthSuccess,
-          onUserProfileUpdate: handleUserProfileUpdate,
-          onLogout: () => {
-            router.push("/");
-          },
-        },
-      }}
+    events: {
+      onAuthSuccess: handleAuthSuccess,
+      onUserProfileUpdate: handleUserProfileUpdate,
+      onLogout: handleLogout,
+    },
+  }), [dynamicEnvId, evmNetworks, handleAuthSuccess, handleUserProfileUpdate, handleLogout]);
+
+  return (
+    <DynamicContextProvider
+      theme="dark"
+      settings={settings}
     >
-        {children}
+      {children}
     </DynamicContextProvider>
   );
 }

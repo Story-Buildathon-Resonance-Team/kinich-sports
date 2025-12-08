@@ -13,7 +13,7 @@ import {
   LineChart,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 const PerformanceChart = dynamic(
@@ -42,7 +42,7 @@ export default function AthleteDashboard() {
   const { user, sdkHasLoaded } = useDynamicContext();
   const [chartType, setChartType] = useState<"area" | "bar">("area");
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["dashboard", user?.userId],
     queryFn: async () => {
       if (!user?.userId) throw new Error("No user");
@@ -64,6 +64,11 @@ export default function AthleteDashboard() {
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
+
+  // Moved hook here to be unconditionally called
+  const handleVerificationSuccess = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   if (!sdkHasLoaded || !user || isLoading) {
     return <DashboardLoading />;
@@ -160,7 +165,7 @@ export default function AthleteDashboard() {
       {/* Profile Header Section */}
       <ProfileHeaderSection
         athlete={athleteProfile}
-        onVerificationSuccess={() => window.location.reload()}
+        onVerificationSuccess={handleVerificationSuccess}
       />
 
       {/* Stats Grid */}
