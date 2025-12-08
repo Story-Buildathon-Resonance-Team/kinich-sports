@@ -5,7 +5,7 @@ import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useQuery } from "@tanstack/react-query";
 import ProfileScoreDisplay from "@/components/dashboard/profile-score-display";
 import ProfileHeaderSection from "@/components/dashboard/profile-header-section";
-import { Skeleton } from "@/components/ui/skeleton";
+import DashboardLoading from "@/app/dashboard/loading";
 import type { Athlete, SyncAthleteRequest } from "@/lib/types/athlete";
 import {
   AlertCircle,
@@ -36,6 +36,7 @@ interface Asset {
   drill_type_id: string;
   asset_url: string;
   license_fee: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: any;
   status: string;
   created_at: string;
@@ -197,26 +198,7 @@ export default function AthleteDashboard() {
     : DEMO_PERFORMANCE_DATA; // Fallback to minimal data if no assets
 
   if (!sdkHasLoaded || !user || isLoading) {
-    return (
-      <div className='flex-1 p-8 pt-12'>
-        <div className='max-w-6xl mx-auto space-y-8'>
-          <div className='flex justify-between'>
-            <Skeleton className='h-12 w-1/3 rounded-lg' />
-            <Skeleton className='h-12 w-32 rounded-lg' />
-          </div>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-            <Skeleton className='h-32 w-full rounded-xl' />
-            <Skeleton className='h-32 w-full rounded-xl' />
-            <Skeleton className='h-32 w-full rounded-xl' />
-          </div>
-          <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Skeleton key={i} className='h-[320px] w-full rounded-2xl' />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <DashboardLoading />;
   }
 
   if (error || !dashboardData) {

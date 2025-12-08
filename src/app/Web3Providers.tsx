@@ -84,27 +84,27 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
 
       try {
         const response = await fetch("/api/sync-athlete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(syncData),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(syncData),
         });
         
         const result: SyncAthleteResponse = await response.json();
-        if (result.success) {
-           console.log(`Athlete ${result.isNewUser ? "created" : "synced"} successfully`);
+          if (result.success) {
+            console.log(`Athlete ${result.isNewUser ? "created" : "synced"} successfully`);
            // Invalidate React Query caches to refresh UI immediately
            queryClient.invalidateQueries({ queryKey: ["athlete", userId] });
            queryClient.invalidateQueries({ queryKey: ["dashboard", userId] });
-        } else {
-           console.error("Failed to sync athlete:", result.error);
-        }
+          } else {
+            console.error("Failed to sync athlete:", result.error);
+          }
       } catch (error) {
-         console.error("Error syncing athlete:", error);
+          console.error("Error syncing athlete:", error);
       }
     }
 
-    // Redirect to dashboard on successful auth from landing page
-    if (pathname === "/") {
+    // Redirect to dashboard on successful auth from landing page or auth page
+    if (pathname === "/" || pathname === "/auth") {
       router.push("/dashboard");
     }
   };
@@ -191,7 +191,7 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
       }}
     >
         {children}
-    </DynamicContextProvider>
+      </DynamicContextProvider>
   );
 }
 

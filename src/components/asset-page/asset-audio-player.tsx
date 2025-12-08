@@ -17,6 +17,13 @@ export function AssetAudioPlayer({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
+  // Fix: Initialize random heights in useEffect to avoid hydration mismatch
+  const [barHeights, setBarHeights] = useState<number[]>([]);
+
+  useEffect(() => {
+    // Generate random heights only once on client mount
+    setBarHeights(Array.from({ length: 20 }, () => Math.max(20, Math.random() * 100)));
+  }, []);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -79,13 +86,14 @@ export function AssetAudioPlayer({
       <div className='space-y-8'>
         {/* Visualizer Placeholder */}
         <div className="h-24 flex items-center justify-center gap-1">
-          {[...Array(20)].map((_, i) => (
+          {barHeights.map((height, i) => (
             <div
               key={i}
               className="w-1.5 bg-purple-500/40 rounded-full animate-pulse"
               style={{
-                height: isPlaying ? `${Math.max(20, Math.random() * 100)}%` : '20%',
-                animationDuration: `${0.5 + Math.random() * 0.5}s`,
+                height: isPlaying ? `${height}%` : '20%',
+                // Use index for stable animation duration instead of random
+                animationDuration: `${0.5 + (i % 5) * 0.1}s`,
                 animationPlayState: isPlaying ? 'running' : 'paused'
               }}
             />

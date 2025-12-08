@@ -16,6 +16,8 @@ function DashboardSidebar() {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    
+    // Initial set - safe in useEffect as it runs after mount
     setIsDesktop(mediaQuery.matches);
 
     const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
