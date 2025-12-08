@@ -5,18 +5,18 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
-    const { isAuthenticated, setShowAuthFlow } = useDynamicContext();
+    const { user, setShowAuthFlow } = useDynamicContext();
     const router = useRouter();
     const [isConnecting, setIsConnecting] = useState(false);
 
     useEffect(() => {
-        if (isAuthenticated) {
+        if (user) {
             router.push("/dashboard");
         }
-    }, [isAuthenticated, router]);
+    }, [user, router]);
 
     const handleConnect = () => {
-        if (isAuthenticated) {
+        if (user) {
             router.push("/dashboard");
             return;
         }

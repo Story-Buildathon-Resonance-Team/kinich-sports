@@ -26,8 +26,13 @@ export function AudioPreviewPlayer({
   // Create blob URL
   useEffect(() => {
     const url = URL.createObjectURL(audioBlob);
-    setAudioUrl(url);
+    // Wrap in timeout to avoid synchronous state update warning
+    const timer = setTimeout(() => {
+      setAudioUrl(url);
+    }, 0);
+    
     return () => {
+      clearTimeout(timer);
       URL.revokeObjectURL(url);
     };
   }, [audioBlob]);

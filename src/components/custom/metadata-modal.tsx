@@ -88,7 +88,7 @@ export function MetadataModal({
               The metadata below is the result of analysing your video. You can
               now click{" "}
               <span className='font-semibold text-white'>
-                'Register IP Asset'
+                &apos;Register IP Asset&apos;
               </span>{" "}
               below to register your intellectual property on Story Protocol.
             </p>

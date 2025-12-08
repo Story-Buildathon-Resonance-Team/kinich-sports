@@ -2,9 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   compress: true,
-  optimizePackageImports: ["lucide-react", "@dynamic-labs/sdk-react-core", "recharts"],
+  experimental: {
+    optimizePackageImports: ["lucide-react", "@dynamic-labs/sdk-react-core", "recharts"],
+  },
   images: {
     remotePatterns: [
       {

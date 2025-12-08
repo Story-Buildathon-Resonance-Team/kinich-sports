@@ -153,7 +153,7 @@ export function AudioAccessGate({ athleteId, children }: AudioAccessGateProps) {
                     Connect your World ID
                   </h3>
                   <p className='text-[14px] text-[rgba(245,247,250,0.6)] mb-4'>
-                    Prove you're a real human using World ID verification
+                    Prove you&apos;re a real human using World ID verification
                   </p>
                   <button
                     onClick={() => router.push("/dashboard")}

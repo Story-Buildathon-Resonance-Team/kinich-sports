@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 
 export function HeroSection() {
-  const { isAuthenticated } = useDynamicContext();
+  const { user } = useDynamicContext();
   const router = useRouter();
 
   const handleGetStarted = () => {
-    if (isAuthenticated) {
+    if (user) {
       router.push("/dashboard");
     } else {
       router.push("/auth");
@@ -66,8 +66,8 @@ export function HeroSection() {
             onClick={handleGetStarted}
             className="group !px-8 !py-4 !bg-[#F5F5F5] !text-black !text-lg !font-medium !rounded-full hover:!bg-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-105 active:scale-95 flex items-center gap-2"
           >
-            {isAuthenticated ? "Open Dashboard" : "Get Started"}
-            {isAuthenticated && <ArrowRight className="w-4 h-4" />}
+            {user ? "Open Dashboard" : "Get Started"}
+            {user && <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
       </div>

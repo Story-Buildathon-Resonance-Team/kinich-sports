@@ -22,7 +22,10 @@ export function AssetAudioPlayer({
 
   useEffect(() => {
     // Generate random heights only once on client mount
-    setBarHeights(Array.from({ length: 20 }, () => Math.max(20, Math.random() * 100)));
+    const timer = setTimeout(() => {
+      setBarHeights(Array.from({ length: 20 }, () => Math.max(20, Math.random() * 100)));
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
