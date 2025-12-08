@@ -40,7 +40,7 @@ function VerificationCard({
         </div>
 
         <p className="text-sm text-gray-400 leading-relaxed mb-6">
-          Get your "Human" badge and secure your IP assets.
+          Get your &quot;Human&quot; badge and secure your IP assets.
         </p>
 
         <WorldIdVerify

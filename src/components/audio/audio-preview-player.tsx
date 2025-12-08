@@ -19,15 +19,20 @@ export function AudioPreviewPlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [audioUrl, setAudioUrl] = useState<string>("");
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Create blob URL
   useEffect(() => {
     const url = URL.createObjectURL(audioBlob);
-    setAudioUrl(url);
+    // Wrap in timeout to avoid synchronous state update warning
+    const timer = setTimeout(() => {
+      setAudioUrl(url);
+    }, 0);
+    
     return () => {
+      clearTimeout(timer);
       URL.revokeObjectURL(url);
     };
   }, [audioBlob]);

@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const athleteId = searchParams.get("athlete_id");
-    const assetType = searchParams.get("asset_type"); // 'video' | 'audio' | null
+    const assetType = searchParams.get("asset_type");
     const status = searchParams.get("status") || "active";
 
     if (!athleteId) {
@@ -17,7 +17,6 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Build query - Select only needed fields to reduce payload size
     let query = supabase
       .from("assets")
       .select("id, asset_type, drill_type_id, asset_url, license_fee, metadata, status, created_at")
@@ -25,7 +24,6 @@ export async function GET(request: NextRequest) {
       .eq("status", status)
       .order("created_at", { ascending: false });
 
-    // Apply asset_type filter if provided
     if (assetType && (assetType === "video" || assetType === "audio")) {
       query = query.eq("asset_type", assetType);
     }

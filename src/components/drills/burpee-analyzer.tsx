@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/custom/card";
 import { Upload, Play, Activity, Trophy, CheckCircle2, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import gsap from "gsap";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalysis } from "@/context/analysis-context";
 import { MetadataModal } from "@/components/custom/metadata-modal";
@@ -55,7 +54,7 @@ export default function BurpeeAnalyzer() {
     }, [user?.userId]);
 
     // Initialize video upload hook
-    const { uploadAndAnalyze, submitToStory, isUploading, error: uploadError, progress: uploadProgress } = useVideoUpload({
+    const { uploadAndAnalyze, submitToStory, isUploading, progress: uploadProgress } = useVideoUpload({
         athleteId: athleteProfile?.id,
         athleteProfile: {
             wallet_address: user?.verifiedCredentials?.[0]?.address,
@@ -67,7 +66,6 @@ export default function BurpeeAnalyzer() {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const repCounterRef = useRef<HTMLDivElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setCanvasRef(canvasRef.current);
@@ -76,10 +74,9 @@ export default function BurpeeAnalyzer() {
 
     useEffect(() => {
         if (reps > 0 && repCounterRef.current) {
-            gsap.fromTo(repCounterRef.current,
-                { scale: 1.5, color: "#4ade80" },
-                { scale: 1, color: "inherit", duration: 0.4, ease: "back.out(1.7)" }
-            );
+            repCounterRef.current.classList.remove('animate-rep-count');
+            void repCounterRef.current.offsetWidth;
+            repCounterRef.current.classList.add('animate-rep-count');
         }
     }, [reps]);
 
@@ -107,7 +104,7 @@ export default function BurpeeAnalyzer() {
 
     if (!videoSrc) {
         return (
-            <div ref={containerRef} className="w-full h-full flex items-center justify-center">
+            <div className="w-full h-full flex items-center justify-center">
                 <Card className="w-full max-w-3xl aspect-video relative overflow-hidden bg-black border border-blue-500/20 shadow-2xl shadow-blue-900/10 rounded-xl group flex items-center justify-center transition-colors">
                     <div className="flex flex-col items-center justify-center text-gray-500">
                         <div className="w-20 h-20 rounded-full bg-zinc-900 flex items-center justify-center mb-6 border border-zinc-800 group-hover:border-blue-500/50 transition-colors shadow-lg">
@@ -136,7 +133,7 @@ export default function BurpeeAnalyzer() {
     }
 
     return (
-        <div ref={containerRef} className="w-full h-[calc(100vh-100px)] flex gap-6">
+        <div className="w-full h-[calc(100vh-100px)] flex gap-6">
             {/* Video Column */}
             <div className="flex-1 h-full bg-black rounded-xl border border-blue-500/20 relative overflow-hidden shadow-2xl">
                 <canvas
@@ -246,7 +243,7 @@ export default function BurpeeAnalyzer() {
 
                     {metadata ? (
                         <>
-                            <Card 
+                            <Card
                                 onClick={() => setShowMetadata(true)}
                                 className="h-full p-5 bg-zinc-900/80 border border-green-500/30 animate-in fade-in duration-700 flex flex-col shadow-lg shadow-green-900/5 cursor-pointer hover:border-green-500/60 transition-colors group/card relative"
                             >

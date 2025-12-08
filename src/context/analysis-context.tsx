@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useRef, useEffect, ReactNode } from "react";
 import { getPoseLandmarker } from "@/lib/mediapipe/pose-landmarker";
-import { BurpeeCounter } from "@/lib/mediapipe/burpee-counter";
+import { BurpeeCounter, BurpeeState } from "@/lib/mediapipe/burpee-counter";
 import { PoseLandmarker, DrawingUtils } from "@mediapipe/tasks-vision";
 import { toast } from "sonner";
 import { VideoDrillMetadata } from "@/lib/types/video";
@@ -13,7 +13,7 @@ interface AnalysisContextType {
   isProcessing: boolean;
   progress: number;
   reps: number;
-  status: "STANDING" | "DOWN" | "UP_PHASE" | "Idle";
+  status: BurpeeState | "Idle";
   feedback: string;
   metadata: VideoDrillMetadata | null;
   videoSrc: string | null;
@@ -41,7 +41,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [reps, setReps] = useState(0);
-  const [status, setStatus] = useState<"STANDING" | "DOWN" | "UP_PHASE" | "Idle">("Idle");
+  const [status, setStatus] = useState<BurpeeState | "Idle">("Idle");
   const [feedback, setFeedback] = useState<string>("");
   const [metadata, setMetadata] = useState<VideoDrillMetadata | null>(null);
 

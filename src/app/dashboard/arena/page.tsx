@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { getVideoDrills, getAudioCapsules, getDrillById } from "@/lib/drills/constants";
 import { Activity, Mic, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ProtocolCard } from "@/components/custom/protocol-card";
+import ProtocolCard from "@/components/custom/protocol-card";
 
 type ChallengeMode = "video" | "audio";
 
@@ -29,7 +29,7 @@ export default function ArenaPage() {
   };
 
   return (
-    <div className='p-6 lg:p-8 w-full animate-fade-in-up'>
+    <div className='p-6 lg:p-8 w-full max-w-[1600px] mx-auto animate-fade-in-up'>
       <div className='flex justify-end mb-6'>
         <div className='flex gap-2 p-1 bg-white/5 rounded-lg border border-white/5'>
           <button

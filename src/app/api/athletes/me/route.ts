@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Fetch athlete data first
+    // Optimized query: join assets to get counts in one go if possible
+    // or keep as is if already optimized by supabase
     const { data: athlete, error: athleteError } = await supabase
       .from("athletes")
       .select("id, dynamic_user_id, name, discipline, competitive_level, profile_score, world_id_verified, world_id_verified_at")
@@ -26,40 +27,31 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Athlete not found" }, { status: 404 });
     }
 
-    // Fetch asset count
-    const { count: assetCount, error: countError } = await supabase
-      .from("assets")
-      .select("id", { count: "exact", head: true }) // Fetch only ID for count
-      .eq("athlete_id", athlete.id)
-      .eq("status", "active");
+    // Parallelize count queries
+    const [assetCountResult, verifiedVideoCountResult] = await Promise.all([
+      supabase
+        .from("assets")
+        .select("id", { count: "exact", head: true })
+        .eq("athlete_id", athlete.id)
+        .eq("status", "active"),
+      supabase
+        .from("assets")
+        .select("id", { count: "exact", head: true })
+        .eq("athlete_id", athlete.id)
+        .eq("asset_type", "video")
+        .eq("cv_verified", true)
+    ]);
 
-    if (countError) {
-      console.error("Error fetching asset count:", countError);
-    }
-
-    // Fetch verified video count
-    const { count: verifiedVideoCount, error: videoError } = await supabase
-      .from("assets")
-      .select("id", { count: "exact", head: true })
-      .eq("athlete_id", athlete.id)
-      .eq("asset_type", "video")
-      .eq("cv_verified", true);
-
-    if (videoError) {
-      console.error("Error fetching verified video count:", videoError);
-    }
-
-    // Calculate stats
     const stats = {
-      profileScore: athlete.profile_score || 0, // Real score from database
-      totalRoyalties: 0, // Mock for now
-      totalAssets: assetCount || 0,
+      profileScore: athlete.profile_score || 0,
+      totalRoyalties: 0,
+      totalAssets: assetCountResult.count || 0,
     };
 
     return NextResponse.json({
       athlete: {
         ...athlete,
-        has_verified_video: (verifiedVideoCount || 0) > 0,
+        has_verified_video: (verifiedVideoCountResult.count || 0) > 0,
       },
       stats,
     });

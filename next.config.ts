@@ -2,8 +2,18 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  compress: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "@dynamic-labs/sdk-react-core", "recharts"],
+  },
   images: {
-    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
+    formats: ["image/avif", "image/webp"],
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",

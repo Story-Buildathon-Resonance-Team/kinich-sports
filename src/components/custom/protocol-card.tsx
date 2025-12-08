@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import React from "react";
 import { Activity, Mic, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ButtonCobalt } from "./button-cobalt";
@@ -14,7 +15,7 @@ interface ProtocolCardProps {
   activeMode?: ChallengeMode;
 }
 
-export function ProtocolCard({ drill, onAcceptChallenge, activeMode }: ProtocolCardProps) {
+function ProtocolCard({ drill, onAcceptChallenge, activeMode }: ProtocolCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const isVideo = drill.asset_type === "video";
 
@@ -71,7 +72,7 @@ export function ProtocolCard({ drill, onAcceptChallenge, activeMode }: ProtocolC
       {isExpanded && (
         <div className='px-6 pb-6 pt-4 border-t border-[rgba(245,247,250,0.04)] relative z-10'>
           {isVideo && (
-            <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
               <div className='space-y-6'>
                 <div>
                   <div className='text-[10px] font-bold text-[rgba(245,247,250,0.4)] uppercase tracking-wider mb-2'>
@@ -187,3 +188,5 @@ export function ProtocolCard({ drill, onAcceptChallenge, activeMode }: ProtocolC
     </div>
   );
 }
+
+export default React.memo(ProtocolCard);

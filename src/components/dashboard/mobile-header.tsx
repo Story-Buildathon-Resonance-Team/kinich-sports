@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
+import { usePathname, useRouter } from "next/navigation";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useState, useEffect } from "react";
-import { Menu, X, ChevronRight } from "lucide-react";
+import { Menu, X, ChevronRight, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { dashboardNavItems } from "@/config/navigation";
 
 export function DashboardMobileHeader() {
+  const { handleLogOut } = useDynamicContext();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -20,6 +22,15 @@ export function DashboardMobileHeader() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const onLogout = async () => {
+    try {
+      await handleLogOut();
+      router.replace("/");
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+  };
 
   return (
     <>
@@ -66,12 +77,15 @@ export function DashboardMobileHeader() {
           }
         }}
       >
-        {/* DynamicWidget at top of menu */}
+        {/* Logout button */}
         <div className='mb-6 pb-6 border-b border-white/10'>
-          <DynamicWidget
-            variant='modal'
-            innerButtonComponent={<span>Login</span>}
-          />
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors w-full py-2"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="text-sm font-medium">Log Out</span>
+          </button>
         </div>
 
         <div className='flex flex-col gap-2'>

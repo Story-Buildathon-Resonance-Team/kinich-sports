@@ -26,7 +26,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang='en' className={inter.variable}>
       <body className={inter.className}>
-        <Web3Providers>{children}</Web3Providers>
+        <Web3Providers>
+          {children}
+        </Web3Providers>
       </body>
     </html>
   );
