@@ -20,11 +20,12 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  themeColor: "#030303",
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html lang='en' className={inter.variable}>
+    <html lang='en' className={`${inter.variable} antialiased`}>
       <body className={inter.className}>
         <Web3Providers>
           {children}

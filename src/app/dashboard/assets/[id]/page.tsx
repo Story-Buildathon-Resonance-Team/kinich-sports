@@ -71,12 +71,35 @@ export default function AssetDetailPage() {
 
   if (loading) {
     return (
-      <div className='min-h-[calc(100vh-100px)] flex items-center justify-center'>
-        <div className='text-center flex flex-col items-center gap-4'>
-          <Loader2 className='w-12 h-12 text-blue-400 animate-spin' />
-          <p className='text-[16px] text-[rgba(245,247,250,0.7)]'>
-            Loading asset...
-          </p>
+      <div className='p-6 lg:p-8 w-full max-w-[1600px] mx-auto space-y-8 animate-pulse'>
+        {/* Header Skeleton */}
+        <div className='flex items-center gap-4 mb-8'>
+          <div className='w-10 h-10 rounded-full bg-white/5' />
+          <div className='space-y-2'>
+            <div className='h-8 w-64 rounded-lg bg-white/5' />
+            <div className='h-4 w-32 rounded-lg bg-white/5' />
+          </div>
+        </div>
+
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+          {/* Main Content Skeleton */}
+          <div className='lg:col-span-2 space-y-6'>
+            {/* Player Skeleton */}
+            <div className='aspect-video w-full rounded-2xl bg-white/5 border border-white/5' />
+            
+            {/* Metadata Skeleton */}
+            <div className='grid grid-cols-3 gap-4'>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className='h-24 rounded-xl bg-white/5 border border-white/5' />
+              ))}
+            </div>
+          </div>
+
+          {/* Sidebar Skeleton */}
+          <div className='space-y-6'>
+            <div className='h-64 rounded-2xl bg-white/5 border border-white/5' />
+            <div className='h-48 rounded-2xl bg-white/5 border border-white/5' />
+          </div>
         </div>
       </div>
     );

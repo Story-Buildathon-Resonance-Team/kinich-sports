@@ -46,7 +46,7 @@ export function HeroSection() {
       </div>
 
       {/* Main Content */}
-      <div className='relative z-10 flex-1 flex flex-col justify-center max-w-[1200px]'>
+      <div className='relative z-10 flex-1 flex flex-col justify-end pb-32 max-w-[1200px]'>
         {/* Badge */}
         <div className='inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 backdrop-blur-sm w-fit mb-6 md:mb-8'>
           <span className='text-[10px] md:text-xs font-medium text-white/60 uppercase tracking-wider'>
@@ -55,26 +55,27 @@ export function HeroSection() {
         </div>
 
         <h1
-          className='font-primary text-5xl md:text-7xl lg:text-[7rem] font-normal leading-[1.0] md:leading-[0.95] tracking-tight text-white mb-6 md:mb-8'
-          style={{ fontSize: "clamp(3rem, 6vw, 5rem)" }}
+          className='font-primary text-5xl md:text-6xl lg:text-[6rem] font-normal leading-[1.0] md:leading-[0.95] tracking-tight text-white mb-6 md:mb-8'
+          style={{ fontSize: "clamp(2.5rem, 5vw, 4.5rem)" }}
         >
           The sports data industry is booming. <br />
           Athletes are getting zero.
         </h1>
 
-        <p className='font-primary text-base md:text-xl leading-relaxed text-white/60 font-light max-w-[90%] md:max-w-[500px] mb-10 md:mb-12'>
+        <p className='font-primary text-base md:text-lg leading-relaxed text-white/60 font-light max-w-[90%] md:max-w-[480px] mb-10 md:mb-12'>
           Upload training footage. We verify and register it as your IP.
           Organizations building sports analytics and AI systems pay to license
           it. You earn from every use.
         </p>
+
 
         <div className='flex items-center gap-4'>
           <button
             onClick={handleGetStarted}
             className='group !px-8 !py-4 !bg-[#F5F5F5] !text-black !text-lg !font-medium !rounded-full hover:!bg-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-105 active:scale-95 flex items-center gap-2'
           >
-            {user ? "Open Dashboard" : "Get Started"}
-            {user && <ArrowRight className='w-4 h-4' />}
+            Get Started
+            <ArrowRight className='w-4 h-4' />
           </button>
         </div>
       </div>

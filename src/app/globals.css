@@ -47,9 +47,12 @@
 @layer base {
     /* Base body styles with gradient background */
     html {
-        font-size: 16px;
+        font-family: var(--font-family-body);
+        font-size: 13.3px;
+        /* Matches user's local 0.83x DPR scale preference */
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
+        -moz-text-size-adjust: 100%;
     }
     body {
         background-color: var(--color-background);
@@ -61,9 +64,6 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
-        -webkit-text-size-adjust: 100%;
-        -moz-text-size-adjust: 100%;
-        text-size-adjust: 100%;
     }
     /* Grid Background Pattern */
     body::before {
