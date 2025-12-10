@@ -46,6 +46,11 @@
 
 @layer base {
     /* Base body styles with gradient background */
+    html {
+        font-size: 16px;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
     body {
         background-color: var(--color-background);
         color: var(--color-ice);
