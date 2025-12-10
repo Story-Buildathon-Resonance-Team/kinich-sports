@@ -183,6 +183,7 @@ Built by:
 
 - **Natalia Gómez** - [GitHub](https://github.com/inatgomez)
 - **Craig Mutugi** - [GitHub](https://github.com/cmm25)
+- **Xavier Duncan** - [GitHub](https://github.com/xmd512) - _Collaborator_
 
 ---
 
