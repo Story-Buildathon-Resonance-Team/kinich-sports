@@ -175,7 +175,14 @@ function DynamicProviderWrapper({ children }: PropsWithChildren) {
             --dynamic-overlay: rgba(0, 0, 0, 0.85);
             
             --dynamic-modal-border: 1px solid rgba(255, 255, 255, 0.1);
-            --dynamic-radius: 16px;
+            --dynamic-radius: 12px;
+            --dynamic-font-size-title: 1rem;
+            --dynamic-font-size-body: 0.75rem;
+          }
+          
+          .dynamic-shadow-dom {
+             transform: scale(0.9);
+             transform-origin: top right;
           }
         `,
     events: {

@@ -55,14 +55,14 @@ export function HeroSection() {
         </div>
 
         <h1
-          className='font-primary text-5xl md:text-6xl lg:text-[6rem] font-normal leading-[1.0] md:leading-[0.95] tracking-tight text-white mb-6 md:mb-8'
-          style={{ fontSize: "clamp(2.5rem, 5vw, 4.5rem)" }}
+          className='font-primary text-4xl md:text-5xl lg:text-[5rem] font-normal leading-[1.0] md:leading-[0.95] tracking-tight text-white mb-6 md:mb-8'
+          style={{ fontSize: "clamp(2rem, 4vw, 4rem)" }}
         >
           The sports data industry is booming. <br />
           Athletes are getting zero.
         </h1>
 
-        <p className='font-primary text-base md:text-lg leading-relaxed text-white/60 font-light max-w-[90%] md:max-w-[480px] mb-10 md:mb-12'>
+        <p className='font-primary text-sm md:text-base leading-relaxed text-white/60 font-light max-w-[90%] md:max-w-[420px] mb-8 md:mb-10'>
           Upload training footage. We verify and register it as your IP.
           Organizations building sports analytics and AI systems pay to license
           it. You earn from every use.
