@@ -48,8 +48,7 @@
     /* Base body styles with gradient background */
     html {
         font-family: var(--font-family-body);
-        font-size: 13.3px;
-        /* Matches user's local 0.83x DPR scale preference */
+        font-size: 11px;
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
         -moz-text-size-adjust: 100%;
