@@ -161,32 +161,34 @@ export default function AthleteDashboard() {
     : DEMO_PERFORMANCE_DATA;
 
   return (
-    <div className='p-6 lg:p-8 w-full max-w-[1600px] mx-auto animate-fade-in-up'>
+    <div className='p-4 lg:p-6 w-full max-w-[1600px] mx-auto animate-fade-in-up h-screen overflow-hidden flex flex-col'>
       {/* Profile Header Section */}
-      <ProfileHeaderSection
-        athlete={athleteProfile}
-        onVerificationSuccess={handleVerificationSuccess}
-      />
+      <div className="shrink-0 mb-4">
+        <ProfileHeaderSection
+          athlete={athleteProfile}
+          onVerificationSuccess={handleVerificationSuccess}
+        />
+      </div>
 
       {/* Stats Grid */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8'>
-        <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-blue-500/30 transition-colors group'>
-          <div className='flex justify-between items-start mb-4'>
-            <div className='p-3 rounded-xl bg-blue-500/10 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors'>
-              <DollarSign className='w-6 h-6' />
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-4 shrink-0'>
+        <div className='bg-[#0a0a0a] rounded-xl p-4 border border-white/10 hover:border-blue-500/30 transition-colors group'>
+          <div className='flex justify-between items-start mb-2'>
+            <div className='p-2 rounded-lg bg-blue-500/10 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors'>
+              <DollarSign className='w-5 h-5' />
             </div>
           </div>
-          <div className='text-3xl font-bold text-white mb-1 tracking-tight'>
+          <div className='text-2xl font-bold text-white mb-0.5 tracking-tight'>
             {stats.totalRoyalties.toLocaleString()}{" "}
-            <span className='text-lg text-gray-500 font-normal'>IP</span>
+            <span className='text-sm text-gray-500 font-normal'>IP</span>
           </div>
-          <div className='text-sm text-gray-500'>Total IP Value</div>
+          <div className='text-xs text-gray-500'>Total IP Value</div>
         </div>
 
-        <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-purple-500/30 transition-colors group'>
-          <div className='flex justify-between items-start mb-4'>
-            <div className='p-3 rounded-xl bg-purple-500/10 text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors'>
-              <Activity className='w-6 h-6' />
+        <div className='bg-[#0a0a0a] rounded-xl p-4 border border-white/10 hover:border-purple-500/30 transition-colors group'>
+          <div className='flex justify-between items-start mb-2'>
+            <div className='p-2 rounded-lg bg-purple-500/10 text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors'>
+              <Activity className='w-5 h-5' />
             </div>
           </div>
           <ProfileScoreDisplay
@@ -194,79 +196,79 @@ export default function AthleteDashboard() {
             worldIdVerified={athlete.world_id_verified}
             audioCount={audioCount}
           />
-          <div className='text-sm text-gray-500 mt-1'>Profile Score</div>
+          <div className='text-xs text-gray-500 mt-0.5'>Profile Score</div>
         </div>
 
-        <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-orange-500/30 transition-colors group'>
-          <div className='flex justify-between items-start mb-4'>
-            <div className='p-3 rounded-xl bg-orange-500/10 text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors'>
-              <Layers className='w-6 h-6' />
+        <div className='bg-[#0a0a0a] rounded-xl p-4 border border-white/10 hover:border-orange-500/30 transition-colors group'>
+          <div className='flex justify-between items-start mb-2'>
+            <div className='p-2 rounded-lg bg-orange-500/10 text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors'>
+              <Layers className='w-5 h-5' />
             </div>
           </div>
-          <div className='text-3xl font-bold text-white mb-1 tracking-tight'>
+          <div className='text-2xl font-bold text-white mb-0.5 tracking-tight'>
             {stats.totalAssets}
           </div>
-          <div className='text-sm text-gray-500'>Total Assets</div>
+          <div className='text-xs text-gray-500'>Total Assets</div>
         </div>
 
-        <div className='bg-[#0a0a0a] rounded-2xl p-6 border border-white/10 hover:border-pink-500/30 transition-colors group'>
-          <div className='flex justify-between items-start mb-4'>
-            <div className='p-3 rounded-xl bg-pink-500/10 text-pink-400 group-hover:bg-pink-500 group-hover:text-white transition-colors'>
-              <Trophy className='w-6 h-6' />
+        <div className='bg-[#0a0a0a] rounded-xl p-4 border border-white/10 hover:border-pink-500/30 transition-colors group'>
+          <div className='flex justify-between items-start mb-2'>
+            <div className='p-2 rounded-lg bg-pink-500/10 text-pink-400 group-hover:bg-pink-500 group-hover:text-white transition-colors'>
+              <Trophy className='w-5 h-5' />
             </div>
-            <span className='text-xs font-medium text-white bg-white/10 px-2 py-1 rounded-full'>
+            <span className='text-[10px] font-medium text-white bg-white/10 px-1.5 py-0.5 rounded-full'>
               {athleteProfile.level}
             </span>
           </div>
-          <div className='text-3xl font-bold text-white mb-1 tracking-tight'>
+          <div className='text-2xl font-bold text-white mb-0.5 tracking-tight'>
             #42
           </div>
-          <div className='text-sm text-gray-500'>Global Rank</div>
+          <div className='text-xs text-gray-500'>Global Rank</div>
         </div>
       </div>
 
       {/* Main Chart Section */}
-      <div className='bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 mb-10'>
-        <div className='flex justify-between items-center mb-8'>
+      <div className='bg-[#0a0a0a] rounded-xl border border-white/10 p-5 flex-1 min-h-0 flex flex-col'>
+        <div className='flex justify-between items-center mb-4 shrink-0'>
           <div>
-            <h3 className='text-xl font-bold text-white mb-1'>
+            <h3 className='text-lg font-bold text-white mb-0.5'>
               Performance Analytics
             </h3>
-            <p className='text-sm text-gray-500'>
+            <p className='text-xs text-gray-500'>
               Your asset growth and engagement over time
             </p>
           </div>
           <div className='flex items-center gap-4'>
             {/* Chart Type Toggle */}
-            <div className='flex bg-black rounded-lg p-1 border border-white/10'>
+            <div className='flex bg-black rounded-md p-0.5 border border-white/10'>
               <button
                 onClick={() => setChartType("area")}
-                className={`p-1.5 rounded-md transition-all ${chartType === "area"
+                className={`p-1 rounded transition-all ${chartType === "area"
                   ? "bg-white/10 text-white"
                   : "text-gray-500 hover:text-white"
                   }`}
                 title='Line Chart'
               >
-                <LineChart className='w-4 h-4' />
+                <LineChart className='w-3.5 h-3.5' />
               </button>
               <button
                 onClick={() => setChartType("bar")}
-                className={`p-1.5 rounded-md transition-all ${chartType === "bar"
+                className={`p-1 rounded transition-all ${chartType === "bar"
                   ? "bg-white/10 text-white"
                   : "text-gray-500 hover:text-white"
                   }`}
                 title='Bar Chart'
               >
-                <BarChart3 className='w-4 h-4' />
+                <BarChart3 className='w-3.5 h-3.5' />
               </button>
             </div>
 
             {/* Time Period Toggle */}
-            <div className='flex overflow-x-auto bg-black rounded-lg p-1 border border-white/10'>
+            <div className='flex overflow-x-auto bg-black rounded-md p-0.5 border border-white/10'>
               {["1D", "1W", "1M", "1Y", "ALL"].map((period) => (
                 <button
                   key={period}
-                  className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all flex-shrink-0 ${period === "1M"
+                  className={`px-3 py-1 text-[10px] font-medium rounded transition-all flex-shrink-0 ${period === "1M"
                     ? "bg-white text-black shadow-sm"
                     : "text-gray-500 hover:text-white"
                     }`}
@@ -278,7 +280,7 @@ export default function AthleteDashboard() {
           </div>
         </div>
 
-        <div className='h-[350px] w-full'>
+        <div className='flex-1 min-h-0 w-full'>
           <PerformanceChart data={chartData} type={chartType} />
         </div>
       </div>
