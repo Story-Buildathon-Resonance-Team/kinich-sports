@@ -18,8 +18,8 @@ function ProfileHeader({
 }: ProfileHeaderProps) {
   return (
     <div className='text-center'>
-      <div className='relative mx-auto mb-5 w-fit'>
-        <div className='w-24 h-24 bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-400/20 rounded-full flex items-center justify-center text-2xl font-medium text-blue-200 shadow-inner'>
+      <div className='relative mx-auto mb-3 w-fit'>
+        <div className='w-20 h-20 bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-400/20 rounded-full flex items-center justify-center text-xl font-medium text-blue-200 shadow-inner'>
           {initials}
         </div>
         {isWorldIdVerified && (
@@ -29,9 +29,9 @@ function ProfileHeader({
         )}
       </div>
 
-      <h2 className='text-2xl font-semibold text-white mb-1'>{name}</h2>
+      <h2 className='text-xl font-semibold text-white mb-0.5'>{name}</h2>
 
-      <p className='text-sm text-gray-400 mb-4 font-medium tracking-wide uppercase'>
+      <p className='text-xs text-gray-400 mb-3 font-medium tracking-wide uppercase'>
         {discipline}
       </p>
 

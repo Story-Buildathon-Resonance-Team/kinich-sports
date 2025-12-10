@@ -48,7 +48,8 @@
     /* Base body styles with gradient background */
     html {
         font-family: var(--font-family-body);
-        font-size: 11px;
+        font-size: 10.5px;
+        /* Aggressive reduction to match dense Swiss/Figma layout */
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
         -moz-text-size-adjust: 100%;

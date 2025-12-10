@@ -16,7 +16,7 @@ function PerformanceChart({ data, type }: PerformanceChartProps) {
     }
 
     return (
-        <div className="h-[350px] w-full">
+        <div className="h-full w-full min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
                 {type === 'area' ? (
                     <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -45,10 +45,10 @@ function PerformanceChart({ data, type }: PerformanceChartProps) {
                             dx={-10}
                         />
                         <Tooltip
-                            contentStyle={{ 
-                                backgroundColor: '#0f1115', 
-                                border: '1px solid rgba(255,255,255,0.1)', 
-                                borderRadius: '0.75rem', 
+                            contentStyle={{
+                                backgroundColor: '#0f1115',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '0.75rem',
                                 boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.5)',
                                 padding: '12px'
                             }}
@@ -87,11 +87,11 @@ function PerformanceChart({ data, type }: PerformanceChartProps) {
                             dx={-10}
                         />
                         <Tooltip
-                            contentStyle={{ 
-                                backgroundColor: '#0f1115', 
-                                border: '1px solid rgba(255,255,255,0.1)', 
-                                borderRadius: '0.75rem', 
-                                boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.5)' 
+                            contentStyle={{
+                                backgroundColor: '#0f1115',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '0.75rem',
+                                boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.5)'
                             }}
                             itemStyle={{ color: '#e5e7eb' }}
                             labelStyle={{ color: '#9ca3af', marginBottom: '0.25rem' }}
